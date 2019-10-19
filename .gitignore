@@ -1,0 +1,4 @@
+generated/
+cmake-*
+.idea/*
+!.idea/codeStyles/

@@ -28,11 +28,8 @@ namespace lambda { class DriverBase; }
 #include <ast_driver.hpp>
 //
 
-#ifndef YY_DDATA
-#error "* You must define a driver data accessor. *"\
-       "* For example:                            *"\
-       "*    #define YY_DDATA (driver->data)      *"\
-       "*                                         *"
+#ifndef YYDRIVERDATA
+#error "You must define a driver data accessor. For example: #define YYDRIVERDATA (driver->data)"
 #endif
 
 // Make the ast operations shorter
@@ -57,7 +54,7 @@ namespace lambda { class DriverBase; }
 %start s;
 
 s:
-      term { YY_DDATA->setRoot($1); }
+      term { YYDRIVERDATA->setRoot($1); }
     | error {};
 
 term:

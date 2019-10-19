@@ -4,11 +4,11 @@
 #include <ast/ast.hpp>
 #include <driver.hpp>
 
-#ifdef YY_DDATA
-#undef YY_DDATA
+#ifdef YYDRIVERDATA
+#undef YYDRIVERDATA
 #endif
 
-#define YY_DDATA (reinterpret_cast<AstDriver*>(driver)->yyData)
+#define YYDRIVERDATA (reinterpret_cast<AstDriver*>(driver)->yyData)
 
 namespace lambda
 {

@@ -15,15 +15,7 @@ namespace ast::util
      *
      * @return A copy of the tree with the identifiers replaced
      */
-    Node::Reference replaceIdentifier(const Identifier::Reference &id, const Node::Reference &in, const Node::Reference &by);
-
-    /**
-     * Value nodes are:
-     *  - Abstractions
-     *
-     * @return true if the if is a node value
-     */
-    bool isValueType(const Node &node);
+    Node::Pointer replaceIdentifier(const Identifier::Pointer &id, const Node::Pointer &in, const Node::Pointer &by);
 }
 
 #endif

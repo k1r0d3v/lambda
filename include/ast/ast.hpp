@@ -17,18 +17,18 @@ namespace ast
     public:
         AST() = default;
 
-        AST(Node::Reference root)
+        AST(Node::Pointer root)
                 : mRoot(root) {}
 
-        AST(const Context context, Node::Reference root)
+        AST(const Context context, Node::Pointer root)
                 : mRoot(root), mContext(context) {}
 
-        Node::Reference evaluate(const Context &context) const
+        Node::Pointer evaluate(const Context &context) const
         {
             return mRoot->evaluate(context)->copy();
         }
 
-        Node::Reference evaluate() const
+        Node::Pointer evaluate() const
         {
             return evaluate(Context::empty())->copy();
         }
@@ -38,12 +38,12 @@ namespace ast
             return mRoot->toString();
         }
 
-        Node::Reference root()
+        Node::Pointer root()
         {
             return mRoot;
         }
 
-        void setRoot(Node::Reference root)
+        void setRoot(Node::Pointer root)
         {
             mRoot = root;
         }
@@ -54,7 +54,7 @@ namespace ast
         }
 
     private:
-        Node::Reference mRoot;
+        Node::Pointer mRoot;
         Context mContext{Context::empty()};
     };
 }

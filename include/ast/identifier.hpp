@@ -1,6 +1,8 @@
 #ifndef LAMBDA_IDENTIFIER_HPP
 #define LAMBDA_IDENTIFIER_HPP
 
+#include <utility>
+
 #include "node_type.hpp"
 #include "common.hpp"
 
@@ -9,23 +11,23 @@ namespace ast
     class Identifier : public Node
     {
     public:
-        using Reference = std::shared_ptr<Identifier>;
+        using Pointer = Node::PointerType<Identifier>;
 
     public:
-        Identifier(string name)
-                : Node(NodeType::Identifier), mName(name) {}
+        explicit Identifier(string name)
+                : Node(NodeType::Identifier), mName(std::move(name)) {}
 
         const string &name() const
         {
             return mName;
         }
 
-        Node::Reference evaluate(const Context &context) const override
+        Node::Pointer evaluate(const Context &context) const override
         {
             return Node::make<Identifier>(mName); // Can not be evaluated more
         }
 
-        Node::Reference copy() const override
+        Node::Pointer copy() const override
         {
             return Node::make<Identifier>(mName);
         }

@@ -1,6 +1,8 @@
 #ifndef LAMBDA_ABSTRACTION_HPP
 #define LAMBDA_ABSTRACTION_HPP
 
+#include <utility>
+
 #include "common.hpp"
 #include "identifier.hpp"
 #include "node_type.hpp"
@@ -11,27 +13,30 @@ namespace ast
     class Abstraction : public Node
     {
     public:
-        Abstraction(Identifier::Reference argument, Node::Reference body)
-                : Node(NodeType::Abstraction), mArgument(argument), mBody(body) {}
+        using Pointer = Node::PointerType<Abstraction>;
 
-        const Identifier::Reference &argument() const
+    public:
+        Abstraction(Identifier::Pointer argument, Node::Pointer body)
+                : Node(NodeType::Abstraction), mArgument(std::move(argument)), mBody(std::move(body)) {}
+
+        const Identifier::Pointer &argument() const
         {
             return mArgument;
         }
 
-        const Node::Reference &body() const
+        const Node::Pointer &body() const
         {
             return mBody;
         }
 
-        Node::Reference evaluate(const Context &context) const override
+        Node::Pointer evaluate(const Context &context) const override
         {
             return Node::make<Abstraction>(mArgument, mBody); // Can not be evaluated more
         }
 
-        Node::Reference copy() const override
+        Node::Pointer copy() const override
         {
-            return Node::make<Abstraction>(mArgument->copyCast<Identifier>(), mBody->copy());
+            return Node::make<Abstraction>(Node::cast<Identifier>(mArgument->copy()), mBody->copy());
         }
 
         string toString() const override
@@ -43,8 +48,8 @@ namespace ast
         }
 
     private:
-        Identifier::Reference mArgument;
-        Node::Reference mBody;
+        Identifier::Pointer mArgument;
+        Node::Pointer mBody;
     };
 }
 

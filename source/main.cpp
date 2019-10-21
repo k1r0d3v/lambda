@@ -6,9 +6,11 @@
 // TODO: Capture Ctrl+D and so...
 int main(int argc, char **argv)
 {
+    int lineNumber = 1;
+
     while (true)
     {
-        std::cout << ">> ";
+        std::cout << "In [" << lineNumber << "]: ";
 
         std::string line;
         std::getline(std::cin, line);
@@ -32,16 +34,19 @@ int main(int argc, char **argv)
             std::cout << e.what() << std::endl;
         }
 
+        // Return if parse fails
         if (root.empty()) continue;
 
         try
         {
-            std::cout << root.evaluate()->toString() << std::endl;
+            std::cout << "Out[" << lineNumber << "]: " << root.evaluate()->toString() << std::endl << std::endl;
         }
         catch (const std::exception &e)
         {
             std::cout << "error: " << e.what() << std::endl;
         }
+
+        lineNumber++;
     }
 
     return 0;

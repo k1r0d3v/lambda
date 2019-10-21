@@ -6,15 +6,16 @@
 
 namespace ast::util
 {
-    Node::Reference replaceIdentifier(const Identifier::Reference &id, const Node::Reference &in, const Node::Reference &by)
+    Node::Pointer replaceIdentifier(const Identifier::Pointer &id, const Node::Pointer &in, const Node::Pointer &by)
     {
         if (in->type() == NodeType::Identifier)
         {
-            if (Node::castRef<Identifier>(in)->name() == id->name())
+            if (Node::cast<Identifier>(in)->name() == id->name())
                 return by;
-        } else if (in->type() == NodeType::Abstraction)
+        }
+        else if (in->type() == NodeType::Abstraction)
         {
-            auto abs = Node::castRef<Abstraction>(in);
+            auto abs = Node::cast<Abstraction>(in);
 
             // Duplicated variable name inside abstraction
             if (abs->argument()->name() == id->name())
@@ -26,19 +27,15 @@ namespace ast::util
             }
 
             return Node::make<Abstraction>(abs->argument(), replaceIdentifier(id, abs->body(), by));
-        } else if (in->type() == NodeType::Application)
+        }
+        else if (in->type() == NodeType::Application)
         {
-            auto app = Node::castRef<Application>(in);
+            auto app = Node::cast<Application>(in);
 
             return Node::make<Application>(replaceIdentifier(id, app->left(), by),
                                            replaceIdentifier(id, app->right(), by));
         }
 
         return in;
-    }
-
-    bool isValueType(const Node &node)
-    {
-        return node.type() == NodeType::Abstraction;
     }
 }

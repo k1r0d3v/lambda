@@ -12,7 +12,7 @@ namespace ast
     class Context
     {
     private:
-        using StrNodeMapType = std::map<string, Node::Reference>;
+        using StrNodeMapType = std::map<string, Node::Pointer>;
         using StrStrMapType = std::map<string, string>;
 
     public:
@@ -21,13 +21,13 @@ namespace ast
         Context(const StrNodeMapType &values)
                 : mValues(values) {}
 
-        Node::Reference get(const StrNodeMapType::key_type &name) const
+        Node::Pointer get(const StrNodeMapType::key_type &name) const
         {
             auto it = mValues.find(name);
             if (it != mValues.end())
                 return it->second;
 
-            return Node::Reference();
+            return Node::Pointer();
         }
 
         void set(const StrNodeMapType::key_type &name, StrNodeMapType::mapped_type value)

@@ -42,7 +42,7 @@ namespace yy { class Driver; }
 %token S_LPAREN                 "( "
 %token S_RPAREN                 ")"
 
-%type <ast::Node::Reference> term
+%type <ast::Node::Pointer> term
 %type s
 
 %%
@@ -65,7 +65,7 @@ term:
 void yy::Parser::error(const location_type &l, const std::string &message)
 {
     auto os = std::ostringstream();
-    os << l << ": " << message << std::endl;
+    os << l << ": " << message;
     // TODO: Change exception type
     throw std::runtime_error(os.str());
 }

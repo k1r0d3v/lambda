@@ -15,7 +15,7 @@ namespace ast::util
      *
      * @return A copy of the tree with the identifiers replaced
      */
-    Node::Reference replaceIdentifier(Identifier::Reference id, Node::Reference in, Node::Reference by);
+    Node::Reference replaceIdentifier(const Identifier::Reference &id, const Node::Reference &in, const Node::Reference &by);
 
     /**
      * Value nodes are:

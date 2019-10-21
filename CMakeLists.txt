@@ -9,6 +9,7 @@ find_package(FLEX)
 # Create flex/bison output directory
 set(FLEX_BISON_OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/generated/lambda)
 file(MAKE_DIRECTORY ${FLEX_BISON_OUTPUT_DIR})
+
 # Add flex and bison
 BISON_TARGET(lambda_parser source/parser.y ${FLEX_BISON_OUTPUT_DIR}/parser.cpp)
 FLEX_TARGET(lambda_lexer source/lexer.l ${FLEX_BISON_OUTPUT_DIR}/lexer.cpp COMPILE_FLAGS "--header-file=${FLEX_BISON_OUTPUT_DIR}/lexer.hpp")
@@ -19,7 +20,6 @@ add_executable(lambda
         ${BISON_lambda_parser_OUTPUTS}
         ${FLEX_lambda_lexer_OUTPUTS}
         ${FLEX_lambda_lexer_OUTPUT_HEADER}
-        source/driver.cpp
         source/main.cpp
         source/ast/util.cpp
         include/ast/ast.hpp
@@ -32,8 +32,8 @@ add_executable(lambda
         include/ast/node_type.hpp
         include/ast/util.hpp
         include/driver.hpp
-        include/ast_driver.hpp)
+        include/ast_driver.hpp source/driver.cpp)
 
 # Add include folder to include directories
 target_include_directories(lambda PRIVATE include/)
-target_include_directories(lambda PRIVATE generated/)
+target_include_directories(lambda PRIVATE ${FLEX_BISON_OUTPUT_DIR})

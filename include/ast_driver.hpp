@@ -3,27 +3,23 @@
 
 #include <ast/ast.hpp>
 #include <driver.hpp>
+#include <utility>
 
-#ifdef YYDRIVERDATA
-#undef YYDRIVERDATA
-#endif
-
-#define YYDRIVERDATA (reinterpret_cast<AstDriver*>(driver)->yyData)
+#define YY_DRIVERDATA reinterpret_cast<ast::AST*>(driver->yyData())
 
 namespace lambda
 {
-    class AstDriver : public lambda::DriverBase
+    class ASTDriver
     {
     public:
-        // Allow Driver::data from parser.y
-        friend class lambda::Parser;
-
-    public:
-        AstDriver(ast::AST *data, std::istream &stream, std::string name = "")
-                : lambda::DriverBase(stream, std::move(name)), yyData(data) { }
-
-    private:
-        ast::AST *yyData;
+        static void parse(
+                std::istream &stream,
+                ast::AST *data,
+                std::string name = "",
+                bool traceScan = false,
+                bool traceParse = false) {
+            return yy::Driver::parse(stream, data, std::move(name), traceScan, traceParse);
+        }
     };
 }
 

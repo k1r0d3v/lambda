@@ -20,16 +20,12 @@ int main(int argc, char **argv)
         line.append("\n");
 
         // Parse
-
         auto stream = std::istringstream(line);
         auto root = ast::AST();
-        auto driver = lambda::AstDriver(&root, stream);
-        //driver.setTraceScanning(true);
-        //driver.setTraceParsing(true);
 
         try
         {
-            driver.parse();
+            lambda::ASTDriver::parse(stream, &root, "", false, false);
         }
         catch (const std::exception &e)
         {

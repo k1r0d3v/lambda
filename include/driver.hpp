@@ -1,45 +1,37 @@
-#ifndef LAMBDA_DRIVER_HPP
-#define LAMBDA_DRIVER_HPP
+#ifndef FLEXBISON_DRIVER_HPP
+#define FLEXBISON_DRIVER_HPP
 
 #include <istream>
 #include <utility>
-#include <lambda/parser.hpp>
-
+#include <parser.hpp>
 
 // Give to flex the prototype of yylex we want
-#define YY_DECL lambda::Parser::symbol_type yylex(lambda::DriverBase *driver)
+#define YY_DECL yy::Parser::symbol_type yylex(yy::Driver *driver)
 
-namespace lambda
+
+namespace yy
 {
-    class DriverBase
+    class Driver
     {
+    private:
+        explicit Driver() = default;
+
     public:
-        explicit DriverBase(std::istream &stream, std::string name = "")
-                : mStream(stream), mStreamName(std::move(name)) {}
+        static void parse(
+                std::istream &stream,
+                void *data,
+                std::string name = "",
+                bool traceScan = false,
+                bool traceParse = false);
 
-        int parse();
+    public:
+        void *yyData() { return mData; }
 
-        void setTraceScanning(bool value)
-        {
-            mTraceScanning = value;
-        }
-
-        void setTraceParsing(bool value)
-        {
-            mTraceParsing = value;
-        }
-
-        lambda::location &location()
-        {
-            return mLocation;
-        }
+        yy::location &yyLocation() { return mLocation; }
 
     private:
-        bool mTraceScanning = false;
-        bool mTraceParsing = false;
-        lambda::location mLocation;
-        std::string mStreamName;
-        std::istream &mStream;
+        yy::location mLocation;
+        void *mData = nullptr;
     };
 }
 

@@ -2,7 +2,6 @@
 %require  "3.4"
 %debug
 %defines
-%define api.namespace {lambda}
 %define api.parser.class {Parser}
 %define api.token.constructor
 %define api.value.type variant
@@ -12,25 +11,21 @@
 //
 // Headers used for token types must be included here
 //
+#include <sstream>
 #include <string>
 #include <ast/ast.hpp>
 
 // Required for %param
-namespace lambda { class DriverBase; }
+namespace yy { class Driver; }
 }
 
-%param { lambda::DriverBase  *driver  }
+%param { yy::Driver  *driver }
 %locations
 %define parse.error verbose
 
 %code {
-// Definition of YY_DECL must be included here
+// Driver include must be here (YY_DECL and YY_DRIVERDATA)
 #include <ast_driver.hpp>
-//
-
-#ifndef YYDRIVERDATA
-#error "You must define a driver data accessor. For example: #define YYDRIVERDATA (driver->data)"
-#endif
 
 // Make the ast operations shorter
 #define MKNODE(T, ...) ast::Node::make<ast::T>(__VA_ARGS__)
@@ -51,10 +46,8 @@ namespace lambda { class DriverBase; }
 %type s
 
 %%
-%start s;
-
 s:
-      term { YYDRIVERDATA->setRoot($1); }
+      term { YY_DRIVERDATA->setRoot($1); }
     | error {};
 
 term:
@@ -65,3 +58,14 @@ term:
     | error {};
 
 %%
+
+/**
+ * Implement error function
+ */
+void yy::Parser::error(const location_type &l, const std::string &message)
+{
+    auto os = std::ostringstream();
+    os << l << ": " << message << std::endl;
+    // TODO: Change exception type
+    throw std::runtime_error(os.str());
+}

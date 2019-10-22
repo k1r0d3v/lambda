@@ -8,6 +8,12 @@ namespace ast::NodeType
         Identifier,
         Abstraction,
         Application,
+
+        Natural,
+        Boolean,
+        Condition,
+        LocalDefinition,
+        NaturalPrimitive,
     };
 }
 

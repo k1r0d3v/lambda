@@ -36,11 +36,24 @@ namespace yy { class Driver; }
 %token <int> NUMBER             "number"
 %token <std::string> IDENTIFIER "identifier"
 
+
+%token K_SUCC                   "succ"
+%token K_PRED                   "pred"
+%token K_ISZERO                 "iszero"
+%token K_TRUE                   "true"
+%token K_FALSE                  "false"
+%token K_IF                     "if"
+%token K_THEN                   "then"
+%token K_ELSE                   "else"
+%token K_LET                    "let"
+%token K_IN                     "in"
 %token K_LAMBDA                 "lambda"
-%token S_DOT                    "."
-%token S_SPACE                  "space"
-%token S_LPAREN                 "( "
+
+%token S_LPAREN                 "("
 %token S_RPAREN                 ")"
+%token S_DOT                    "."
+%token S_EQ                     "="
+%token S_SEMICOLON              ";"
 
 %type <ast::Node::Pointer> term
 %type s
@@ -48,14 +61,22 @@ namespace yy { class Driver; }
 %%
 s:
       term { YY_DRIVERDATA->setRoot($1); }
-    | error {};
+    | END { }
+    | error { };
 
-term:
-      IDENTIFIER  { $$ = MKNODE(Identifier, $1); }
+term: S_LPAREN term S_RPAREN { $$ = $2; }
+    | NUMBER { $$ = MKNODE(Natural, $1); }
+    | IDENTIFIER  { $$ = MKNODE(Identifier, $1); }
+    | K_TRUE { $$ = MKNODE(Boolean, true); }
+    | K_FALSE { $$ = MKNODE(Boolean, false); }
+    | K_LET IDENTIFIER S_EQ term K_IN term { $$ = MKNODE(LocalDefinition, MKNODE(Identifier, $2), $4, $6); }
+    | K_IF term K_THEN term K_ELSE term { $$ = MKNODE(Conditional, $2, $4, $6); }
     | K_LAMBDA IDENTIFIER S_DOT term { $$ = MKNODE(Abstraction, MKNODE(Identifier, $2), $4); }
-    | S_LPAREN term S_RPAREN { $$ = $2; }
-    | term S_SPACE term { $$ = MKNODE(Application, $1, $3); }
-    | error {};
+    | term term { $$ = MKNODE(Application, $1, $2); }
+    | K_SUCC term {  $$ = MKNODE(Successor, $2); }
+    | K_PRED term { $$ = MKNODE(Predecessor, $2); }
+    | K_ISZERO term { $$ = MKNODE(IsZero, $2); }
+    | error { };
 
 %%
 

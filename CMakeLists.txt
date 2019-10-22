@@ -21,7 +21,6 @@ add_executable(lambda
         ${FLEX_lambda_lexer_OUTPUTS}
         ${FLEX_lambda_lexer_OUTPUT_HEADER}
         source/main.cpp
-        source/ast/util.cpp
         include/ast/ast.hpp
         include/ast/context.hpp
         include/ast/node.hpp
@@ -30,9 +29,8 @@ add_executable(lambda
         include/ast/abstraction.hpp
         include/ast/identifier.hpp
         include/ast/node_type.hpp
-        include/ast/util.hpp
         include/driver.hpp
-        include/ast_driver.hpp source/driver.cpp)
+        include/ast_driver.hpp source/driver.cpp include/ast/natural.hpp include/ast/boolean.hpp include/ast/conditional.hpp include/ast/local_definition.hpp include/ast/natural_primitives.hpp)
 
 # Add include folder to include directories
 target_include_directories(lambda PRIVATE include/)

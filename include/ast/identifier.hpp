@@ -15,7 +15,7 @@ namespace ast
 
     public:
         explicit Identifier(string name)
-                : Node(NodeType::Identifier), mName(std::move(name)) {}
+                : Node(NodeType::Identifier), mName(std::move(name)) { }
 
         const string &name() const
         {
@@ -25,6 +25,17 @@ namespace ast
         Node::Pointer evaluate(const Context &context) const override
         {
             return Node::make<Identifier>(mName); // Can not be evaluated more
+        }
+
+        Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
+        {
+            auto id = Node::cast<Identifier>(a);
+            if (id == nullptr)
+                return this->copy();
+
+            if (id->name() == mName)
+                return b;
+            return this->copy();
         }
 
         Node::Pointer copy() const override

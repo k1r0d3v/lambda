@@ -17,7 +17,7 @@ namespace ast
         using PointerType = std::shared_ptr<T>;
 
         template<typename T>
-        static PointerType<T> cast(const Node::Pointer &ref)
+        static PointerType<T> cast(Node::Pointer ref)
         {
             return std::dynamic_pointer_cast<T>(ref);
         }
@@ -28,6 +28,11 @@ namespace ast
             return std::make_shared<T>(std::forward<Args>(args)...);
         }
 
+        template<typename T>
+        static PointerType<T> makeNoDeletablePtr(T *ptr) {
+            return PointerType<T>(PointerType<T>{}, ptr);
+        }
+
     public:
         explicit Node(int type) : mType(type) {}
 
@@ -35,7 +40,14 @@ namespace ast
          * @param context A given context
          * @return Result of the evaluation, this value can be a real tree node or a copy
          */
-        virtual Pointer evaluate(const Context &context) const = 0;
+        virtual Node::Pointer evaluate(const Context &context) const = 0;
+
+        /**
+         * Replaces recursively the node @param{a} in the tree with by the node @param{b}
+         *
+         * @return A copy of the tree with the nodes replaced
+         */
+        virtual Node::Pointer replace(Node::Pointer a, Node::Pointer b) const = 0;
 
         /**
          * @return String representation of this node and children

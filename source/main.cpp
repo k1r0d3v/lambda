@@ -3,6 +3,10 @@
 #include <string>
 #include <ast_driver.hpp>
 
+// Test expression
+// let fix = lambda f.(lambda x. f (lambda y. x x y)) (lambda x. f (lambda y. x x y)) in let sumaux = lambda f. (lambda n. (lambda m. if (iszero n) then m else succ (f (pred n) m))) in let sum = fix sumaux in sum 21 34
+//
+
 // TODO: Capture Ctrl+D and so...
 int main(int argc, char **argv)
 {
@@ -39,6 +43,7 @@ int main(int argc, char **argv)
 
         try
         {
+            std::cout << root.toString() << std::endl;
             std::cout << "Out[" << lineNumber << "]: " << root.evaluate()->toString() << std::endl << std::endl;
         }
         catch (const std::exception &e)

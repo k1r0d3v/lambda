@@ -5,6 +5,12 @@
       <option name="FUNCTION_BRACE_PLACEMENT" value="5" />
       <option name="SPACE_WITHIN_EMPTY_BRACES" value="true" />
     </Objective-C>
+    <Objective-C-extensions>
+      <extensions>
+        <pair source="cpp" header="hpp" fileNamingConvention="NONE" />
+        <pair source="c" header="h" fileNamingConvention="NONE" />
+      </extensions>
+    </Objective-C-extensions>
     <codeStyleSettings language="ObjectiveC">
       <option name="BRACE_STYLE" value="5" />
       <option name="CLASS_BRACE_STYLE" value="2" />

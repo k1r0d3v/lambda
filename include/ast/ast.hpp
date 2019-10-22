@@ -2,12 +2,17 @@
 #define LAMBDA_AST_HPP
 
 // All headers here
+#include "common.hpp"
 #include "context.hpp"
 #include "node.hpp"
 #include "identifier.hpp"
 #include "abstraction.hpp"
 #include "application.hpp"
-#include "common.hpp"
+#include "natural.hpp"
+#include "boolean.hpp"
+#include "natural_primitives.hpp"
+#include "conditional.hpp"
+#include "local_definition.hpp"
 //
 
 namespace ast

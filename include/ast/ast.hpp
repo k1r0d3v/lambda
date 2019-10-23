@@ -22,11 +22,11 @@ namespace ast
     public:
         AST() = default;
 
-        AST(Node::Pointer root)
-                : mRoot(root) {}
+        explicit AST(Node::Pointer root)
+                : mRoot(std::move(root)) { }
 
         AST(const Context context, Node::Pointer root)
-                : mRoot(root), mContext(context) {}
+                : mRoot(std::move(root)), mContext(context) { }
 
         Node::Pointer evaluate(const Context &context) const
         {
@@ -50,7 +50,7 @@ namespace ast
 
         void setRoot(Node::Pointer root)
         {
-            mRoot = root;
+            mRoot = std::move(root);
         }
 
         bool empty() const
@@ -60,7 +60,7 @@ namespace ast
 
     private:
         Node::Pointer mRoot;
-        Context mContext{Context::empty()};
+        Context mContext = Context::empty();
     };
 }
 

@@ -1,8 +1,6 @@
 #ifndef LAMBDA_IDENTIFIER_HPP
 #define LAMBDA_IDENTIFIER_HPP
 
-#include <utility>
-
 #include "node_type.hpp"
 #include "common.hpp"
 
@@ -30,12 +28,12 @@ namespace ast
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
         {
             auto id = Node::cast<Identifier>(a);
-            if (id == nullptr)
-                return this->copy();
+            assert(id != nullptr); // We only replace identifiers
 
             if (id->name() == mName)
                 return b;
-            return this->copy();
+            else
+                return this->copy();
         }
 
         Node::Pointer copy() const override

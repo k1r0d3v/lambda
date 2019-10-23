@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include <utility> // std::move
+#include <cassert> // assert
 
 namespace ast
 {

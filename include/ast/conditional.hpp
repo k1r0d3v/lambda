@@ -1,8 +1,6 @@
 #ifndef LAMBDA_CONDITIONAL_HPP
 #define LAMBDA_CONDITIONAL_HPP
 
-#include <utility>
-
 #include "common.hpp"
 #include "node.hpp"
 #include "node_type.hpp"
@@ -22,15 +20,18 @@ namespace ast
                   mThen(std::move(thenBranch)),
                   mElse(std::move(elseBranch)) { }
 
-        const Node::Pointer &condition() const {
+        const Node::Pointer &condition() const
+        {
             return mCondition;
         }
 
-        const Node::Pointer &thenBranch() const {
+        const Node::Pointer &thenBranch() const
+        {
             return mThen;
         }
 
-        const Node::Pointer &elseBranch() const {
+        const Node::Pointer &elseBranch() const
+        {
             return mElse;
         }
 

@@ -8,47 +8,49 @@
 
 namespace ast
 {
-        class IsZero : public Node
+    // TODO: Simplify this
+
+    class IsZero : public Node
+    {
+    public:
+        using Pointer = Node::PointerType<IsZero>;
+
+    public:
+        explicit IsZero(Node::Pointer argument)
+                : Node(NodeType::NaturalPrimitive), mArgument(std::move(argument)) { }
+
+        Node::Pointer evaluate(const Context &context) const override
         {
-        public:
-            using Pointer = Node::PointerType<IsZero>;
+            auto t = mArgument;
+            if (t->type() != NodeType::Natural)
+                t = t->evaluate(context);
 
-        public:
-            explicit IsZero(Node::Pointer argument)
-                    : Node(NodeType::NaturalPrimitive), mArgument(std::move(argument)) { }
+            if (t->type() != NodeType::Natural)
+                throw std::runtime_error("Expected a natural");
 
-            Node::Pointer evaluate(const Context &context) const override
-            {
-                auto t = mArgument;
-                if (t->type() != NodeType::Natural)
-                    t = t->evaluate(context);
+            return Node::make<Boolean>(Node::cast<Natural>(t)->value() == 0);
+        }
 
-                if (t->type() != NodeType::Natural)
-                    throw std::runtime_error("Expected a natural");
+        Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
+        {
+            return Node::make<IsZero>(mArgument->replace(a, b));
+        }
 
-                return Node::make<Boolean>(Node::cast<Natural>(t)->value() == 0);
-            }
+        Node::Pointer copy() const override
+        {
+            return Node::make<IsZero>(mArgument);
+        }
 
-            Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
-            {
-                return Node::make<IsZero>(mArgument->replace(a, b));
-            }
+        string toString() const override
+        {
+            auto os = std::ostringstream();
+            os << "(iszero " << mArgument->toString() << ")";
+            return os.str();
+        }
 
-            Node::Pointer copy() const override
-            {
-                return Node::make<IsZero>(mArgument);
-            }
-
-            string toString() const override
-            {
-                auto os = std::ostringstream();
-                os << "(iszero " << mArgument->toString() << ")";
-                return os.str();
-            }
-
-        private:
-            Node::Pointer mArgument;
-        };
+    private:
+        Node::Pointer mArgument;
+    };
 
     class Successor : public Node
     {
@@ -99,7 +101,7 @@ namespace ast
 
     public:
         explicit Predecessor(Node::Pointer argument)
-                : Node(NodeType::NaturalPrimitive), mArgument(std::move(argument)) {}
+                : Node(NodeType::NaturalPrimitive), mArgument(std::move(argument)) { }
 
 
         Node::Pointer evaluate(const Context &context) const override

@@ -1,9 +1,9 @@
 #ifndef LAMBDA_DRIVER_H
 #define LAMBDA_DRIVER_H
 
+#include <utility>
 #include <ast/ast.hpp>
 #include <driver.hpp>
-#include <utility>
 
 #define YY_DRIVERDATA reinterpret_cast<ast::AST*>(driver->yyData())
 

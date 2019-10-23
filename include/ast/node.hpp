@@ -8,6 +8,9 @@ namespace ast
     class Context; // Forward declaration of Context
 
     // TODO: Add character offset of the node
+    /**
+     *
+     */
     class Node
     {
     public:
@@ -29,12 +32,13 @@ namespace ast
         }
 
         template<typename T>
-        static PointerType<T> makeNoDeletablePtr(T *ptr) {
+        static PointerType<T> makeNoDeletablePtr(T *ptr)
+        {
             return PointerType<T>(PointerType<T>{}, ptr);
         }
 
     public:
-        explicit Node(int type) : mType(type) {}
+        explicit Node(int type) : mType(type) { }
 
         /**
          * @param context A given context
@@ -44,6 +48,9 @@ namespace ast
 
         /**
          * Replaces recursively the node @param{a} in the tree with by the node @param{b}
+         *
+         * Note: The replacement is implementation dependent,
+         * implementors can impose restrictions over the node to replace or be replaced
          *
          * @return A copy of the tree with the nodes replaced
          */

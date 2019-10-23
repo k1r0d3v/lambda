@@ -1,8 +1,6 @@
 #ifndef LAMBDA_APPLICATION_HPP
 #define LAMBDA_APPLICATION_HPP
 
-#include <assert.h>
-
 #include "abstraction.hpp"
 #include "node_type.hpp"
 #include "common.hpp"
@@ -34,7 +32,7 @@ namespace ast
             assert(mRight != nullptr); // Empty right node not allowed
 
             // Creates a pointer to this with no deleter
-            Node::Pointer t = Node::makeNoDeletablePtr<Node>(const_cast<Application*>(this));
+            Node::Pointer t = Node::makeNoDeletablePtr<Node>(const_cast<Application *>(this));
 
             do
             {
@@ -52,24 +50,22 @@ namespace ast
                 if (v1->type() != NodeType::Abstraction)
                     throw std::runtime_error("Expected an abstraction");
 
-                // Evaluates t2
-                // FIXME: We can not evaluate t2 if it is an application!!
-                // arguments are expected to be processed in order
-                //
-
                 if (t2->type() == NodeType::Application)
                 {
+                    // Arguments are expected to be processed in order
                     // We have a curry form, reorder the nodes to apply in the correct order
                     auto rightApp = Node::cast<Application>(t2);
                     t = Node::make<Application>(Node::make<Application>(v1, rightApp->left()), rightApp->right());
                 }
                 else
                 {
+                    // Evaluates t2
                     auto abstraction = Node::cast<Abstraction>(v1);
                     auto v2 = t2->evaluate(context);
                     t = abstraction->body()->replace(abstraction->argument(), v2);
                 }
-                // Try to reuse stack to avoid overflow
+
+                // Try to reuse the stack to avoid stack overflows
             } while (t->type() == NodeType::Application);
 
             return t->evaluate(context);

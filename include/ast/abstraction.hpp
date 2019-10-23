@@ -1,7 +1,6 @@
 #ifndef LAMBDA_ABSTRACTION_HPP
 #define LAMBDA_ABSTRACTION_HPP
 
-#include <cassert>
 #include "common.hpp"
 #include "identifier.hpp"
 #include "node_type.hpp"
@@ -15,7 +14,7 @@ namespace ast
 
     public:
         Abstraction(Identifier::Pointer argument, Node::Pointer body)
-                : Node(NodeType::Abstraction), mArgument(std::move(argument)), mBody(std::move(body)) {}
+                : Node(NodeType::Abstraction), mArgument(std::move(argument)), mBody(std::move(body)) { }
 
         const Identifier::Pointer &argument() const
         {
@@ -59,6 +58,8 @@ namespace ast
 
         string toString() const override
         {
+            // Note: Replace will rename problematic entries
+
             auto os = std::ostringstream();
             os << "(\xce\xbb" << argument()->toString() << ". "
                << mBody->replace(mArgument, mArgument)->toString() << ")";

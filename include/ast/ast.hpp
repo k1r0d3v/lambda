@@ -3,6 +3,7 @@
 
 // All headers here
 #include "common.hpp"
+#include "exception.hpp"
 #include "context.hpp"
 #include "node.hpp"
 #include "identifier.hpp"
@@ -13,6 +14,8 @@
 #include "natural_primitives.hpp"
 #include "conditional.hpp"
 #include "local_definition.hpp"
+#include "unit.hpp"
+#include "sequence.hpp"
 //
 
 namespace ast
@@ -30,12 +33,12 @@ namespace ast
 
         Node::Pointer evaluate(const Context &context) const
         {
-            return mRoot->evaluate(context)->copy();
+            return mRoot->evaluate(context);
         }
 
         Node::Pointer evaluate() const
         {
-            return evaluate(Context::empty())->copy();
+            return evaluate(Context::empty());
         }
 
         string toString() const

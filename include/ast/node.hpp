@@ -9,7 +9,7 @@ namespace ast
 
     // TODO: Add character offset of the node
     /**
-     *
+     *  Abstract Syntax Tree Node
      */
     class Node
     {

@@ -38,7 +38,7 @@ namespace ast
 
         string toString() const override
         {
-            return mValue ? "true" : "false";
+            return string(mValue ? "true" : "false");
         }
 
     private:

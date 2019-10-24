@@ -30,7 +30,7 @@ add_executable(lambda
         include/ast/identifier.hpp
         include/ast/node_type.hpp
         include/driver.hpp
-        include/ast_driver.hpp source/driver.cpp include/ast/natural.hpp include/ast/boolean.hpp include/ast/conditional.hpp include/ast/local_definition.hpp include/ast/natural_primitives.hpp)
+        include/ast_driver.hpp source/driver.cpp include/ast/natural.hpp include/ast/boolean.hpp include/ast/conditional.hpp include/ast/local_definition.hpp include/ast/natural_primitives.hpp include/ast/sequence.hpp include/ast/unit.hpp include/interpreter.hpp include/ast/exception.hpp)
 
 # Add include folder to include directories
 target_include_directories(lambda PRIVATE include/)

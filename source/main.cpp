@@ -2,12 +2,13 @@
 #include <sstream>
 #include <string>
 #include <ast_driver.hpp>
+#include "interpreter.hpp"
 
-// Test expression
-// let fix = lambda f.(lambda x. f (lambda y. x x y)) (lambda x. f (lambda y. x x y)) in let sumaux = lambda f. (lambda n. (lambda m. if (iszero n) then m else succ (f (pred n) m))) in let sum = fix sumaux in sum 21 34
-//
 
 // TODO: Capture Ctrl+D and so...
+// TODO: Add argv parameters
+// TODO: --help, -h
+// TODO: --execute <file>, -e <file>
 int main(int argc, char **argv)
 {
     int lineNumber = 1;
@@ -16,14 +17,28 @@ int main(int argc, char **argv)
     {
         std::cout << "In [" << lineNumber << "]: ";
 
-        std::string line;
-        std::getline(std::cin, line);
+        std::string line, tmp;
+        std::getline(std::cin, line, ';');
+        std::getline(std::cin, tmp, '\n'); // Remove the trailing string after the ;
+        line.append(";"); // Do not remove the new line character
 
-        if (line.empty()) continue;
-        if (line == "exit") break;
-
-        // Do not remove the new line character
-        line.append("\n");
+        try
+        {
+            lambda::interpreter::processInterpreterOption(line);
+        }
+        catch (lambda::interpreter::ExitRequestException &e)
+        {
+            std::cout << "Do you really want to exit ([y]/n)? ";
+            std::getline(std::cin, line, '\n');
+            if (line == "Y" || line == "y" || line.empty())
+                break;
+            else continue;
+        }
+        catch (lambda::interpreter::LambdaInterpreterException &e)
+        {
+            std::cout << e.name() << ": " << e.what() << std::endl;
+            continue;
+        }
 
         // Parse
         auto stream = std::istringstream(line);
@@ -35,7 +50,7 @@ int main(int argc, char **argv)
         }
         catch (const std::exception &e)
         {
-            std::cout << e.what() << std::endl;
+            std::cout << "ParseException: " << e.what() << std::endl;
         }
 
         // Return if parse fails
@@ -43,12 +58,12 @@ int main(int argc, char **argv)
 
         try
         {
-            std::cout << root.toString() << std::endl;
+            //std::cout << root.toString() << std::endl;
             std::cout << "Out[" << lineNumber << "]: " << root.evaluate()->toString() << std::endl << std::endl;
         }
         catch (const std::exception &e)
         {
-            std::cout << "error: " << e.what() << std::endl;
+            std::cout << "EvaluationException: " << e.what() << std::endl;
         }
 
         lineNumber++;

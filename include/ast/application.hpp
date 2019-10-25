@@ -4,6 +4,7 @@
 #include "abstraction.hpp"
 #include "node_type.hpp"
 #include "common.hpp"
+#include "exception.hpp"
 
 namespace ast
 {
@@ -26,7 +27,7 @@ namespace ast
             return mRight;
         }
 
-        Node::Pointer evaluate(const Context &context) const override
+        Node::Pointer evaluate(Context &context) const override
         {
             assert(mLeft != nullptr); // Empty left node not allowed
             assert(mRight != nullptr); // Empty right node not allowed
@@ -48,7 +49,7 @@ namespace ast
                     v1 = v1->evaluate(context);
 
                 if (v1->type() != NodeType::Abstraction)
-                    throw std::runtime_error("Expected an abstraction");
+                    throw TypeException("\'" + v1->toString() + "\' is not an abstraction");
 
                 if (t2->type() == NodeType::Application)
                 {

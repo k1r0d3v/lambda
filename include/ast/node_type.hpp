@@ -5,8 +5,6 @@ namespace ast::NodeType
 {
     enum
     {
-        LambdaOption,
-
         Identifier,
         Abstraction,
         Application,
@@ -15,7 +13,7 @@ namespace ast::NodeType
         Boolean,
         Condition,
         LocalDefinition,
-        NaturalPrimitive,
+        Primitive,
 
         Unit,
         Sequence,

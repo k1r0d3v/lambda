@@ -16,7 +16,7 @@ namespace ast
         explicit Unit()
                 : Node(NodeType::Unit) { }
 
-        Node::Pointer evaluate(const Context &context) const override
+        Node::Pointer evaluate(Context &context) const override
         {
             return this->copy();
         }
@@ -33,7 +33,7 @@ namespace ast
 
         string toString() const override
         {
-            return "() : Unit";
+            return "()";
         }
     };
 }

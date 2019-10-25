@@ -3,6 +3,7 @@
 
 #include "node_type.hpp"
 #include "common.hpp"
+#include "exception.hpp"
 
 namespace ast
 {
@@ -20,16 +21,24 @@ namespace ast
             return mName;
         }
 
-        Node::Pointer evaluate(const Context &context) const override
+        Node::Pointer evaluate(Context &context) const override
         {
-            return Node::make<Identifier>(mName); // Can not be evaluated more
+            /*
+            auto value = context.getValueOfId(mName);
+            if (value == nullptr)
+                throw NameException("\'" + mName + "\' is not defined");
+            return value;
+            */
+            return this->copy();
         }
 
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
         {
-            auto id = Node::cast<Identifier>(a);
-            assert(id != nullptr); // We only replace identifiers
+            // We only replace identifiers
+            if (a->type() != NodeType::Identifier)
+                return this->copy();
 
+            auto id = Node::cast<Identifier>(a);
             if (id->name() == mName)
                 return b;
             else

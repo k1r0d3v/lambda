@@ -88,8 +88,5 @@ term: S_LPAREN term S_RPAREN { $$ = $2; }
  */
 void yy::Parser::error(const location_type &l, const std::string &message)
 {
-    auto os = std::ostringstream();
-    os << l << ": " << message;
-    // TODO: Change exception type
-    throw std::runtime_error(os.str());
+    throw yy::Parser::syntax_error(l, message);
 }

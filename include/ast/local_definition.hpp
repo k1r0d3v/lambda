@@ -34,7 +34,7 @@ namespace ast
             return mBody;
         }
 
-        Node::Pointer evaluate(const Context &context) const override
+        Node::Pointer evaluate(Context &context) const override
         {
             return mBody->replace(mId, mValue)->evaluate(context);
         }

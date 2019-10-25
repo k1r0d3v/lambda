@@ -63,7 +63,7 @@ namespace ast
             return mElements;
         }
 
-        Node::Pointer evaluate(const Context &context) const override
+        Node::Pointer evaluate(Context &context) const override
         {
             auto r = Node::cast<Node>(Node::make<Unit>());
 

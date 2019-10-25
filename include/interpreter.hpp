@@ -6,6 +6,7 @@
 #include <fstream>
 #include <streambuf>
 #include <string>
+#include <ast/terminal_colors.hpp>
 
 
 namespace lambda::interpreter
@@ -13,21 +14,21 @@ namespace lambda::interpreter
 
     class LambdaInterpreterException : public std::exception
     {
-    public:
-        virtual const char *name() const = 0;
+    protected:
+        virtual const char *head() const noexcept = 0;
     };
 
     class ExitRequestException : public LambdaInterpreterException
     {
     public:
-        const char *name() const override
+        const char *head() const noexcept override
         {
-            return "ExitRequestException";
+            return TERM_FG_START(TERM_RED) "ExitRequestError" TERM_RESET();
         }
 
         const char *what() const noexcept override
         {
-            return "";
+            return head();
         }
     };
 
@@ -36,12 +37,12 @@ namespace lambda::interpreter
     public:
         explicit FileNotFoundException(const std::string &filename)
         {
-            mWhat = (std::string) "File \'" + filename + "\' can not be found";
+            mWhat = (std::string)head() + ": File \'" + filename + "\' can not be found";
         }
 
-        const char *name() const override
+        const char *head() const noexcept override
         {
-            return "FileNotFound";
+            return TERM_FG_START(TERM_RED) "FileNotFoundError" TERM_RESET();
         }
 
         const char *what() const noexcept override
@@ -58,12 +59,12 @@ namespace lambda::interpreter
     public:
         explicit UnknownOptionException(const std::string &value)
         {
-            mWhat = (std::string) "The option \'" + value + "\' do not exists";
+            mWhat = (std::string)head() + ": The option \'" + value + "\' do not exists";
         }
 
-        const char *name() const override
+        const char *head() const noexcept override
         {
-            return "UnknownOption";
+            return TERM_FG_START(TERM_RED) "UnknownOptionError" TERM_RESET();
         }
 
         const char *what() const noexcept override

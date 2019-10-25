@@ -2,55 +2,84 @@
 #include <sstream>
 #include <string>
 #include <ast_driver.hpp>
-#include "interpreter.hpp"
+#include <interpreter.hpp>
 
+bool doYouReallyWantExit()
+{
+    std::cout << "Do you really want to exit ([y]/n)? ";
+    std::cout.flush();
 
-// TODO: Capture Ctrl+D and so...
+    std::string line;
+    std::getline(std::cin, line, '\n');
+    return line == "Y" || line == "y" || line.empty();
+}
+
 // TODO: Add argv parameters
 // TODO: --help, -h
 // TODO: --execute <file>, -e <file>
 int main(int argc, char **argv)
 {
     int lineNumber = 1;
+    std::string line;
 
-    while (true)
+    for(;;)
     {
-        std::cout << "In [" << lineNumber << "]: ";
+        std::cout << TERM_FG_START(TERM_GREEN) << "In ["
+                  << TERM_BOLD_START() << TERM_FG_START(TERM_LIGHT_GREEN) << lineNumber << TERM_RESET()
+                  << TERM_FG_START(TERM_GREEN) << "]" << TERM_RESET() << ": ";
 
-        std::string line, tmp;
+        // Read until ;
         std::getline(std::cin, line, ';');
-        std::getline(std::cin, tmp, '\n'); // Remove the trailing string after the ;
-        line.append(";"); // Do not remove the new line character
+
+        // Check for Ctrl-D
+        if (std::cin.eof())
+        {
+            // Reset std::cin and read trash values
+            clearerr(stdin);
+            std::cin.clear();
+
+            std::cout << std::endl << std::endl;
+            if (doYouReallyWantExit())
+                break;
+            else
+                continue;
+        }
+
+        // Ignore values after ;
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        // Do not remove the ; character
+        line.append(";");
 
         try
         {
             lambda::interpreter::processInterpreterOption(line);
         }
-        catch (lambda::interpreter::ExitRequestException &e)
+        catch (const lambda::interpreter::ExitRequestException &e)
         {
-            std::cout << "Do you really want to exit ([y]/n)? ";
-            std::getline(std::cin, line, '\n');
-            if (line == "Y" || line == "y" || line.empty())
-                break;
+            if (doYouReallyWantExit()) break;
             else continue;
         }
-        catch (lambda::interpreter::LambdaInterpreterException &e)
+        catch (const lambda::interpreter::LambdaInterpreterException &e)
         {
-            std::cout << e.name() << ": " << e.what() << std::endl;
+            std::cout << e.what() << std::endl << std::endl;
+            lineNumber++;
             continue;
         }
 
         // Parse
-        auto stream = std::istringstream(line);
         auto root = ast::AST();
 
         try
         {
+            auto stream = std::istringstream(line);
             lambda::ASTDriver::parse(stream, &root, "", false, false);
         }
         catch (const std::exception &e)
         {
-            std::cout << "ParseException: " << e.what() << std::endl;
+            std::cout << TERM_FG_START(TERM_RED) << "ParseError" << TERM_RESET()
+                      << ": " << e.what() << std::endl << std::endl;;
+            lineNumber++;
+            continue;
         }
 
         // Return if parse fails
@@ -58,12 +87,18 @@ int main(int argc, char **argv)
 
         try
         {
-            //std::cout << root.toString() << std::endl;
-            std::cout << "Out[" << lineNumber << "]: " << root.evaluate()->toString() << std::endl << std::endl;
+            auto evalResult = root.evaluate();
+            std::cout << TERM_FG_START(TERM_GREEN) << "Out["
+                      << TERM_BOLD_START() << TERM_FG_START(TERM_LIGHT_GREEN)  << lineNumber << TERM_RESET()
+                      << TERM_FG_START(TERM_GREEN) << "]"
+                      << TERM_RESET() << ": " << evalResult->toString() << std::endl << std::endl;
         }
-        catch (const std::exception &e)
+        catch (const ast::EvaluationException &e)
         {
-            std::cout << "EvaluationException: " << e.what() << std::endl;
+            std::cout << TERM_FG_START(TERM_RED)
+                      << "---------------------------------------------------------------------------"
+                      << TERM_RESET() << std::endl;
+            std::cout << e.what() << std::endl << std::endl;
         }
 
         lineNumber++;

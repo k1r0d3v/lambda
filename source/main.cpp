@@ -19,6 +19,7 @@ bool doYouReallyWantExit()
 // TODO: --execute <file>, -e <file>
 int main(int argc, char **argv)
 {
+    ast::Context context;
     int lineNumber = 1;
     std::string line;
 
@@ -45,11 +46,13 @@ int main(int argc, char **argv)
                 continue;
         }
 
-        // Ignore values after ;
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         // Do not remove the ; character
         line.append(";");
 
+        // Ignore values after ;
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+        // Line ast
         try
         {
             lambda::interpreter::processInterpreterOption(line);
@@ -66,9 +69,9 @@ int main(int argc, char **argv)
             continue;
         }
 
-        // Parse
         auto root = ast::AST();
 
+        // Parse
         try
         {
             auto stream = std::istringstream(line);
@@ -87,13 +90,16 @@ int main(int argc, char **argv)
 
         try
         {
-            auto evalResult = root.evaluate();
+            auto evalResult = root.evaluate(context);
+            //If do you want to enable line recording
+            //context.setValue("_" + std::to_string(lineNumber), evalResult);
+
             std::cout << TERM_FG_START(TERM_GREEN) << "Out["
                       << TERM_BOLD_START() << TERM_FG_START(TERM_LIGHT_GREEN)  << lineNumber << TERM_RESET()
                       << TERM_FG_START(TERM_GREEN) << "]"
                       << TERM_RESET() << ": " << evalResult->toString() << std::endl << std::endl;
         }
-        catch (const ast::EvaluationException &e)
+        catch (const ast::ASTException &e)
         {
             std::cout << TERM_FG_START(TERM_RED)
                       << "---------------------------------------------------------------------------"

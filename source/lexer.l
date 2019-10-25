@@ -41,7 +41,7 @@ in                      { return yy::Parser::make_K_IN(loc); }
 lambda                  { return yy::Parser::make_K_LAMBDA(loc); }
 
 [0-9]+                  { return yy::Parser::make_NUMBER(atoi(yytext), loc); }
-[a-z][a-z0-9]*          { return yy::Parser::make_IDENTIFIER(yytext, loc); }
+[a-z_][a-z0-9_]*        { return yy::Parser::make_IDENTIFIER(yytext, loc); }
 <<EOF>>                 { return yy::Parser::make_END(loc); }
 .                       { throw std::runtime_error(std::string("error: ") + yytext); }
 

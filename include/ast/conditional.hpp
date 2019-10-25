@@ -48,6 +48,11 @@ namespace ast
                 return mElse->evaluate(context);
         }
 
+        Node::Pointer resolve(const Context &context) const override
+        {
+            return Node::make<Conditional>(mCondition->resolve(context), mThen->resolve(context), mElse->resolve(context));
+        }
+
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
         {
             return Node::make<Conditional>(mCondition->replace(a, b), mThen->replace(a, b), mElse->replace(a, b));

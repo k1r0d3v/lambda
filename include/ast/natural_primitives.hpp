@@ -34,6 +34,11 @@ namespace ast
             return Node::make<Boolean>(Node::cast<Natural>(t)->value() == 0);
         }
 
+        Node::Pointer resolve(const Context &context) const override
+        {
+            return Node::make<IsZero>(mArgument->resolve(context));
+        }
+
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
         {
             return Node::make<IsZero>(mArgument->replace(a, b));
@@ -74,6 +79,11 @@ namespace ast
                 throw TypeException("\'" + t->toString() + "\' is not a natural");
 
             return Node::make<Natural>(Node::cast<Natural>(t)->value() + 1);
+        }
+
+        Node::Pointer resolve(const Context &context) const override
+        {
+            return Node::make<Successor>(mArgument->resolve(context));
         }
 
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
@@ -118,6 +128,11 @@ namespace ast
 
             auto value = Node::cast<Natural>(t)->value();
             return Node::make<Natural>(value > 0 ? value - 1 : 0);
+        }
+
+        Node::Pointer resolve(const Context &context) const override
+        {
+            return Node::make<Predecessor>(mArgument->resolve(context));
         }
 
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override

@@ -27,6 +27,11 @@ namespace ast
             return Node::make<Natural>(mValue); // Can not be evaluated more
         }
 
+        Node::Pointer resolve(const Context &context) const override
+        {
+            return this->copy();
+        }
+
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
         {
             return this->copy();

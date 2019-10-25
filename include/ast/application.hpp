@@ -72,6 +72,12 @@ namespace ast
             return t->evaluate(context);
         }
 
+        Node::Pointer resolve(const Context &context) const override
+        {
+            // TODO: Resolve should make type checks?
+            return Node::make<Application>(mLeft->resolve(context), mRight->resolve(context));
+        }
+
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
         {
             return Node::make<Application>(mLeft->replace(a, b), mRight->replace(a, b));

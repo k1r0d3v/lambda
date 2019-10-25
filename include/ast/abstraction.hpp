@@ -4,6 +4,7 @@
 #include "common.hpp"
 #include "identifier.hpp"
 #include "node_type.hpp"
+#include "variable.hpp"
 
 namespace ast
 {
@@ -13,10 +14,13 @@ namespace ast
         using Pointer = Node::PointerType<Abstraction>;
 
     public:
-        Abstraction(Identifier::Pointer argument, Node::Pointer body)
-                : Node(NodeType::Abstraction), mArgument(std::move(argument)), mBody(std::move(body)) { }
+        Abstraction(Variable::Pointer argument, const Node::Pointer& body)
+                : Node(NodeType::Abstraction), mArgument(std::move(argument))
+        {
+            mBody = body->replace(Node::make<Identifier>(mArgument->name()), mArgument);
+        }
 
-        const Identifier::Pointer &argument() const
+        const Variable::Pointer &argument() const
         {
             return mArgument;
         }
@@ -28,26 +32,26 @@ namespace ast
 
         Node::Pointer evaluate(Context &context) const override
         {
-            return Node::make<Abstraction>(mArgument, mBody); // Can not be evaluated more
+            // Can not be evaluated more
+            return Node::make<Abstraction>(mArgument, mBody);
+        }
+
+        Node::Pointer resolve(const Context &context) const override
+        {
+            return Node::make<Abstraction>(mArgument, mBody->resolve(context));
         }
 
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
         {
-            // We only replace identifiers
-            if (a->type() != NodeType::Identifier)
-                return this->copy();
-
-            auto id = Node::cast<Identifier>(a);
-
             // Treat this like a node but no delete it
             auto abs = Node::makeNoDeletablePtr(this);
 
-            // Duplicated variable name inside abstraction
-            if (mArgument->name() == id->name())
+            // Duplicated variable names inside abstraction
+            if (a->type() == NodeType::Variable && mArgument->name() == Node::cast<Variable>(a)->name())
             {
                 // FIXME: Esto puede causar problemas si en el body ya hay un @code{_x}
                 // Generate new name
-                auto _x = Node::make<Identifier>(mArgument->name() + "\'");
+                auto _x = Node::make<Variable>(mArgument->name() + "\'");
                 // Replace in body
                 abs = Node::make<Abstraction>(_x, mBody->replace(mArgument, _x));
             }
@@ -57,7 +61,7 @@ namespace ast
 
         Node::Pointer copy() const override
         {
-            return Node::make<Abstraction>(Node::cast<Identifier>(mArgument->copy()), mBody->copy());
+            return Node::make<Abstraction>(Node::cast<Variable>(mArgument->copy()), mBody->copy());
         }
 
         string toString() const override
@@ -71,7 +75,7 @@ namespace ast
         }
 
     private:
-        Identifier::Pointer mArgument;
+        Variable::Pointer mArgument;
         Node::Pointer mBody;
     };
 }

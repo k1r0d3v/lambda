@@ -54,6 +54,7 @@ namespace lambda::interpreter
         std::string mWhat;
     };
 
+
     class UnknownOptionException : public LambdaInterpreterException
     {
     public:

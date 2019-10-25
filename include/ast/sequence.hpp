@@ -74,6 +74,16 @@ namespace ast
             return r;
         }
 
+        Node::Pointer resolve(const Context &context) const override
+        {
+            list<Node::Pointer> elements;
+
+            for (const auto& i : mElements)
+                elements.push_back(i->resolve(context));
+
+            return Node::make<Sequence>(elements);
+        }
+
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
         {
             list<Node::Pointer> elements;

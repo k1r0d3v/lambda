@@ -7,6 +7,7 @@
 #include "context.hpp"
 #include "node.hpp"
 #include "identifier.hpp"
+#include "variable.hpp"
 #include "abstraction.hpp"
 #include "application.hpp"
 #include "natural.hpp"
@@ -16,6 +17,7 @@
 #include "local_definition.hpp"
 #include "unit.hpp"
 #include "sequence.hpp"
+#include "declaration.hpp"
 //
 
 namespace ast
@@ -25,16 +27,10 @@ namespace ast
     public:
         AST() = default;
 
-        explicit AST(Node::Pointer root)
-                : mRoot(std::move(root)) { }
-
-        AST(const Context context, Node::Pointer root)
-                : mRoot(std::move(root)), mContext(context) { }
-
-        Node::Pointer evaluate()
+        Node::Pointer evaluate(Context &context)
         {
             assert(mRoot != nullptr);
-            return mRoot->evaluate(mContext);
+            return mRoot->resolve(context)->evaluate(context);
         }
 
         string toString() const
@@ -43,7 +39,7 @@ namespace ast
             return mRoot->toString();
         }
 
-        Node::Pointer root()
+        Node::Pointer root() const
         {
             return mRoot;
         }
@@ -60,7 +56,6 @@ namespace ast
 
     private:
         Node::Pointer mRoot;
-        Context mContext = Context::empty();
     };
 }
 

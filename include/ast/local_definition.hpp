@@ -36,7 +36,18 @@ namespace ast
 
         Node::Pointer evaluate(Context &context) const override
         {
-            return mBody->replace(mId, mValue)->evaluate(context);
+            // mValue must be evaluated before replacement
+            // else we can end with ugly situations like:
+            // let foo = x in λx. λy. x y foo;
+            // with result: λx. λy. var(x) var(y) x
+            // witch is not correct
+            // TODO: Check if this behaviour is correct
+            return mBody->replace(mId, mValue->evaluate(context))->evaluate(context);
+        }
+
+        Node::Pointer resolve(const Context &context) const override
+        {
+            return Node::make<LocalDefinition>(mId, mValue->resolve(context), mBody->resolve(context));
         }
 
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override

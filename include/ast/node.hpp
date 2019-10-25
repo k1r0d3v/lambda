@@ -47,6 +47,13 @@ namespace ast
         virtual Node::Pointer evaluate(Context &context) const = 0;
 
         /**
+         * Replace nodes whose values are given by a read only context
+         *
+         * @param context Read only context to get node values
+         */
+        virtual Node::Pointer resolve(const Context &context) const = 0;
+
+        /**
          * Replaces recursively the node @param{a} in the tree with by the node @param{b}
          *
          * Note: The replacement is implementation dependent,

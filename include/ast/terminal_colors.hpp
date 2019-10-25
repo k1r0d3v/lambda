@@ -2,7 +2,7 @@
 #define LAMBDA_TERMINAL_COLORS_HPP
 
 // Enable terminal colors
-//#define ENABLE_TERMINAL_COLORS
+#define ENABLE_TERMINAL_COLORS
 //
 
 #define TERM_RED "31"

@@ -10,11 +10,30 @@ namespace ast
 
     class ASTException :  public std::exception
     {
+    public:
+        ASTException() = default;
+
+        explicit ASTException(const std::string &message)
+            : mWhat(message) { }
+
+    public:
+        const char *what() const noexcept override
+        {
+            return mWhat.data();
+        }
+
     protected:
-        virtual const char *head() const noexcept = 0;
+        virtual const char *head() const noexcept {
+            return "";
+        }
+
+        std::string mWhat;
     };
 
-    class EvaluationException : public ASTException { };
+    class EvaluationException : public ASTException
+    {
+    public:
+    };
 
     class NameException : public EvaluationException
     {
@@ -28,14 +47,6 @@ namespace ast
         {
             return TERM_FG_START(TERM_RED) "NameError" TERM_RESET();
         }
-
-        const char *what() const noexcept override
-        {
-            return mWhat.data();
-        }
-
-    private:
-        string mWhat;
     };
 
     class TypeException : public EvaluationException
@@ -50,14 +61,6 @@ namespace ast
         {
             return TERM_FG_START(TERM_RED) "TypeError" TERM_RESET();
         }
-
-        const char *what() const noexcept override
-        {
-            return mWhat.data();
-        }
-
-    private:
-        string mWhat;
     };
 }
 

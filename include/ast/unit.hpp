@@ -21,6 +21,11 @@ namespace ast
             return this->copy();
         }
 
+        Node::Pointer resolve(const Context &context) const override
+        {
+            return this->copy();
+        }
+
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
         {
             return this->copy();

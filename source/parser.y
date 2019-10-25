@@ -63,6 +63,7 @@ namespace yy { class Driver; }
 s:
       term { YY_DRIVERDATA->setRoot($1); $$ = YY_DRIVERDATA; }
     | term S_SEMICOLON s { YY_DRIVERDATA->setRoot(ast::Sequence::join($1, YY_DRIVERDATA->root())); $$ = YY_DRIVERDATA; }
+    | K_LET IDENTIFIER S_EQ term S_SEMICOLON s { YY_DRIVERDATA->setRoot(ast::Sequence::join(MKNODE(Declaration, MKNODE(Identifier, $2), $4), YY_DRIVERDATA->root())); $$ = YY_DRIVERDATA; }
     | END { $$ = YY_DRIVERDATA; }
     | error { };
 
@@ -74,7 +75,7 @@ term: S_LPAREN term S_RPAREN { $$ = $2; }
     | K_FALSE { $$ = MKNODE(Boolean, false); }
     | K_LET IDENTIFIER S_EQ term K_IN term { $$ = MKNODE(LocalDefinition, MKNODE(Identifier, $2), $4, $6); }
     | K_IF term K_THEN term K_ELSE term { $$ = MKNODE(Conditional, $2, $4, $6); }
-    | K_LAMBDA IDENTIFIER S_DOT term { $$ = MKNODE(Abstraction, MKNODE(Identifier, $2), $4); }
+    | K_LAMBDA IDENTIFIER S_DOT term { $$ = MKNODE(Abstraction, MKNODE(Variable, $2), $4); }
     | K_SUCC term {  $$ = MKNODE(Successor, $2); }
     | K_PRED term { $$ = MKNODE(Predecessor, $2); }
     | K_ISZERO term { $$ = MKNODE(IsZero, $2); }

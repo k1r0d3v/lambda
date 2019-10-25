@@ -5,6 +5,7 @@ namespace ast::NodeType
 {
     enum
     {
+        Variable,
         Identifier,
         Abstraction,
         Application,
@@ -17,6 +18,7 @@ namespace ast::NodeType
 
         Unit,
         Sequence,
+        Declaration,
     };
 }
 

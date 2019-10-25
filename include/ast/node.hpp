@@ -9,7 +9,7 @@ namespace ast
 
     // TODO: Add character offset of the node
     /**
-     *
+     *  Abstract Syntax Tree Node
      */
     class Node
     {
@@ -44,7 +44,7 @@ namespace ast
          * @param context A given context
          * @return Result of the evaluation, this value can be a real tree node or a copy
          */
-        virtual Node::Pointer evaluate(const Context &context) const = 0;
+        virtual Node::Pointer evaluate(Context &context) const = 0;
 
         /**
          * Replaces recursively the node @param{a} in the tree with by the node @param{b}

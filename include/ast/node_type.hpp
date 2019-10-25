@@ -13,7 +13,10 @@ namespace ast::NodeType
         Boolean,
         Condition,
         LocalDefinition,
-        NaturalPrimitive,
+        Primitive,
+
+        Unit,
+        Sequence,
     };
 }
 

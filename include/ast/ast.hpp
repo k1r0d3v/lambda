@@ -2,6 +2,7 @@
 #define LAMBDA_AST_HPP
 
 // All headers here
+#include "exception.hpp"
 #include "common.hpp"
 #include "context.hpp"
 #include "node.hpp"
@@ -13,6 +14,8 @@
 #include "natural_primitives.hpp"
 #include "conditional.hpp"
 #include "local_definition.hpp"
+#include "unit.hpp"
+#include "sequence.hpp"
 //
 
 namespace ast
@@ -28,18 +31,15 @@ namespace ast
         AST(const Context context, Node::Pointer root)
                 : mRoot(std::move(root)), mContext(context) { }
 
-        Node::Pointer evaluate(const Context &context) const
+        Node::Pointer evaluate()
         {
-            return mRoot->evaluate(context)->copy();
-        }
-
-        Node::Pointer evaluate() const
-        {
-            return evaluate(Context::empty())->copy();
+            assert(mRoot != nullptr);
+            return mRoot->evaluate(mContext);
         }
 
         string toString() const
         {
+            assert(mRoot != nullptr);
             return mRoot->toString();
         }
 

@@ -22,7 +22,7 @@ namespace ast
             return mValue;
         }
 
-        Node::Pointer evaluate(const Context &context) const override
+        Node::Pointer evaluate(Context &context) const override
         {
             return Node::make<Natural>(mValue); // Can not be evaluated more
         }

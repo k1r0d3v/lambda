@@ -5,10 +5,13 @@
 #include "boolean.hpp"
 #include "natural.hpp"
 #include "node_type.hpp"
+#include "exception.hpp"
 
 namespace ast
 {
-    // TODO: Simplify this
+    //
+    // TODO: Simplify this?
+    //
 
     class IsZero : public Node
     {
@@ -17,16 +20,16 @@ namespace ast
 
     public:
         explicit IsZero(Node::Pointer argument)
-                : Node(NodeType::NaturalPrimitive), mArgument(std::move(argument)) { }
+                : Node(NodeType::Primitive), mArgument(std::move(argument)) { }
 
-        Node::Pointer evaluate(const Context &context) const override
+        Node::Pointer evaluate(Context &context) const override
         {
             auto t = mArgument;
             if (t->type() != NodeType::Natural)
                 t = t->evaluate(context);
 
             if (t->type() != NodeType::Natural)
-                throw std::runtime_error("Expected a natural");
+                throw TypeException("\'" + t->toString() + "\' is not a natural");
 
             return Node::make<Boolean>(Node::cast<Natural>(t)->value() == 0);
         }
@@ -59,16 +62,16 @@ namespace ast
 
     public:
         explicit Successor(Node::Pointer argument)
-                : Node(NodeType::NaturalPrimitive), mArgument(std::move(argument)) { }
+                : Node(NodeType::Primitive), mArgument(std::move(argument)) { }
 
-        Node::Pointer evaluate(const Context &context) const override
+        Node::Pointer evaluate(Context &context) const override
         {
             auto t = mArgument;
             if (t->type() != NodeType::Natural)
                 t = t->evaluate(context);
 
             if (t->type() != NodeType::Natural)
-                throw std::runtime_error("Expected a natural");
+                throw TypeException("\'" + t->toString() + "\' is not a natural");
 
             return Node::make<Natural>(Node::cast<Natural>(t)->value() + 1);
         }
@@ -101,17 +104,17 @@ namespace ast
 
     public:
         explicit Predecessor(Node::Pointer argument)
-                : Node(NodeType::NaturalPrimitive), mArgument(std::move(argument)) { }
+                : Node(NodeType::Primitive), mArgument(std::move(argument)) { }
 
 
-        Node::Pointer evaluate(const Context &context) const override
+        Node::Pointer evaluate(Context &context) const override
         {
             auto t = mArgument;
             if (t->type() != NodeType::Natural)
                 t = t->evaluate(context);
 
             if (t->type() != NodeType::Natural)
-                throw std::runtime_error("Expected a natural");
+                throw TypeException("\'" + t->toString() + "\' is not a natural");
 
             auto value = Node::cast<Natural>(t)->value();
             return Node::make<Natural>(value > 0 ? value - 1 : 0);

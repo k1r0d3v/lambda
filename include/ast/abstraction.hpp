@@ -26,16 +26,20 @@ namespace ast
             return mBody;
         }
 
-        Node::Pointer evaluate(const Context &context) const override
+        Node::Pointer evaluate(Context &context) const override
         {
             return Node::make<Abstraction>(mArgument, mBody); // Can not be evaluated more
         }
 
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
         {
-            auto id = Node::cast<Identifier>(a);
-            assert(id != nullptr); // We expect a id to be replaced
+            // We only replace identifiers
+            if (a->type() != NodeType::Identifier)
+                return this->copy();
 
+            auto id = Node::cast<Identifier>(a);
+
+            // Treat this like a node but no delete it
             auto abs = Node::makeNoDeletablePtr(this);
 
             // Duplicated variable name inside abstraction

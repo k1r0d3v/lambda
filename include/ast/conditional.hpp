@@ -2,6 +2,7 @@
 #define LAMBDA_CONDITIONAL_HPP
 
 #include "common.hpp"
+#include "exception.hpp"
 #include "node.hpp"
 #include "node_type.hpp"
 #include "boolean.hpp"
@@ -35,11 +36,11 @@ namespace ast
             return mElse;
         }
 
-        Node::Pointer evaluate(const Context &context) const override
+        Node::Pointer evaluate(Context &context) const override
         {
             auto evalResult = mCondition->evaluate(context);
             if (evalResult->type() != NodeType::Boolean)
-                throw std::runtime_error("Expected a boolean");
+                throw TypeException("\'" + evalResult->toString() + "\' is not a boolean");
 
             if (Node::cast<Boolean>(evalResult)->value())
                 return mThen->evaluate(context);

@@ -36,7 +36,6 @@ namespace yy { class Driver; }
 %token <int> NUMBER             "number"
 %token <std::string> IDENTIFIER "identifier"
 
-
 %token K_SUCC                   "succ"
 %token K_PRED                   "pred"
 %token K_ISZERO                 "iszero"
@@ -55,16 +54,20 @@ namespace yy { class Driver; }
 %token S_EQ                     "="
 %token S_SEMICOLON              ";"
 
+
+
 %type <ast::Node::Pointer> term
-%type s
+%type <ast::AST*> s
 
 %%
 s:
-      term { YY_DRIVERDATA->setRoot($1); }
-    | END { }
+      term { YY_DRIVERDATA->setRoot($1); $$ = YY_DRIVERDATA; }
+    | term S_SEMICOLON s { YY_DRIVERDATA->setRoot(ast::Sequence::join($1, YY_DRIVERDATA->root())); $$ = YY_DRIVERDATA; }
+    | END { $$ = YY_DRIVERDATA; }
     | error { };
 
 term: S_LPAREN term S_RPAREN { $$ = $2; }
+    | S_LPAREN S_RPAREN { $$ = MKNODE(Unit); }
     | NUMBER { $$ = MKNODE(Natural, $1); }
     | IDENTIFIER  { $$ = MKNODE(Identifier, $1); }
     | K_TRUE { $$ = MKNODE(Boolean, true); }
@@ -72,10 +75,10 @@ term: S_LPAREN term S_RPAREN { $$ = $2; }
     | K_LET IDENTIFIER S_EQ term K_IN term { $$ = MKNODE(LocalDefinition, MKNODE(Identifier, $2), $4, $6); }
     | K_IF term K_THEN term K_ELSE term { $$ = MKNODE(Conditional, $2, $4, $6); }
     | K_LAMBDA IDENTIFIER S_DOT term { $$ = MKNODE(Abstraction, MKNODE(Identifier, $2), $4); }
-    | term term { $$ = MKNODE(Application, $1, $2); }
     | K_SUCC term {  $$ = MKNODE(Successor, $2); }
     | K_PRED term { $$ = MKNODE(Predecessor, $2); }
     | K_ISZERO term { $$ = MKNODE(IsZero, $2); }
+    | term term { $$ = MKNODE(Application, $1, $2); }
     | error { };
 
 %%
@@ -85,8 +88,5 @@ term: S_LPAREN term S_RPAREN { $$ = $2; }
  */
 void yy::Parser::error(const location_type &l, const std::string &message)
 {
-    auto os = std::ostringstream();
-    os << l << ": " << message;
-    // TODO: Change exception type
-    throw std::runtime_error(os.str());
+    throw yy::Parser::syntax_error(l, message);
 }

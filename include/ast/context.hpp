@@ -21,7 +21,10 @@ namespace ast
         // stack
 
         // env
-
+        Node::Pointer getValueOfId(const string &name)
+        {
+            return Node::Pointer();
+        }
 
 
         Context copy() const

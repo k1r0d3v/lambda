@@ -2,22 +2,26 @@
 #define LAMBDA_AST_HPP
 
 // All headers here
-#include "exception.hpp"
 #include "common.hpp"
 #include "context.hpp"
 #include "node.hpp"
+#include "exception.hpp"
 #include "identifier.hpp"
 #include "variable.hpp"
 #include "abstraction.hpp"
 #include "application.hpp"
-#include "natural.hpp"
-#include "boolean.hpp"
+#include "natural_constant.hpp"
+#include "boolean_constant.hpp"
 #include "natural_primitives.hpp"
 #include "conditional.hpp"
 #include "local_definition.hpp"
 #include "unit.hpp"
 #include "sequence.hpp"
 #include "declaration.hpp"
+#include "type.hpp"
+#include "abstraction_type.hpp"
+#include "constant_type.hpp"
+#include <ast/typed_value.hpp>
 //
 
 namespace ast
@@ -30,7 +34,8 @@ namespace ast
         Node::Pointer evaluate(Context &context)
         {
             assert(mRoot != nullptr);
-            return mRoot->resolve(context)->evaluate(context);
+            auto resolved = Node::cast<TypedValue>(mRoot->resolve(context));
+            return Node::make<TypedValue>(resolved->evaluate(context), resolved->type());
         }
 
         string toString() const

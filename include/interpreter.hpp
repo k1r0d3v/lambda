@@ -6,7 +6,7 @@
 #include <fstream>
 #include <streambuf>
 #include <string>
-#include <ast/terminal_colors.hpp>
+#include <terminal_colors.hpp>
 
 
 namespace lambda::interpreter

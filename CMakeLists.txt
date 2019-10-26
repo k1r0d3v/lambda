@@ -32,8 +32,8 @@ add_executable(lambda
         include/driver.hpp
         include/ast_driver.hpp
         source/driver.cpp
-        include/ast/natural.hpp
-        include/ast/boolean.hpp
+        include/ast/natural_constant.hpp
+        include/ast/boolean_constant.hpp
         include/ast/conditional.hpp
         include/ast/local_definition.hpp
         include/ast/natural_primitives.hpp
@@ -41,8 +41,12 @@ add_executable(lambda
         include/ast/unit.hpp
         include/interpreter.hpp
         include/ast/exception.hpp
-        include/ast/terminal_colors.hpp
-        include/ast/variable.hpp include/ast/declaration.hpp)
+        include/terminal_colors.hpp
+        include/ast/variable.hpp
+        include/ast/declaration.hpp
+        include/ast/type.hpp
+        include/ast/constant_type.hpp
+        include/ast/abstraction_type.hpp include/ast/typed_value.hpp)
 
 # Add include folder to include directories
 target_include_directories(lambda PRIVATE include/)

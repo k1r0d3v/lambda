@@ -4,6 +4,8 @@
 #include "common.hpp"
 #include "node_type.hpp"
 #include "node.hpp"
+#include "constant_type.hpp"
+#include "typed_value.hpp"
 
 namespace ast
 {
@@ -11,6 +13,8 @@ namespace ast
     {
     public:
         using Pointer = Node::PointerType<Unit>;
+
+        static const constexpr char *TYPE_NAME = "Unit";
 
     public:
         explicit Unit()
@@ -21,9 +25,9 @@ namespace ast
             return this->copy();
         }
 
-        Node::Pointer resolve(const Context &context) const override
+        Node::Pointer resolve(Context &context) const override
         {
-            return this->copy();
+            return Node::make<TypedValue>(Node::make<Unit>(), Type::make<ConstantType>(TYPE_NAME));
         }
 
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override

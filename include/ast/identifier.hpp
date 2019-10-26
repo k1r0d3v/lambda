@@ -6,6 +6,7 @@
 #include "common.hpp"
 #include "exception.hpp"
 #include "context.hpp"
+#include "typed_value.hpp"
 
 namespace ast
 {
@@ -29,17 +30,22 @@ namespace ast
             return this->copy();
         }
 
-        Node::Pointer resolve(const Context &context) const override
+        Node::Pointer resolve(Context &context) const override
         {
             auto value = context.getValue(mName);
+            auto type = context.getType(mName);
+
             if (value == nullptr)
                 throw NameException("name '" + mName + "' is not defined");
-            return value;
+            if (type == nullptr)
+                throw TypeException("Expected a typed value");
+
+            return Node::make<TypedValue>(value, type);
         }
 
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
         {
-            if (a->type() == NodeType::Identifier)
+            if (a->nodeType() == NodeType::Identifier)
             {
                 auto id = Node::cast<Identifier>(a);
                 if (id->name() == mName)

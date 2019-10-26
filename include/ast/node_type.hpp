@@ -10,8 +10,8 @@ namespace ast::NodeType
         Abstraction,
         Application,
 
-        Natural,
-        Boolean,
+        NaturalConstant,
+        BooleanConstant,
         Condition,
         LocalDefinition,
         Primitive,
@@ -19,6 +19,8 @@ namespace ast::NodeType
         Unit,
         Sequence,
         Declaration,
+
+        TypedValue,
     };
 }
 

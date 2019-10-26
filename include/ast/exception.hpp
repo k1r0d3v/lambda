@@ -2,7 +2,7 @@
 #define LAMBDA_EXCEPTION_HPP
 
 #include "common.hpp"
-#include "terminal_colors.hpp"
+#include <terminal_colors.hpp>
 
 namespace ast
 {

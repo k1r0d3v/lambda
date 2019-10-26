@@ -7,7 +7,7 @@ namespace ast
 {
     class Context; // Forward declaration of Context
 
-    // TODO: Add character offset of the node
+    // TODO: Add character offset to the node
     /**
      *  Abstract Syntax Tree Node
      */
@@ -46,12 +46,8 @@ namespace ast
          */
         virtual Node::Pointer evaluate(Context &context) const = 0;
 
-        /**
-         * Replace nodes whose values are given by a read only context
-         *
-         * @param context Read only context to get node values
-         */
-        virtual Node::Pointer resolve(const Context &context) const = 0;
+        // Resolves types and identifiers?
+        virtual Node::Pointer resolve(Context &context) const = 0;
 
         /**
          * Replaces recursively the node @param{a} in the tree with by the node @param{b}
@@ -69,7 +65,7 @@ namespace ast
         virtual string toString() const = 0;
 
         /**
-         * @return A recursive copy of this node
+         * @return A copy of this node tree
          */
         virtual Node::Pointer copy() const = 0;
 
@@ -77,7 +73,7 @@ namespace ast
          *
          * @return Integer value representing the node type
          */
-        int type() const
+        int nodeType() const
         {
             return mType;
         }

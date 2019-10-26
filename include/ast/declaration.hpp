@@ -32,9 +32,11 @@ namespace ast
             return evaluatedValue;
         }
 
-        Node::Pointer resolve(const Context &context) const override
+        Node::Pointer resolve(Context &context) const override
         {
-            return Node::make<Declaration>(mId, mValue->resolve(context));
+            auto resolvedValue = Node::cast<TypedValue>(mValue->resolve(context));
+            context.setType(mId->name(), resolvedValue->type());
+            return Node::make<TypedValue>(Node::make<Declaration>(mId, resolvedValue->value()), resolvedValue->type());
         }
 
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override

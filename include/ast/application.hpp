@@ -15,7 +15,10 @@ namespace ast
 
     public:
         Application(Node::Pointer left, Node::Pointer right)
-                : Node(NodeType::Application), mLeft(std::move(left)), mRight(std::move(right)) { }
+                : Node(NodeType::Application),
+                  mLeft(std::move(left)),
+                  mRight(std::move(right))
+        { }
 
         const Node::Pointer &left() const
         {
@@ -45,13 +48,13 @@ namespace ast
                 t2 = application->right();
 
                 // Evaluates left side if not an abstraction
-                if (v1->type() != NodeType::Abstraction)
+                if (v1->nodeType() != NodeType::Abstraction)
                     v1 = v1->evaluate(context);
 
-                if (v1->type() != NodeType::Abstraction)
+                if (v1->nodeType() != NodeType::Abstraction)
                     throw TypeException("\'" + v1->toString() + "\' is not an abstraction");
 
-                if (t2->type() == NodeType::Application)
+                if (t2->nodeType() == NodeType::Application)
                 {
                     // Arguments are expected to be processed in order
                     // We have a curry form, reorder the nodes to apply in the correct order
@@ -67,15 +70,24 @@ namespace ast
                 }
 
                 // Try to reuse the stack to avoid stack overflows
-            } while (t->type() == NodeType::Application);
+            } while (t->nodeType() == NodeType::Application);
 
             return t->evaluate(context);
         }
 
-        Node::Pointer resolve(const Context &context) const override
+        Node::Pointer resolve(Context &context) const override
         {
-            // TODO: Resolve should make type checks?
-            return Node::make<Application>(mLeft->resolve(context), mRight->resolve(context));
+            auto resolvedLeft = Node::cast<TypedValue>(mLeft->resolve(context));
+            auto resolvedRight = Node::cast<TypedValue>(mRight->resolve(context));
+            auto leftType = Type::cast<AbstractionType>(resolvedLeft->type());
+
+            if (leftType == nullptr)
+                throw TypeException("Expected an abstraction");
+
+            if (leftType->left()->distinct(resolvedRight->type()))
+                throw TypeException("Incomplatible types");
+
+            return Node::make<TypedValue>(Node::make<Application>(resolvedLeft->value(), resolvedRight->value()), Type::make<AbstractionType>(leftType, resolvedRight->type()));
         }
 
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override

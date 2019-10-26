@@ -6,7 +6,7 @@
 #include <vector>
 #include "node.hpp"
 #include "common.hpp"
-#include "natural.hpp"
+#include "type.hpp"
 
 namespace ast
 {
@@ -14,6 +14,7 @@ namespace ast
     {
     private:
         using StrNodeMapType = std::map<string, Node::Pointer>;
+        using StrTypeMapType = std::map<string, Type::Pointer>;
 
     public:
         Context() = default;
@@ -37,6 +38,24 @@ namespace ast
             return it->second;
         }
 
+        Type::Pointer setType(const string& id, const Type::Pointer& value)
+        {
+            auto it = mTypesMap.find(id);
+            mTypesMap[id] = value;
+
+            if (it == mTypesMap.end())
+                return Type::Pointer();
+            return it->second;
+        }
+
+        Type::Pointer getType(const string& id) const
+        {
+            auto it = mTypesMap.find(id);
+            if (it == mTypesMap.end())
+                return Type::Pointer();
+            return it->second;
+        }
+
         Context copy() const
         {
             return Context();
@@ -44,6 +63,7 @@ namespace ast
 
     private:
         StrNodeMapType mMap;
+        StrTypeMapType mTypesMap;
     };
 }
 

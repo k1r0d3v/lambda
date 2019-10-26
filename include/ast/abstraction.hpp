@@ -5,6 +5,7 @@
 #include "identifier.hpp"
 #include "node_type.hpp"
 #include "variable.hpp"
+#include "abstraction_type.hpp"
 
 namespace ast
 {
@@ -15,8 +16,17 @@ namespace ast
 
     public:
         Abstraction(Variable::Pointer argument, const Node::Pointer& body)
-                : Node(NodeType::Abstraction), mArgument(std::move(argument))
+                : Node(NodeType::Abstraction),
+                  mArgument(std::move(argument))
         {
+            // The replacement of id's by variables
+            // is to avoid ugly situations like:
+            // let foo = x in λx. λy. x y foo;
+            // with result: λx. λy. x y x
+            //
+            // But with variables we have instead:
+            // with result: λx. λy. var(x) var(y) x
+            // witch is correct
             mBody = body->replace(Node::make<Identifier>(mArgument->name()), mArgument);
         }
 
@@ -36,9 +46,10 @@ namespace ast
             return Node::make<Abstraction>(mArgument, mBody);
         }
 
-        Node::Pointer resolve(const Context &context) const override
+        Node::Pointer resolve(Context &context) const override
         {
-            return Node::make<Abstraction>(mArgument, mBody->resolve(context));
+            auto resolvedBody = Node::cast<TypedValue>(mBody->resolve(context));
+            return Node::make<TypedValue>(Node::make<Abstraction>(mArgument, resolvedBody->value()), Node::make<AbstractionType>(mArgument->type(), resolvedBody->type()));
         }
 
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
@@ -47,11 +58,12 @@ namespace ast
             auto abs = Node::makeNoDeletablePtr(this);
 
             // Duplicated variable names inside abstraction
-            if (a->type() == NodeType::Variable && mArgument->name() == Node::cast<Variable>(a)->name())
+            if (a->nodeType() == NodeType::Variable && mArgument->name() == Node::cast<Variable>(a)->name())
             {
                 // FIXME: Esto puede causar problemas si en el body ya hay un @code{_x}
                 // Generate new name
-                auto _x = Node::make<Variable>(mArgument->name() + "\'");
+                // TODO: Use the correct type
+                auto _x = Node::make<Variable>(mArgument->name() + "\'", mArgument->type());
                 // Replace in body
                 abs = Node::make<Abstraction>(_x, mBody->replace(mArgument, _x));
             }
@@ -67,10 +79,10 @@ namespace ast
         string toString() const override
         {
             // Note: Replace will rename problematic entries
-
             auto os = std::ostringstream();
-            os << "(\xce\xbb" << argument()->toString() << ". "
-               << mBody->replace(mArgument, mArgument)->toString() << ")";
+            os << "(\xce\xbb" << mArgument->toString() << " : "
+               << mArgument->type()->toString() << ". "
+               << mBody->toString() << ")";
             return os.str();
         }
 

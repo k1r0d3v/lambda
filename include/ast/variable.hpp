@@ -5,6 +5,7 @@
 #include "node_type.hpp"
 #include "common.hpp"
 #include "exception.hpp"
+#include "type.hpp"
 
 namespace ast
 {
@@ -14,12 +15,16 @@ namespace ast
         using Pointer = Node::PointerType<Variable>;
 
     public:
-        explicit Variable(string name)
-                : Node(NodeType::Variable), mName(std::move(name)) { }
+        explicit Variable(string name, Type::Pointer type)
+                : Node(NodeType::Variable), mName(std::move(name)), mType(std::move(type)) { }
 
         const string &name() const
         {
             return mName;
+        }
+
+        Type::Pointer type() const {
+            return mType;
         }
 
         Node::Pointer evaluate(Context &context) const override
@@ -27,14 +32,14 @@ namespace ast
             throw ASTException("Variables are expected to be replaced, can not be evaluated");
         }
 
-        Node::Pointer resolve(const Context &context) const override
+        Node::Pointer resolve(Context &context) const override
         {
-            return this->copy();
+            return Node::make<TypedValue>(Node::make<Variable>(mName, mType), mType);
         }
 
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
         {
-            if (a->type() == NodeType::Variable)
+            if (a->nodeType() == NodeType::Variable)
             {
                 auto variable = Node::cast<Variable>(a);
                 if (variable->name() == mName)
@@ -46,7 +51,7 @@ namespace ast
 
         Node::Pointer copy() const override
         {
-            return Node::make<Variable>(mName);
+            return Node::make<Variable>(mName, mType);
         }
 
         string toString() const override
@@ -56,6 +61,7 @@ namespace ast
 
     private:
         string mName;
+        Type::Pointer mType;
     };
 }
 

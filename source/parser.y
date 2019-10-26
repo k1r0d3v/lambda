@@ -29,12 +29,14 @@ namespace yy { class Driver; }
 
 // Make the ast operations shorter
 #define MKNODE(T, ...) ast::Node::make<ast::T>(__VA_ARGS__)
+#define MKTYPE(T, ...) ast::Type::make<ast::T>(__VA_ARGS__)
 }
 
 
 %token END 0                    "EOF"
 %token <int> NUMBER             "number"
 %token <std::string> IDENTIFIER "identifier"
+%token <std::string> TYPE_NAME  "type name"
 
 %token K_SUCC                   "succ"
 %token K_PRED                   "pred"
@@ -52,11 +54,13 @@ namespace yy { class Driver; }
 %token S_RPAREN                 ")"
 %token S_DOT                    "."
 %token S_EQ                     "="
+%token S_COLON                  ":"
 %token S_SEMICOLON              ";"
-
+%token S_ARROW                  "->"
 
 
 %type <ast::Node::Pointer> term
+%type <ast::Type::Pointer> variable_type
 %type <ast::AST*> s
 
 %%
@@ -67,15 +71,20 @@ s:
     | END { $$ = YY_DRIVERDATA; }
     | error { };
 
+variable_type: S_LPAREN variable_type S_RPAREN { $$ = $2; }
+    | TYPE_NAME { $$ = MKTYPE(ConstantType, $1); }
+    | variable_type S_ARROW variable_type { $$ = MKTYPE(AbstractionType, $1, $3); }
+    | error { };
+
 term: S_LPAREN term S_RPAREN { $$ = $2; }
     | S_LPAREN S_RPAREN { $$ = MKNODE(Unit); }
-    | NUMBER { $$ = MKNODE(Natural, $1); }
+    | NUMBER { $$ = MKNODE(NaturalConstant, $1); }
     | IDENTIFIER  { $$ = MKNODE(Identifier, $1); }
-    | K_TRUE { $$ = MKNODE(Boolean, true); }
-    | K_FALSE { $$ = MKNODE(Boolean, false); }
+    | K_TRUE { $$ = MKNODE(BooleanConstant, true); }
+    | K_FALSE { $$ = MKNODE(BooleanConstant, false); }
     | K_LET IDENTIFIER S_EQ term K_IN term { $$ = MKNODE(LocalDefinition, MKNODE(Identifier, $2), $4, $6); }
     | K_IF term K_THEN term K_ELSE term { $$ = MKNODE(Conditional, $2, $4, $6); }
-    | K_LAMBDA IDENTIFIER S_DOT term { $$ = MKNODE(Abstraction, MKNODE(Variable, $2), $4); }
+    | K_LAMBDA IDENTIFIER S_COLON variable_type S_DOT term { $$ = MKNODE(Abstraction, MKNODE(Variable, $2, $4), $6); }
     | K_SUCC term {  $$ = MKNODE(Successor, $2); }
     | K_PRED term { $$ = MKNODE(Predecessor, $2); }
     | K_ISZERO term { $$ = MKNODE(IsZero, $2); }

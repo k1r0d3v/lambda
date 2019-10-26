@@ -35,7 +35,7 @@ namespace ast
 
             if (a != nullptr)
             {
-                if (a->type() == NodeType::Sequence)
+                if (a->nodeType() == NodeType::Sequence)
                 {
                     auto aElements = Node::cast<Sequence>(a)->elements();
                     elements.insert(elements.end(), aElements.begin(), aElements.end());
@@ -44,7 +44,7 @@ namespace ast
 
             if (b != nullptr)
             {
-                if (b->type() == NodeType::Sequence)
+                if (b->nodeType() == NodeType::Sequence)
                 {
                     auto bElements = Node::cast<Sequence>(b)->elements();
                     elements.insert(elements.end(), bElements.begin(), bElements.end());
@@ -74,14 +74,19 @@ namespace ast
             return r;
         }
 
-        Node::Pointer resolve(const Context &context) const override
+        Node::Pointer resolve(Context &context) const override
         {
+            Type::Pointer type = Type::make<ConstantType>(Unit::TYPE_NAME);
             list<Node::Pointer> elements;
 
             for (const auto& i : mElements)
-                elements.push_back(i->resolve(context));
+            {
+                auto iResolved = Node::cast<TypedValue>(i->resolve(context));
+                type = iResolved->type();
+                elements.push_back(iResolved->value());
+            }
 
-            return Node::make<Sequence>(elements);
+            return Node::make<TypedValue>(Node::make<Sequence>(elements), type);
         }
 
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override

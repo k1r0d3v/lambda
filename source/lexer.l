@@ -26,7 +26,9 @@ WHITESPACE  [ \t]
 \)                      { return yy::Parser::make_S_RPAREN(loc); }
 \.                      { return yy::Parser::make_S_DOT(loc); }
 \=                      { return yy::Parser::make_S_EQ(loc); }
+\:                      { return yy::Parser::make_S_COLON(loc); }
 \;                      { return yy::Parser::make_S_SEMICOLON(loc); }
+->                      { return yy::Parser::make_S_ARROW(loc); }
 
 succ                    { return yy::Parser::make_K_SUCC(loc); }
 pred                    { return yy::Parser::make_K_PRED(loc); }
@@ -42,6 +44,7 @@ lambda                  { return yy::Parser::make_K_LAMBDA(loc); }
 
 [0-9]+                  { return yy::Parser::make_NUMBER(atoi(yytext), loc); }
 [a-z_][a-z0-9_]*        { return yy::Parser::make_IDENTIFIER(yytext, loc); }
+[A-Z][a-zA-Z]*          { return yy::Parser::make_TYPE_NAME(yytext, loc); }
 <<EOF>>                 { return yy::Parser::make_END(loc); }
 .                       { throw std::runtime_error(std::string("error: ") + yytext); }
 

@@ -2,8 +2,6 @@
 #define LAMBDA_TYPE_HPP
 
 #include "common.hpp"
-#include "node.hpp"
-#include "node_type.hpp"
 
 namespace ast
 {

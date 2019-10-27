@@ -21,7 +21,6 @@
 #include "type.hpp"
 #include "abstraction_type.hpp"
 #include "constant_type.hpp"
-#include <ast/typed_value.hpp>
 //
 
 namespace ast
@@ -34,8 +33,8 @@ namespace ast
         Node::Pointer evaluate(Context &context)
         {
             assert(mRoot != nullptr);
-            auto resolved = Node::cast<TypedValue>(mRoot->resolve(context));
-            return Node::make<TypedValue>(resolved->evaluate(context), resolved->type());
+            mRoot->resolve(context);
+            return mRoot->evaluate(context);
         }
 
         string toString() const

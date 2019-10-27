@@ -36,12 +36,17 @@ namespace ast
 
         Node::Pointer evaluate(Context &context) const override
         {
-            throw ASTException("let in terms can not be evaluated");
+            return mBody->evaluate(context);
         }
 
-        Node::Pointer resolve(Context &context) const override
+        void resolve(Context &context) override
         {
-            return mBody->replace(mId, mValue->resolve(context))->resolve(context);
+            mValue->resolve(context);
+            mBody = mBody->replace(mId, mValue);
+            mBody->resolve(context);
+            mValue = nullptr;
+
+            this->setType(mBody->type());
         }
 
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
@@ -51,7 +56,9 @@ namespace ast
 
         Node::Pointer copy() const override
         {
-            return Node::make<LocalDefinition>(mId, mValue, mBody);
+            auto copy = Node::make<LocalDefinition>(mId, mValue, mBody);
+            copy->setType(this->type());
+            return copy;
         }
 
         string toString() const override

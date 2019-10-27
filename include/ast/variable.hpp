@@ -16,25 +16,19 @@ namespace ast
 
     public:
         explicit Variable(string name, Type::Pointer type)
-                : Node(NodeType::Variable), mName(std::move(name)), mType(std::move(type)) { }
+                : Node(NodeType::Variable), mName(std::move(name))
+        {
+            this->setType(std::move(type));
+        }
 
         const string &name() const
         {
             return mName;
         }
 
-        Type::Pointer type() const {
-            return mType;
-        }
-
         Node::Pointer evaluate(Context &context) const override
         {
             throw ASTException("Variables are expected to be replaced, can not be evaluated");
-        }
-
-        Node::Pointer resolve(Context &context) const override
-        {
-            return Node::make<TypedValue>(Node::make<Variable>(mName, mType), mType);
         }
 
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
@@ -51,7 +45,7 @@ namespace ast
 
         Node::Pointer copy() const override
         {
-            return Node::make<Variable>(mName, mType);
+            return Node::make<Variable>(mName, this->type());
         }
 
         string toString() const override
@@ -61,7 +55,6 @@ namespace ast
 
     private:
         string mName;
-        Type::Pointer mType;
     };
 }
 

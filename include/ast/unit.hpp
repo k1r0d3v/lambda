@@ -5,7 +5,6 @@
 #include "node_type.hpp"
 #include "node.hpp"
 #include "constant_type.hpp"
-#include "typed_value.hpp"
 
 namespace ast
 {
@@ -18,18 +17,16 @@ namespace ast
 
     public:
         explicit Unit()
-                : Node(NodeType::Unit) { }
+                : Node(NodeType::Unit) 
+        {
+            this->setType(Type::make<ConstantType>(TYPE_NAME));
+        }
 
         Node::Pointer evaluate(Context &context) const override
         {
             return this->copy();
         }
-
-        Node::Pointer resolve(Context &context) const override
-        {
-            return Node::make<TypedValue>(Node::make<Unit>(), Type::make<ConstantType>(TYPE_NAME));
-        }
-
+        
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
         {
             return this->copy();

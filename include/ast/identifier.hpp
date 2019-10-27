@@ -6,7 +6,6 @@
 #include "common.hpp"
 #include "exception.hpp"
 #include "context.hpp"
-#include "typed_value.hpp"
 
 namespace ast
 {
@@ -14,6 +13,7 @@ namespace ast
     {
     public:
         using Pointer = Node::PointerType<Identifier>;
+
 
     public:
         explicit Identifier(string name)
@@ -24,28 +24,38 @@ namespace ast
             return mName;
         }
 
-        Node::Pointer evaluate(Context &context) const override
+        const Node::Pointer &value() const
         {
-            // Can not be evaluated more
-            return this->copy();
+            return mValue;
         }
 
-        Node::Pointer resolve(Context &context) const override
+        Node::Pointer evaluate(Context &context) const override
         {
-            auto value = context.getValue(mName);
-            auto type = context.getType(mName);
+            if (mValue != nullptr) return mValue->evaluate(context);
+            else throw NameException("Unresolved identifiers can not be evaluated");
+        }
 
-            if (value == nullptr)
-                throw NameException("name '" + mName + "' is not defined");
-            if (type == nullptr)
-                throw TypeException("Expected a typed value");
+        void resolve(Context &context) override
+        {
+            // Note: Only called when we have a single id
+            if (mValue == nullptr)
+            {
+                auto value = context.getValue(mName);
 
-            return Node::make<TypedValue>(value, type);
+                if (value == nullptr)
+                    throw NameException("name '" + mName + "' is not defined");
+
+                if (value->type() == nullptr)
+                    throw TypeException("Expected a typed value");
+
+                mValue = value;
+                this->setType(mValue->type());
+            }
         }
 
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
         {
-            if (a->nodeType() == NodeType::Identifier)
+            if (mValue == nullptr && a->nodeType() == NodeType::Identifier)
             {
                 auto id = Node::cast<Identifier>(a);
                 if (id->name() == mName)
@@ -57,16 +67,20 @@ namespace ast
 
         Node::Pointer copy() const override
         {
-            return Node::make<Identifier>(mName);
+            auto copy = Node::make<Identifier>(mName);
+            copy->mValue = mValue;
+            copy->setType(this->type());
+            return copy;
         }
 
         string toString() const override
         {
-            return mName;
+            return mValue == nullptr ? mName : mValue->toString();
         }
 
     private:
         string mName;
+        Node::Pointer mValue;
     };
 }
 

@@ -74,19 +74,19 @@ namespace ast
             return r;
         }
 
-        Node::Pointer resolve(Context &context) const override
+        void resolve(Context &context) override
         {
             Type::Pointer type = Type::make<ConstantType>(Unit::TYPE_NAME);
             list<Node::Pointer> elements;
 
             for (const auto& i : mElements)
             {
-                auto iResolved = Node::cast<TypedValue>(i->resolve(context));
-                type = iResolved->type();
-                elements.push_back(iResolved->value());
+                i->resolve(context);
+                type = i->type();
+                elements.push_back(i);
             }
 
-            return Node::make<TypedValue>(Node::make<Sequence>(elements), type);
+            this->setType(type);
         }
 
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
@@ -101,7 +101,9 @@ namespace ast
 
         Node::Pointer copy() const override
         {
-            return Node::make<Sequence>(mElements);
+            auto copy = Node::make<Sequence>(mElements);
+            copy->setType(this->type());
+            return copy;
         }
 
         string toString() const override

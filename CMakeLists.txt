@@ -46,7 +46,7 @@ add_executable(lambda
         include/ast/declaration.hpp
         include/ast/type.hpp
         include/ast/constant_type.hpp
-        include/ast/abstraction_type.hpp include/ast/typed_value.hpp)
+        include/ast/abstraction_type.hpp)
 
 # Add include folder to include directories
 target_include_directories(lambda PRIVATE include/)

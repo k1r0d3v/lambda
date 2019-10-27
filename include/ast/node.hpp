@@ -2,6 +2,7 @@
 #define LAMBDA_NODE_HPP
 
 #include "common.hpp"
+#include "type.hpp"
 
 namespace ast
 {
@@ -38,7 +39,7 @@ namespace ast
         }
 
     public:
-        explicit Node(int type) : mType(type) { }
+        explicit Node(int type) : mNodeType(type) { }
 
         /**
          * @param context A given context
@@ -47,7 +48,7 @@ namespace ast
         virtual Node::Pointer evaluate(Context &context) const = 0;
 
         // Resolves types and identifiers?
-        virtual Node::Pointer resolve(Context &context) const = 0;
+        virtual void resolve(Context &context) { }
 
         /**
          * Replaces recursively the node @param{a} in the tree with by the node @param{b}
@@ -75,11 +76,21 @@ namespace ast
          */
         int nodeType() const
         {
+            return mNodeType;
+        }
+
+        Type::Pointer type() const {
             return mType;
         }
 
+    protected:
+        void setType(Type::Pointer type) {
+            mType = std::move(type);
+        }
+
     private:
-        const int mType;
+        const int mNodeType;
+        Type::Pointer mType;
     };
 }
 

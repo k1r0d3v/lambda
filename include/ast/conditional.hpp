@@ -35,19 +35,19 @@ namespace ast
                 return mElse->evaluate(context);
         }
 
-        Node::Pointer resolve(Context &context) const override
+        void resolve(Context &context) override
         {
-            auto resolvedCondition = Node::cast<TypedValue>(mCondition->resolve(context));
-            auto resolvedThen = Node::cast<TypedValue>(mThen->resolve(context));
-            auto resolvedElse = Node::cast<TypedValue>(mElse->resolve(context));
+            mCondition->resolve(context);
+            mThen->resolve(context);
+            mElse->resolve(context);
 
-            if (resolvedCondition->type()->distinct(Type::make<ConstantType>(BooleanConstant::TYPE_NAME)))
+            if (mCondition->type()->distinct(Type::make<ConstantType>(BooleanConstant::TYPE_NAME)))
                 throw TypeException("Expected a boolean value");
 
-            if (resolvedThen->type()->distinct(resolvedElse->type()))
+            if (mThen->type()->distinct(mElse->type()))
                 throw TypeException("Expected the same type in then and else");
 
-            return Node::make<TypedValue>(Node::make<Conditional>(resolvedCondition->value(), resolvedThen->value(), resolvedElse->value()), resolvedThen->type());
+            this->setType(mThen->type());
         }
 
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
@@ -57,7 +57,9 @@ namespace ast
 
         Node::Pointer copy() const override
         {
-            return Node::make<Conditional>(mCondition, mThen, mElse);
+            auto copy = Node::make<Conditional>(mCondition, mThen, mElse);
+            copy->setType(this->type());
+            return copy;
         }
 
         string toString() const override

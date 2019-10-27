@@ -21,7 +21,12 @@ namespace ast
 
     public:
         explicit IsZero(Node::Pointer argument)
-                : Node(NodeType::Primitive), mArgument(std::move(argument)) { }
+                : Node(NodeType::Primitive), mArgument(std::move(argument))
+        {
+            auto naturalType = Type::make<ConstantType>(NaturalConstant::TYPE_NAME);
+            auto booleanType = Type::make<ConstantType>(BooleanConstant::TYPE_NAME);
+            this->setType(Type::make<AbstractionType>(naturalType, booleanType));
+        }
 
         Node::Pointer evaluate(Context &context) const override
         {
@@ -35,17 +40,14 @@ namespace ast
             return Node::make<BooleanConstant>(Node::cast<NaturalConstant>(t)->value() == 0);
         }
 
-        Node::Pointer resolve(Context &context) const override
+        void resolve(Context &context) override
         {
-            auto typedValue = Node::cast<TypedValue>(mArgument->resolve(context));
-            auto expectedArgumentType = Type::make<ConstantType>(NaturalConstant::TYPE_NAME);
-            auto resultType = Type::make<ConstantType>(BooleanConstant::TYPE_NAME);
+            auto myType = Type::cast<AbstractionType>(this->type());
 
-            if (typedValue->type()->distinct(expectedArgumentType))
-                throw TypeException("FOOOO");
+            mArgument->resolve(context);
 
-            auto value = Node::make<IsZero>(typedValue->value());
-            return Node::make<TypedValue>(value, Type::make<AbstractionType>(expectedArgumentType, resultType));
+            if (mArgument->type()->distinct(myType->left()))
+                throw TypeException("Expected a natural");
         }
 
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
@@ -76,7 +78,11 @@ namespace ast
 
     public:
         explicit Successor(Node::Pointer argument)
-                : Node(NodeType::Primitive), mArgument(std::move(argument)) { }
+                : Node(NodeType::Primitive), mArgument(std::move(argument))
+        {
+            auto naturalType = Type::make<ConstantType>(NaturalConstant::TYPE_NAME);
+            this->setType(Type::make<AbstractionType>(naturalType, naturalType));
+        }
 
         Node::Pointer evaluate(Context &context) const override
         {
@@ -90,17 +96,14 @@ namespace ast
             return Node::make<NaturalConstant>(Node::cast<NaturalConstant>(t)->value() + 1);
         }
 
-        Node::Pointer resolve(Context &context) const override
+        void resolve(Context &context) override
         {
-            auto typedValue = Node::cast<TypedValue>(mArgument->resolve(context));
-            auto expectedArgumentType = Type::make<ConstantType>(NaturalConstant::TYPE_NAME);
-            auto resultType = Type::make<ConstantType>(NaturalConstant::TYPE_NAME);
+            auto myType = Type::cast<AbstractionType>(this->type());
 
-            if (typedValue->type()->distinct(expectedArgumentType))
-                throw TypeException("FOOOO");
+            mArgument->resolve(context);
 
-            auto value = Node::make<Successor>(typedValue->value());
-            return Node::make<TypedValue>(value, Type::make<AbstractionType>(expectedArgumentType, resultType));
+            if (mArgument->type()->distinct(myType->left()))
+                throw TypeException("Expected a natural");
         }
 
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
@@ -131,7 +134,11 @@ namespace ast
 
     public:
         explicit Predecessor(Node::Pointer argument)
-                : Node(NodeType::Primitive), mArgument(std::move(argument)) { }
+                : Node(NodeType::Primitive), mArgument(std::move(argument))
+        {
+            auto naturalType = Type::make<ConstantType>(NaturalConstant::TYPE_NAME);
+            this->setType(Type::make<AbstractionType>(naturalType, naturalType));
+        }
 
 
         Node::Pointer evaluate(Context &context) const override
@@ -147,17 +154,13 @@ namespace ast
             return Node::make<NaturalConstant>(value > 0 ? value - 1 : 0);
         }
 
-        Node::Pointer resolve(Context &context) const override
+        void resolve(Context &context) override
         {
-            auto typedValue = Node::cast<TypedValue>(mArgument->resolve(context));
-            auto expectedArgumentType = Type::make<ConstantType>(NaturalConstant::TYPE_NAME);
-            auto resultType = Type::make<ConstantType>(NaturalConstant::TYPE_NAME);
+            auto myType = Type::cast<AbstractionType>(this->type());
+            mArgument->resolve(context);
 
-            if (typedValue->type()->distinct(expectedArgumentType))
-                throw TypeException("FOOOO");
-
-            auto value = Node::make<Predecessor>(typedValue->value());
-            return Node::make<TypedValue>(value, Type::make<AbstractionType>(expectedArgumentType, resultType));
+            if (mArgument->type()->distinct(myType->left()))
+                throw TypeException("Expected a natural");
         }
 
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override

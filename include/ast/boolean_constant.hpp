@@ -4,7 +4,6 @@
 #include "common.hpp"
 #include "node.hpp"
 #include "node_type.hpp"
-#include "typed_value.hpp"
 #include "constant_type.hpp"
 
 namespace ast
@@ -18,7 +17,10 @@ namespace ast
 
     public:
         explicit BooleanConstant(bool value)
-                : Node(NodeType::BooleanConstant), mValue(value) { }
+                : Node(NodeType::BooleanConstant), mValue(value)
+        {
+            this->setType(Type::make<ConstantType>(TYPE_NAME));
+        }
 
         const bool &value() const
         {
@@ -28,11 +30,6 @@ namespace ast
         Node::Pointer evaluate(Context &context) const override
         {
             return Node::make<BooleanConstant>(mValue); // Can not be evaluated more
-        }
-
-        Node::Pointer resolve(Context &context) const override
-        {
-            return Node::make<TypedValue>(Node::make<BooleanConstant>(mValue), Type::make<ConstantType>(TYPE_NAME));
         }
 
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override

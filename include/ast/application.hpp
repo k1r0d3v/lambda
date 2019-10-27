@@ -75,19 +75,19 @@ namespace ast
             return t->evaluate(context);
         }
 
-        Node::Pointer resolve(Context &context) const override
+        void resolve(Context &context) override
         {
-            auto resolvedLeft = Node::cast<TypedValue>(mLeft->resolve(context));
-            auto resolvedRight = Node::cast<TypedValue>(mRight->resolve(context));
-            auto leftType = Type::cast<AbstractionType>(resolvedLeft->type());
+            mLeft->resolve(context);
+            mRight->resolve(context);
+            auto leftAbs = Type::cast<AbstractionType>(mLeft->type());
 
-            if (leftType == nullptr)
+            if (leftAbs == nullptr)
                 throw TypeException("Expected an abstraction");
 
-            if (leftType->left()->distinct(resolvedRight->type()))
-                throw TypeException("Incomplatible types");
+            if (leftAbs->left()->distinct(mRight->type()))
+                throw TypeException("FOO"); //"Expected \'" + leftAbs->left()->toString() + "\' not \'" + mRight->type()->toString() + "\'"
 
-            return Node::make<TypedValue>(Node::make<Application>(resolvedLeft->value(), resolvedRight->value()), Type::make<AbstractionType>(leftType, resolvedRight->type()));
+            this->setType(leftAbs->right());
         }
 
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
@@ -97,7 +97,9 @@ namespace ast
 
         Node::Pointer copy() const override
         {
-            return Node::make<Application>(mLeft->copy(), mRight->copy());
+            auto copy = Node::make<Application>(mLeft->copy(), mRight->copy());
+            copy->setType(this->type());
+            return copy;
         }
 
         string toString() const override

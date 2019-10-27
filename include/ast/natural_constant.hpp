@@ -6,7 +6,6 @@
 #include "node_type.hpp"
 #include "type.hpp"
 #include "constant_type.hpp"
-#include "typed_value.hpp"
 
 namespace ast
 {
@@ -20,7 +19,10 @@ namespace ast
 
     public:
         explicit NaturalConstant(NaturalValueType value)
-                : Node(NodeType::NaturalConstant), mValue(value) { }
+                : Node(NodeType::NaturalConstant), mValue(value)
+        {
+            this->setType(Type::make<ConstantType>(TYPE_NAME));
+        }
 
         const NaturalValueType &value() const
         {
@@ -30,11 +32,6 @@ namespace ast
         Node::Pointer evaluate(Context &context) const override
         {
             return Node::make<NaturalConstant>(mValue); // Can not be evaluated more
-        }
-
-        Node::Pointer resolve(Context &context) const override
-        {
-            return Node::make<TypedValue>(Node::make<NaturalConstant>(mValue), Type::make<ConstantType>(TYPE_NAME));
         }
 
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override

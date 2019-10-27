@@ -43,13 +43,13 @@ namespace ast
         Node::Pointer evaluate(Context &context) const override
         {
             // Can not be evaluated more
-            return Node::make<Abstraction>(mArgument, mBody);
+            return this->copy();
         }
 
-        Node::Pointer resolve(Context &context) const override
+        void resolve(Context &context) override
         {
-            auto resolvedBody = Node::cast<TypedValue>(mBody->resolve(context));
-            return Node::make<TypedValue>(Node::make<Abstraction>(mArgument, resolvedBody->value()), Node::make<AbstractionType>(mArgument->type(), resolvedBody->type()));
+            mBody->resolve(context);
+            this->setType(Type::make<AbstractionType>(mArgument->type(), mBody->type()));
         }
 
         Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
@@ -73,7 +73,9 @@ namespace ast
 
         Node::Pointer copy() const override
         {
-            return Node::make<Abstraction>(Node::cast<Variable>(mArgument->copy()), mBody->copy());
+            auto copy = Node::make<Abstraction>(Node::cast<Variable>(mArgument->copy()), mBody->copy());
+            copy->setType(this->type());
+            return copy;
         }
 
         string toString() const override

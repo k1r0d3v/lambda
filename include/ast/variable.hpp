@@ -5,7 +5,7 @@
 #include "node_type.hpp"
 #include "common.hpp"
 #include "exception.hpp"
-#include "type.hpp"
+#include "ast/types/type.hpp"
 
 namespace ast
 {
@@ -16,9 +16,9 @@ namespace ast
 
     public:
         explicit Variable(string name, Type::Pointer type)
-                : Node(NodeType::Variable), mName(std::move(name))
+                : Node(NodeType::Variable), mName(std::move(name)), mType(std::move(type))
         {
-            this->setType(std::move(type));
+            assert(mType != nullptr);
         }
 
         const string &name() const
@@ -26,26 +26,35 @@ namespace ast
             return mName;
         }
 
-        Node::Pointer evaluate(Context &context) const override
+        const Type::Pointer &type() const
         {
-            throw ASTException("Variables are expected to be replaced, can not be evaluated");
+            return mType;
         }
 
-        Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
+        // TODO: Correct checks
+        Node::Pointer evaluate(Context &context) const override
         {
-            if (a->nodeType() == NodeType::Variable)
-            {
-                auto variable = Node::cast<Variable>(a);
-                if (variable->name() == mName)
-                    return b;
-            }
+            auto valueOfName = context.getValue(mName);
 
-            return this->copy();
+            if (valueOfName == nullptr)
+                throw UnexpectedException("No argument has been pushed");
+
+            return valueOfName->evaluate(context);
+        }
+
+        Node::Pointer freeze(Context &context) const override
+        {
+            return Node::make<Variable>(mName, mType);
+        }
+
+        Type::Pointer typecheck(TypeContext &context) const override
+        {
+            return mType;
         }
 
         Node::Pointer copy() const override
         {
-            return Node::make<Variable>(mName, this->type());
+            return Node::make<Variable>(mName, mType);
         }
 
         string toString() const override
@@ -55,6 +64,7 @@ namespace ast
 
     private:
         string mName;
+        Type::Pointer mType;
     };
 }
 

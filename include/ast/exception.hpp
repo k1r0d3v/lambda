@@ -6,8 +6,6 @@
 
 namespace ast
 {
-    // TODO: ASTException, EvaluationException, ...
-
     class ASTException :  public std::exception
     {
     public:
@@ -30,12 +28,21 @@ namespace ast
         std::string mWhat;
     };
 
-    class EvaluationException : public ASTException
+    class UnexpectedException : public ASTException
     {
     public:
+        explicit UnexpectedException(const string &message)
+        {
+            mWhat = (string)head() + ": " + message;
+        }
+
+        const char *head() const noexcept override
+        {
+            return TERM_FG_START(TERM_RED) "UnexpectedError" TERM_RESET();
+        }
     };
 
-    class NameException : public EvaluationException
+    class NameException : public ASTException
     {
     public:
         explicit NameException(const string &message)
@@ -49,7 +56,7 @@ namespace ast
         }
     };
 
-    class TypeException : public EvaluationException
+    class TypeException : public ASTException
     {
     public:
         explicit TypeException(const string &message)

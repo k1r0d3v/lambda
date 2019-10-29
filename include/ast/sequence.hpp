@@ -5,6 +5,7 @@
 #include "node_type.hpp"
 #include "node.hpp"
 
+
 namespace ast
 {
     class Sequence : public Node
@@ -74,36 +75,29 @@ namespace ast
             return r;
         }
 
-        void resolve(Context &context) override
-        {
-            Type::Pointer type = Type::make<ConstantType>(Unit::TYPE_NAME);
-            list<Node::Pointer> elements;
-
-            for (const auto& i : mElements)
-            {
-                i->resolve(context);
-                type = i->type();
-                elements.push_back(i);
-            }
-
-            this->setType(type);
-        }
-
-        Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
+        Node::Pointer freeze(Context &context) const override
         {
             list<Node::Pointer> elements;
 
             for (const auto& i : mElements)
-                elements.push_back(i->replace(a, b));
+                elements.push_back(i->freeze(context));
 
             return Node::make<Sequence>(elements);
         }
 
+        Type::Pointer typecheck(TypeContext &context) const override
+        {
+            Type::Pointer type = UnitType::UNIT;
+
+            for (const auto& i : mElements)
+                type = i->typecheck(context);
+
+            return type;
+        }
+
         Node::Pointer copy() const override
         {
-            auto copy = Node::make<Sequence>(mElements);
-            copy->setType(this->type());
-            return copy;
+            return Node::make<Sequence>(mElements);
         }
 
         string toString() const override

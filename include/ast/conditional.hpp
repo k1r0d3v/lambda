@@ -26,8 +26,9 @@ namespace ast
         Node::Pointer evaluate(Context &context) const override
         {
             auto evalResult = mCondition->evaluate(context);
+
             if (evalResult->nodeType() != NodeType::BooleanConstant)
-                throw TypeException("\'" + evalResult->toString() + "\' is not a boolean");
+                throw UnexpectedException("Condition not resolved before evaluation, unexpected condition value");
 
             if (Node::cast<BooleanConstant>(evalResult)->value())
                 return mThen->evaluate(context);
@@ -35,31 +36,30 @@ namespace ast
                 return mElse->evaluate(context);
         }
 
-        void resolve(Context &context) override
+        Node::Pointer freeze(Context &context) const override
         {
-            mCondition->resolve(context);
-            mThen->resolve(context);
-            mElse->resolve(context);
-
-            if (mCondition->type()->distinct(Type::make<ConstantType>(BooleanConstant::TYPE_NAME)))
-                throw TypeException("Expected a boolean value");
-
-            if (mThen->type()->distinct(mElse->type()))
-                throw TypeException("Expected the same type in then and else");
-
-            this->setType(mThen->type());
+            return Node::make<Conditional>(mCondition->freeze(context), mThen->freeze(context), mElse->freeze(context));
         }
 
-        Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
+        Type::Pointer typecheck(TypeContext &context) const override
         {
-            return Node::make<Conditional>(mCondition->replace(a, b), mThen->replace(a, b), mElse->replace(a, b));
+            auto conditionType = mCondition->typecheck(context);
+
+            if (Type::distinct(conditionType, BoolType::BOOL))
+                throw TypeException("Expected \'Bool\' not \'" + conditionType->toString() + "\'");
+
+            auto thenType = mThen->typecheck(context);
+            auto elseType = mElse->typecheck(context);
+
+            if (Type::distinct(thenType, elseType))
+                throw TypeException("Incompatible operand types \'" + thenType->toString() + "\' and \'" + elseType->toString() + "\'");
+
+            return thenType;
         }
 
         Node::Pointer copy() const override
         {
-            auto copy = Node::make<Conditional>(mCondition, mThen, mElse);
-            copy->setType(this->type());
-            return copy;
+            return Node::make<Conditional>(mCondition->copy(), mThen->copy(), mElse->copy());
         }
 
         string toString() const override

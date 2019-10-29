@@ -1,6 +1,7 @@
 #ifndef LAMBDA_DECLARATION_HPP
 #define LAMBDA_DECLARATION_HPP
 
+
 #include "node.hpp"
 #include "node_type.hpp"
 #include "common.hpp"
@@ -28,26 +29,25 @@ namespace ast
         Node::Pointer evaluate(Context &context) const override
         {
             auto evaluatedValue = mValue->evaluate(context);
-            context.setValue(mId->name(), evaluatedValue);
+            context.setValue("::" + mId->name(), evaluatedValue);
             return evaluatedValue;
         }
 
-        void resolve(Context &context) override
+        Node::Pointer freeze(Context &context) const override
         {
-            mValue->resolve(context);
-            this->setType(mValue->type());
+            return Node::make<Declaration>(mId, mValue->freeze(context));
         }
 
-        Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
+        Type::Pointer typecheck(TypeContext &context) const override
         {
-            return Node::make<Declaration>(mId, mValue->replace(a, b));
+            auto valueType = mValue->typecheck(context);
+            context.setTypeFor("::" + mId->name(), valueType);
+            return valueType;
         }
 
         Node::Pointer copy() const override
         {
-            auto copy = Node::make<Declaration>(mId, mValue);
-            copy->setType(this->type());
-            return copy;
+            return Node::make<Declaration>(mId, mValue);
         }
 
         string toString() const override

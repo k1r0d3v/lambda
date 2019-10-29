@@ -5,7 +5,7 @@
 #include "node_type.hpp"
 #include "common.hpp"
 #include "exception.hpp"
-#include "context.hpp"
+#include "ast/types/type.hpp"
 
 namespace ast
 {
@@ -14,74 +14,67 @@ namespace ast
     public:
         using Pointer = Node::PointerType<Identifier>;
 
-
     public:
         explicit Identifier(string name)
-                : Node(NodeType::Identifier), mName(std::move(name)) { }
+                : Node(NodeType::Variable), mName(std::move(name))
+        { }
 
         const string &name() const
         {
             return mName;
         }
 
-        const Node::Pointer &value() const
-        {
-            return mValue;
-        }
-
         Node::Pointer evaluate(Context &context) const override
         {
-            if (mValue != nullptr) return mValue->evaluate(context);
-            else throw NameException("Unresolved identifiers can not be evaluated");
+            // Evaluate can be called when the identifier has not been replaced
+            // If that is the case then is expected that the tree is a only identifier
+            // or whats the same the identifier hast not haven't time to be frozen
+            auto valueOfName = context.getValue("::" + mName);
+            if (valueOfName == nullptr)
+                throw NameException("Name \'" + mName + "\' is not defined");
+
+            return valueOfName->evaluate(context);
         }
 
-        void resolve(Context &context) override
+        // TODO: Move to abstraction
+        Node::Pointer freeze(Context &context) const override
         {
-            // Note: Only called when we have a single id
-            if (mValue == nullptr)
-            {
-                auto value = context.getValue(mName);
+            auto valueOfName = context.getValue(mName);
+            if (valueOfName == nullptr)
+                valueOfName = context.getValue("::" + mName);
 
-                if (value == nullptr)
-                    throw NameException("name '" + mName + "' is not defined");
+            if (valueOfName == nullptr)
+                throw NameException("Name \'" + mName + "\' is not defined");
 
-                if (value->type() == nullptr)
-                    throw TypeException("Expected a typed value");
-
-                mValue = value;
-                this->setType(mValue->type());
-            }
+            // Replace this node by the value
+            return valueOfName;
         }
 
-        Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
+        Type::Pointer typecheck(TypeContext &context) const override
         {
-            if (mValue == nullptr && a->nodeType() == NodeType::Identifier)
-            {
-                auto id = Node::cast<Identifier>(a);
-                if (id->name() == mName)
-                    return b;
-            }
+            auto typeOfName = context.getTypeOf(mName);
+            if (typeOfName == nullptr)
+                typeOfName = context.getTypeOf("::" + mName);
 
-            return this->copy();
+            if (typeOfName == nullptr)
+                throw NameException("Name \'" + mName + "\' is not defined");
+
+            return typeOfName;
         }
 
         Node::Pointer copy() const override
         {
-            auto copy = Node::make<Identifier>(mName);
-            copy->mValue = mValue;
-            copy->setType(this->type());
-            return copy;
+            return Node::make<Identifier>(mName);
         }
 
         string toString() const override
         {
-            return mValue == nullptr ? mName : mValue->toString();
+            return mName;
         }
 
     private:
         string mName;
-        Node::Pointer mValue;
     };
 }
 
-#endif
+#endif //LAMBDA_IDENTIFIER_HPP

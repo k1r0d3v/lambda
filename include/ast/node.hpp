@@ -1,8 +1,8 @@
 #ifndef LAMBDA_NODE_HPP
 #define LAMBDA_NODE_HPP
 
+#include <ast/types/type_context.hpp>
 #include "common.hpp"
-#include "type.hpp"
 
 namespace ast
 {
@@ -39,58 +39,44 @@ namespace ast
         }
 
     public:
-        explicit Node(int type) : mNodeType(type) { }
+        explicit Node(int nodeType) : mNodeType(nodeType) { }
 
         /**
-         * @param context A given context
-         * @return Result of the evaluation, this value can be a real tree node or a copy
+         *
          */
         virtual Node::Pointer evaluate(Context &context) const = 0;
 
-        // Resolves types and identifiers?
-        virtual void resolve(Context &context) { }
-
         /**
-         * Replaces recursively the node @param{a} in the tree with by the node @param{b}
          *
-         * Note: The replacement is implementation dependent,
-         * implementors can impose restrictions over the node to replace or be replaced
-         *
-         * @return A copy of the tree with the nodes replaced
          */
-        virtual Node::Pointer replace(Node::Pointer a, Node::Pointer b) const = 0;
+        virtual Node::Pointer freeze(Context &context) const = 0;
 
         /**
-         * @return String representation of this node and children
+         *
+         */
+        virtual Type::Pointer typecheck(TypeContext &context) const = 0;
+
+        /**
+         * @return String representation of this node and children.
          */
         virtual string toString() const = 0;
 
         /**
-         * @return A copy of this node tree
+         * @return A copy of this node tree.
          */
         virtual Node::Pointer copy() const = 0;
 
         /**
          *
-         * @return Integer value representing the node type
+         * @return Integer value representing the node type in the tree.
          */
         int nodeType() const
         {
             return mNodeType;
         }
 
-        Type::Pointer type() const {
-            return mType;
-        }
-
-    protected:
-        void setType(Type::Pointer type) {
-            mType = std::move(type);
-        }
-
     private:
         const int mNodeType;
-        Type::Pointer mType;
     };
 }
 

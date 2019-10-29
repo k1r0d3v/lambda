@@ -1,12 +1,13 @@
 #ifndef LAMBDA_NATURAL_PRIMITIVES_HPP
 #define LAMBDA_NATURAL_PRIMITIVES_HPP
 
+#include <ast/types/bool_type.hpp>
 #include "common.hpp"
 #include "boolean_constant.hpp"
 #include "natural_constant.hpp"
 #include "node_type.hpp"
 #include "exception.hpp"
-#include "abstraction_type.hpp"
+#include "ast/types/arrow_type.hpp"
 
 namespace ast
 {
@@ -22,11 +23,7 @@ namespace ast
     public:
         explicit IsZero(Node::Pointer argument)
                 : Node(NodeType::Primitive), mArgument(std::move(argument))
-        {
-            auto naturalType = Type::make<ConstantType>(NaturalConstant::TYPE_NAME);
-            auto booleanType = Type::make<ConstantType>(BooleanConstant::TYPE_NAME);
-            this->setType(Type::make<AbstractionType>(naturalType, booleanType));
-        }
+        { }
 
         Node::Pointer evaluate(Context &context) const override
         {
@@ -35,24 +32,23 @@ namespace ast
                 t = t->evaluate(context);
 
             if (t->nodeType() != NodeType::NaturalConstant)
-                throw TypeException("\'" + t->toString() + "\' is not a natural");
+                throw UnexpectedException("IsZero not resolved before evaluation, unexpected right term");
 
             return Node::make<BooleanConstant>(Node::cast<NaturalConstant>(t)->value() == 0);
         }
 
-        void resolve(Context &context) override
+        Node::Pointer freeze(Context &context) const override
         {
-            auto myType = Type::cast<AbstractionType>(this->type());
-
-            mArgument->resolve(context);
-
-            if (mArgument->type()->distinct(myType->left()))
-                throw TypeException("Expected a natural");
+            return Node::make<IsZero>(mArgument->freeze(context));
         }
 
-        Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
+        Type::Pointer typecheck(TypeContext &context) const override
         {
-            return Node::make<IsZero>(mArgument->replace(a, b));
+            auto argumentType = mArgument->typecheck(context);
+            if (Type::distinct(argumentType, NatType::NAT))
+                throw TypeException("\'" + argumentType->toString() + "\' is not a \'Nat\'");
+
+            return BoolType::BOOL;
         }
 
         Node::Pointer copy() const override
@@ -79,10 +75,7 @@ namespace ast
     public:
         explicit Successor(Node::Pointer argument)
                 : Node(NodeType::Primitive), mArgument(std::move(argument))
-        {
-            auto naturalType = Type::make<ConstantType>(NaturalConstant::TYPE_NAME);
-            this->setType(Type::make<AbstractionType>(naturalType, naturalType));
-        }
+        { }
 
         Node::Pointer evaluate(Context &context) const override
         {
@@ -91,24 +84,23 @@ namespace ast
                 t = t->evaluate(context);
 
             if (t->nodeType() != NodeType::NaturalConstant)
-                throw TypeException("\'" + t->toString() + "\' is not a natural");
+                throw UnexpectedException("Successor not resolved before evaluation, unexpected right term");
 
             return Node::make<NaturalConstant>(Node::cast<NaturalConstant>(t)->value() + 1);
         }
 
-        void resolve(Context &context) override
+        Node::Pointer freeze(Context &context) const override
         {
-            auto myType = Type::cast<AbstractionType>(this->type());
-
-            mArgument->resolve(context);
-
-            if (mArgument->type()->distinct(myType->left()))
-                throw TypeException("Expected a natural");
+            return Node::make<Successor>(mArgument->freeze(context));
         }
 
-        Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
+        Type::Pointer typecheck(TypeContext &context) const override
         {
-            return Node::make<Successor>(mArgument->replace(a, b));
+            auto argumentType = mArgument->typecheck(context);
+            if (Type::distinct(argumentType, NatType::NAT))
+                throw TypeException("\'" + argumentType->toString() + "\' is not a \'Nat\'");
+
+            return NatType::NAT;
         }
 
         Node::Pointer copy() const override
@@ -135,11 +127,7 @@ namespace ast
     public:
         explicit Predecessor(Node::Pointer argument)
                 : Node(NodeType::Primitive), mArgument(std::move(argument))
-        {
-            auto naturalType = Type::make<ConstantType>(NaturalConstant::TYPE_NAME);
-            this->setType(Type::make<AbstractionType>(naturalType, naturalType));
-        }
-
+        { }
 
         Node::Pointer evaluate(Context &context) const override
         {
@@ -148,24 +136,24 @@ namespace ast
                 t = t->evaluate(context);
 
             if (t->nodeType() != NodeType::NaturalConstant)
-                throw TypeException("\'" + t->toString() + "\' is not a natural");
+                throw UnexpectedException("Predecessor not resolved before evaluation, unexpected right term");
 
             auto value = Node::cast<NaturalConstant>(t)->value();
             return Node::make<NaturalConstant>(value > 0 ? value - 1 : 0);
         }
 
-        void resolve(Context &context) override
+        Node::Pointer freeze(Context &context) const override
         {
-            auto myType = Type::cast<AbstractionType>(this->type());
-            mArgument->resolve(context);
-
-            if (mArgument->type()->distinct(myType->left()))
-                throw TypeException("Expected a natural");
+            return Node::make<Predecessor>(mArgument->freeze(context));
         }
 
-        Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
+        Type::Pointer typecheck(TypeContext &context) const override
         {
-            return Node::make<Predecessor>(mArgument->replace(a, b));
+            auto argumentType = mArgument->typecheck(context);
+            if (Type::distinct(argumentType, NatType::NAT))
+                throw TypeException("\'" + argumentType->toString() + "\' is not a \'Nat\'");
+
+            return NatType::NAT;
         }
 
         Node::Pointer copy() const override

@@ -27,7 +27,6 @@ add_executable(lambda
         include/ast/common.hpp
         include/ast/application.hpp
         include/ast/abstraction.hpp
-        include/ast/identifier.hpp
         include/ast/node_type.hpp
         include/driver.hpp
         include/ast_driver.hpp
@@ -44,9 +43,9 @@ add_executable(lambda
         include/terminal_colors.hpp
         include/ast/variable.hpp
         include/ast/declaration.hpp
-        include/ast/type.hpp
-        include/ast/constant_type.hpp
-        include/ast/abstraction_type.hpp)
+        include/ast/types/type.hpp
+        include/ast/types/constant_type.hpp
+        include/ast/types/arrow_type.hpp include/ast/types/bool_type.hpp include/ast/types/nat_type.hpp include/ast/types/type_context.hpp source/ast/types/types.cpp include/ast/types/unit_type.hpp include/ast/identifier.hpp)
 
 # Add include folder to include directories
 target_include_directories(lambda PRIVATE include/)

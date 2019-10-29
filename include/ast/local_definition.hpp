@@ -36,29 +36,32 @@ namespace ast
 
         Node::Pointer evaluate(Context &context) const override
         {
+            auto
             return mBody->evaluate(context);
         }
 
-        void resolve(Context &context) override
+        Node::Pointer freeze(Context &context) const override
         {
-            mValue->resolve(context);
-            mBody = mBody->replace(mId, mValue);
-            mBody->resolve(context);
-            mValue = nullptr;
-
-            this->setType(mBody->type());
+            return Node::make<LocalDefinition>(mId, mValue->freeze(context), mBody->freeze(context));
         }
 
-        Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
+        Type::Pointer typecheck(TypeContext &context) const override
         {
-            return Node::make<LocalDefinition>(mId, mValue->replace(a, b), mBody->replace(a, b));
+            // Push argument
+            auto valueType = mValue->typecheck(context);
+            auto lastValueType = context.setTypeFor(mId->name(), valueType);
+
+            // Typecheck
+            auto bodyType = mBody->typecheck(context);
+
+            // Pop argument
+            context.setTypeFor(mId->name(), lastValueType);
+            return bodyType;
         }
 
         Node::Pointer copy() const override
         {
-            auto copy = Node::make<LocalDefinition>(mId, mValue, mBody);
-            copy->setType(this->type());
-            return copy;
+            return Node::make<LocalDefinition>(mId, mValue->copy(), mBody->copy());
         }
 
         string toString() const override

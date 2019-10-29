@@ -47,6 +47,7 @@ namespace yy { class Driver; }
 %token K_THEN                   "then"
 %token K_ELSE                   "else"
 %token K_LET                    "let"
+%token K_LETREC                 "letrec"
 %token K_IN                     "in"
 %token K_LAMBDA                 "lambda"
 
@@ -73,7 +74,7 @@ s:
 
 variable_type: S_LPAREN variable_type S_RPAREN { $$ = $2; }
     | TYPE_NAME { $$ = MKTYPE(ConstantType, $1); }
-    | variable_type S_ARROW variable_type { $$ = MKTYPE(AbstractionType, $1, $3); }
+    | variable_type S_ARROW variable_type { $$ = MKTYPE(ArrowType, $1, $3); }
     | error { };
 
 term: S_LPAREN term S_RPAREN { $$ = $2; }

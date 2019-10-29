@@ -6,7 +6,7 @@
 #include <vector>
 #include "node.hpp"
 #include "common.hpp"
-#include "type.hpp"
+#include "ast/types/type.hpp"
 
 namespace ast
 {
@@ -18,15 +18,22 @@ namespace ast
     public:
         Context() = default;
 
-        // env
         Node::Pointer setValue(const string& id, const Node::Pointer& value)
         {
-            auto it = mMap.find(id);
-            mMap[id] = value;
+            if (value != nullptr)
+            {
+                auto it = mMap.find(id);
+                mMap[id] = value;
 
-            if (it == mMap.end())
+                if (it == mMap.end())
+                    return Node::Pointer();
+                return it->second;
+            }
+            else
+            {
+                mMap.erase(id);
                 return Node::Pointer();
-            return it->second;
+            }
         }
 
         Node::Pointer getValue(const string& id) const
@@ -37,10 +44,6 @@ namespace ast
             return it->second;
         }
 
-        Context copy() const
-        {
-            return Context();
-        }
 
     private:
         StrNodeMapType mMap;

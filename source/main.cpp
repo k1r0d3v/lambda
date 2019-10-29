@@ -19,6 +19,7 @@ bool doYouReallyWantExit()
 // TODO: --execute <file>, -e <file>
 int main(int argc, char **argv)
 {
+    ast::TypeContext typeContext;
     ast::Context context;
     int lineNumber = 1;
     std::string line;
@@ -88,16 +89,18 @@ int main(int argc, char **argv)
         // Return if parse fails
         if (root.empty()) continue;
 
+
         try
         {
-            auto evalResult = root.evaluate(context);
+            auto typeResult = root.typecheck(typeContext);
+            //auto evalResult = root.evaluate(context);
             //If do you want to enable line recording
             //context.setValue("_" + std::to_string(lineNumber), evalResult);
 
             std::cout << TERM_FG_START(TERM_GREEN) << "Out["
                       << TERM_BOLD_START() << TERM_FG_START(TERM_LIGHT_GREEN)  << lineNumber << TERM_RESET()
                       << TERM_FG_START(TERM_GREEN) << "]"
-                      << TERM_RESET() << ": " << evalResult->toString() << std::endl << std::endl;
+                      << TERM_RESET() << ": " << /*""evalResult->toString() << " | " <<*/ typeResult->toString() << std::endl << std::endl;
         }
         catch (const ast::ASTException &e)
         {

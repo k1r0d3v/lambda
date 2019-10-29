@@ -5,7 +5,7 @@
 #include "identifier.hpp"
 #include "node_type.hpp"
 #include "variable.hpp"
-#include "abstraction_type.hpp"
+#include "ast/types/arrow_type.hpp"
 
 namespace ast
 {
@@ -15,20 +15,11 @@ namespace ast
         using Pointer = Node::PointerType<Abstraction>;
 
     public:
-        Abstraction(Variable::Pointer argument, const Node::Pointer& body)
+        Abstraction(Variable::Pointer argument, Node::Pointer body)
                 : Node(NodeType::Abstraction),
-                  mArgument(std::move(argument))
-        {
-            // The replacement of id's by variables
-            // is to avoid ugly situations like:
-            // let foo = x in λx. λy. x y foo;
-            // with result: λx. λy. x y x
-            //
-            // But with variables we have instead:
-            // with result: λx. λy. var(x) var(y) x
-            // witch is correct
-            mBody = body->replace(Node::make<Identifier>(mArgument->name()), mArgument);
-        }
+                  mArgument(std::move(argument)),
+                  mBody(std::move(body))
+        { }
 
         const Variable::Pointer &argument() const
         {
@@ -42,40 +33,42 @@ namespace ast
 
         Node::Pointer evaluate(Context &context) const override
         {
-            // Can not be evaluated more
-            return this->copy();
+            // Must be frozen when its evaluated. For example on:
+            // let y = 0;
+            // let x = lambda x : Nat. y;
+            // x is the same that (lambda x : Nat. 0);
+            return this->freeze(context);
         }
 
-        void resolve(Context &context) override
+        Node::Pointer freeze(Context &context) const override
         {
-            mBody->resolve(context);
-            this->setType(Type::make<AbstractionType>(mArgument->type(), mBody->type()));
+            // Push argument
+            auto lastArgumentValue = context.setValue(mArgument->name(), mArgument);
+
+            // Freeze
+            auto freezeValue = Node::make<Abstraction>(mArgument, mBody->freeze(context));
+
+            // Pop argument
+            context.setValue(mArgument->name(), lastArgumentValue);
+            return freezeValue;
         }
 
-        Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
+        Type::Pointer typecheck(TypeContext &context) const override
         {
-            // Treat this like a node but no delete it
-            auto abs = Node::makeNoDeletablePtr(this);
+            // Push argument
+            auto lastArgumentType = context.setTypeFor(mArgument->name(), mArgument->type());
 
-            // Duplicated variable names inside abstraction
-            if (a->nodeType() == NodeType::Variable && mArgument->name() == Node::cast<Variable>(a)->name())
-            {
-                // FIXME: Esto puede causar problemas si en el body ya hay un @code{_x}
-                // Generate new name
-                // TODO: Use the correct type
-                auto _x = Node::make<Variable>(mArgument->name() + "\'", mArgument->type());
-                // Replace in body
-                abs = Node::make<Abstraction>(_x, mBody->replace(mArgument, _x));
-            }
+            // Typecheck
+            auto arrowType = Type::make<ArrowType>(mArgument->type(), mBody->typecheck(context));
 
-            return Node::make<Abstraction>(abs->argument(), abs->body()->replace(a, b));
+            // Pop argument
+            context.setTypeFor(mArgument->name(), lastArgumentType);
+            return arrowType;
         }
 
         Node::Pointer copy() const override
         {
-            auto copy = Node::make<Abstraction>(Node::cast<Variable>(mArgument->copy()), mBody->copy());
-            copy->setType(this->type());
-            return copy;
+            return Node::make<Abstraction>(Node::cast<Variable>(mArgument->copy()), mBody->copy());
         }
 
         string toString() const override

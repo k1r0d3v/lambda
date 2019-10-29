@@ -39,6 +39,7 @@ if                      { return yy::Parser::make_K_IF(loc); }
 then                    { return yy::Parser::make_K_THEN(loc); }
 else                    { return yy::Parser::make_K_ELSE(loc); }
 let                     { return yy::Parser::make_K_LET(loc); }
+letrec                  { return yy::Parser::make_K_LETREC(loc); }
 in                      { return yy::Parser::make_K_IN(loc); }
 lambda                  { return yy::Parser::make_K_LAMBDA(loc); }
 

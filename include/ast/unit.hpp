@@ -1,10 +1,11 @@
 #ifndef LAMBDA_UNIT_HPP
 #define LAMBDA_UNIT_HPP
 
+#include <ast/types/unit_type.hpp>
 #include "common.hpp"
 #include "node_type.hpp"
 #include "node.hpp"
-#include "constant_type.hpp"
+#include "ast/types/constant_type.hpp"
 
 namespace ast
 {
@@ -13,23 +14,23 @@ namespace ast
     public:
         using Pointer = Node::PointerType<Unit>;
 
-        static const constexpr char *TYPE_NAME = "Unit";
-
     public:
-        explicit Unit()
-                : Node(NodeType::Unit) 
-        {
-            this->setType(Type::make<ConstantType>(TYPE_NAME));
-        }
+        explicit Unit() : Node(NodeType::Unit)
+        { }
 
         Node::Pointer evaluate(Context &context) const override
         {
-            return this->copy();
+            return Node::make<Unit>();
         }
-        
-        Node::Pointer replace(Node::Pointer a, Node::Pointer b) const override
+
+        Node::Pointer freeze(Context &context) const override
         {
-            return this->copy();
+            return Node::make<Unit>();
+        }
+
+        Type::Pointer typecheck(TypeContext &context) const override
+        {
+            return UnitType::UNIT;
         }
 
         Node::Pointer copy() const override

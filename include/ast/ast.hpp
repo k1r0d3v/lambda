@@ -18,9 +18,9 @@
 #include "unit.hpp"
 #include "sequence.hpp"
 #include "declaration.hpp"
-#include "type.hpp"
-#include "abstraction_type.hpp"
-#include "constant_type.hpp"
+#include "ast/types/type.hpp"
+#include "ast/types/arrow_type.hpp"
+#include "ast/types/constant_type.hpp"
 //
 
 namespace ast
@@ -30,10 +30,16 @@ namespace ast
     public:
         AST() = default;
 
+
+        Type::Pointer typecheck(TypeContext &context)
+        {
+            assert(mRoot != nullptr);
+            return mRoot->typecheck(context);
+        }
+
         Node::Pointer evaluate(Context &context)
         {
             assert(mRoot != nullptr);
-            mRoot->resolve(context);
             return mRoot->evaluate(context);
         }
 

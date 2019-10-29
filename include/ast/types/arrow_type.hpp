@@ -1,23 +1,26 @@
 #ifndef LAMBDA_ASBTRACTION_TYPE_HPP
 #define LAMBDA_ASBTRACTION_TYPE_HPP
 
-#include "common.hpp"
-#include "node.hpp"
-#include "node_type.hpp"
+#include "../common.hpp"
+#include "type.hpp"
 
 namespace ast
 {
-    class AbstractionType : public Type
+    class ArrowType : public Type
     {
     public:
-        explicit AbstractionType(Type::Pointer left, Type::Pointer right)
+        static const Type::PointerType<ArrowType> NAT_NAT;
+        static const Type::PointerType<ArrowType> NAT_BOOL;
+
+    public:
+        explicit ArrowType(Type::Pointer left, Type::Pointer right)
                 : mLeft(std::move(left)), mRight(std::move(right)) { }
 
-        bool equals(Type::Pointer t) const override
+        bool operator==(const Type &t) const override
         {
-            auto at = Type::cast<AbstractionType>(t);
+            auto at = dynamic_cast<const ArrowType*>(&t);
             if (at != nullptr)
-                return mLeft->equals(at->mLeft) && mRight->equals(at->mRight);
+                return Type::equals(mLeft, at->mLeft) && Type::equals(mRight, at->mRight);
             return false;
         }
 

@@ -15,8 +15,6 @@ namespace ast
     public:
         using Pointer = Node::PointerType<BooleanConstant>;
 
-        static const constexpr char *TYPE_NAME = "Bool";
-
     public:
         explicit BooleanConstant(bool value)
                 : Node(NodeType::BooleanConstant), mValue(value)
@@ -27,19 +25,14 @@ namespace ast
             return mValue;
         }
 
-        Node::Pointer evaluate(Context &context) const override
+        Node::Pointer evaluate(const Node::Pointer &self, Context &context) const override
         {
-            return Node::make<BooleanConstant>(mValue);
-        }
-
-        Node::Pointer freeze(Context &context) const override
-        {
-            return Node::make<BooleanConstant>(mValue);
+            return self;
         }
 
         Type::Pointer typecheck(TypeContext &context) const override
         {
-            return BoolType::BOOL;
+            return BoolType::INSTANCE;
         }
 
         Node::Pointer copy() const override

@@ -16,8 +16,6 @@ namespace ast
         using Pointer = Node::PointerType<NaturalConstant>;
         using NaturalValueType = unsigned long;
 
-        static const constexpr char *TYPE_NAME = "Nat";
-
     public:
         explicit NaturalConstant(NaturalValueType value)
                 : Node(NodeType::NaturalConstant), mValue(value)
@@ -28,19 +26,14 @@ namespace ast
             return mValue;
         }
 
-        Node::Pointer evaluate(Context &context) const override
+        Node::Pointer evaluate(const Node::Pointer &self, Context &context) const override
         {
-            return Node::make<NaturalConstant>(mValue);
-        }
-
-        Node::Pointer freeze(Context &context) const override
-        {
-            return Node::make<NaturalConstant>(mValue);
+            return self;
         }
 
         Type::Pointer typecheck(TypeContext &context) const override
         {
-            return NatType::NAT;
+            return NatType::INSTANCE;
         }
 
         Node::Pointer copy() const override

@@ -2,6 +2,7 @@
 #define LAMBDA_NODE_HPP
 
 #include <ast/types/type_context.hpp>
+#include <functional>
 #include "common.hpp"
 
 namespace ast
@@ -44,12 +45,12 @@ namespace ast
         /**
          *
          */
-        virtual Node::Pointer evaluate(Context &context) const = 0;
+        virtual Node::Pointer evaluate(const Node::Pointer &self, Context &context) const = 0;
 
-        /**
-         *
-         */
-        virtual Node::Pointer freeze(Context &context) const = 0;
+        virtual Node::Pointer resolve(const Node::Pointer &self, Context &context) const
+        {
+            return self;
+        }
 
         /**
          *

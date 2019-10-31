@@ -44,9 +44,28 @@ namespace ast
             return it->second;
         }
 
+        void stackPush(Node::Pointer value)
+        {
+            mStack.push_back(value);
+        }
+
+        void stackPop()
+        {
+            mStack.erase(mStack.end());
+        }
+
+        Node::Pointer stackAtIndex(size_t index) const
+        {
+            return mStack[index];
+        }
+
+        size_t stackSize() const {
+            return mStack.size();
+        }
 
     private:
         StrNodeMapType mMap;
+        std::vector<Node::Pointer> mStack;
     };
 }
 

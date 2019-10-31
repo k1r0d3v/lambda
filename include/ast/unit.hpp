@@ -18,19 +18,14 @@ namespace ast
         explicit Unit() : Node(NodeType::Unit)
         { }
 
-        Node::Pointer evaluate(Context &context) const override
+        Node::Pointer evaluate(const Node::Pointer &self, Context &context) const override
         {
-            return Node::make<Unit>();
-        }
-
-        Node::Pointer freeze(Context &context) const override
-        {
-            return Node::make<Unit>();
+            return self;
         }
 
         Type::Pointer typecheck(TypeContext &context) const override
         {
-            return UnitType::UNIT;
+            return UnitType::INSTANCE;
         }
 
         Node::Pointer copy() const override

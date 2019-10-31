@@ -31,26 +31,40 @@ namespace ast
             return mBody;
         }
 
-        Node::Pointer evaluate(Context &context) const override
+        Node::Pointer evaluate(const Node::Pointer &self, Context &context) const override
         {
-            // Must be frozen when its evaluated. For example on:
-            // let y = 0;
-            // let x = lambda x : Nat. y;
-            // x is the same that (lambda x : Nat. 0);
-            return this->freeze(context);
+            if (!mResolved)
+            {
+                auto resolved = Node::cast<Abstraction>(this->resolve(self, context));
+                auto resolvedAbs = Node::make<Abstraction>(resolved->mArgument, resolved->mBody);
+                resolvedAbs->mResolved = true;
+                return resolvedAbs;
+            }
+
+            return self;
         }
 
-        Node::Pointer freeze(Context &context) const override
+        Node::Pointer resolve(const Node::Pointer &self, Context &context) const override
         {
-            // Push argument
-            auto lastArgumentValue = context.setValue(mArgument->name(), mArgument);
+            // Push
+            auto indexedVariable = Node::make<IndexedVariable>(context.stackSize(), mArgument);
+            auto lastValue = context.setValue(mArgument->name(), indexedVariable);
+            context.stackPush(nullptr); // Increment stack size
 
-            // Freeze
-            auto freezeValue = Node::make<Abstraction>(mArgument, mBody->freeze(context));
+            // Resolve
+            auto resolvedBody = mBody->resolve(mBody, context);
 
-            // Pop argument
-            context.setValue(mArgument->name(), lastArgumentValue);
-            return freezeValue;
+            Node::Pointer result;
+            if (resolvedBody != mBody)
+                result = Node::make<Abstraction>(mArgument, resolvedBody);
+            else
+                result = self;
+
+            // Pop
+            context.setValue(mArgument->name(), lastValue);
+            context.stackPop();
+
+            return result;
         }
 
         Type::Pointer typecheck(TypeContext &context) const override
@@ -84,6 +98,7 @@ namespace ast
     private:
         Variable::Pointer mArgument;
         Node::Pointer mBody;
+        bool mResolved = false;
     };
 }
 

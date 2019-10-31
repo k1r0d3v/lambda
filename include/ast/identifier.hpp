@@ -24,38 +24,25 @@ namespace ast
             return mName;
         }
 
-        Node::Pointer evaluate(Context &context) const override
-        {
-            // Evaluate can be called when the identifier has not been replaced
-            // If that is the case then is expected that the tree is a only identifier
-            // or whats the same the identifier hast not haven't time to be frozen
-            auto valueOfName = context.getValue("::" + mName);
-            if (valueOfName == nullptr)
-                throw NameException("Name \'" + mName + "\' is not defined");
-
-            return valueOfName->evaluate(context);
-        }
-
-        // TODO: Move to abstraction
-        Node::Pointer freeze(Context &context) const override
+        Node::Pointer evaluate(const Node::Pointer &self, Context &context) const override
         {
             auto valueOfName = context.getValue(mName);
-            if (valueOfName == nullptr)
-                valueOfName = context.getValue("::" + mName);
+            return valueOfName->evaluate(valueOfName, context);
+        }
+
+        Node::Pointer resolve(const Node::Pointer &self, Context &context) const override
+        {
+            auto valueOfName = context.getValue(mName);
 
             if (valueOfName == nullptr)
-                throw NameException("Name \'" + mName + "\' is not defined");
-
-            // Replace this node by the value
-            return valueOfName;
+                return self; // We must conserve the id
+            else
+                return valueOfName;
         }
 
         Type::Pointer typecheck(TypeContext &context) const override
         {
             auto typeOfName = context.getTypeOf(mName);
-            if (typeOfName == nullptr)
-                typeOfName = context.getTypeOf("::" + mName);
-
             if (typeOfName == nullptr)
                 throw NameException("Name \'" + mName + "\' is not defined");
 

@@ -64,30 +64,29 @@ namespace ast
             return mElements;
         }
 
-        Node::Pointer evaluate(Context &context) const override
+        Node::Pointer evaluate(const Node::Pointer &self, Context &context) const override
         {
             auto r = Node::cast<Node>(Node::make<Unit>());
 
             for (const auto& i : mElements)
-                r = i->evaluate(context);
+                r = i->evaluate(i, context);
 
             // Return the last sequence element
             return r;
         }
 
-        Node::Pointer freeze(Context &context) const override
+        Node::Pointer resolve(const Node::Pointer &self, Context &context) const override
         {
             list<Node::Pointer> elements;
-
-            for (const auto& i : mElements)
-                elements.push_back(i->freeze(context));
+            for (const auto &i : mElements)
+                elements.push_back(i->resolve(i, context));
 
             return Node::make<Sequence>(elements);
         }
 
         Type::Pointer typecheck(TypeContext &context) const override
         {
-            Type::Pointer type = UnitType::UNIT;
+            Type::Pointer type = UnitType::INSTANCE;
 
             for (const auto& i : mElements)
                 type = i->typecheck(context);
@@ -105,8 +104,18 @@ namespace ast
             auto os = std::ostringstream();
 
             for (const auto& i : mElements)
-                os << i->toString() << ";" << std::endl;
-            return os.str();
+                os << i->toString() << "; ";
+
+            auto str = os.str();
+
+            // Remove trailing ;
+            if (!str.empty())
+            {
+                str.pop_back();
+                str.pop_back();
+            }
+
+            return str;
         }
 
     private:

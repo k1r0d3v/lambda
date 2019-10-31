@@ -10,7 +10,7 @@ namespace ast
     class UnitType : public ConstantType
     {
     public:
-        static const Type::PointerType<UnitType> UNIT;
+        static const Type::PointerType<UnitType> INSTANCE;
 
     public:
         explicit UnitType() : ConstantType("Unit") { }

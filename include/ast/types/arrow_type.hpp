@@ -16,9 +16,9 @@ namespace ast
         explicit ArrowType(Type::Pointer left, Type::Pointer right)
                 : mLeft(std::move(left)), mRight(std::move(right)) { }
 
-        bool operator==(const Type &t) const override
+        bool equals(const Type::Pointer &t) const override
         {
-            auto at = dynamic_cast<const ArrowType*>(&t);
+            auto at = Type::cast<ArrowType>(t);
             if (at != nullptr)
                 return Type::equals(mLeft, at->mLeft) && Type::equals(mRight, at->mRight);
             return false;

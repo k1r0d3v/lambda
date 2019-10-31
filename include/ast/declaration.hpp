@@ -26,22 +26,27 @@ namespace ast
             return mValue;
         }
 
-        Node::Pointer evaluate(Context &context) const override
+        Node::Pointer evaluate(const Node::Pointer &self, Context &context) const override
         {
-            auto evaluatedValue = mValue->evaluate(context);
-            context.setValue("::" + mId->name(), evaluatedValue);
+            auto evaluatedValue = mValue->evaluate(mValue, context);
+            context.setValue(mId->name(), evaluatedValue);
             return evaluatedValue;
         }
 
-        Node::Pointer freeze(Context &context) const override
+        Node::Pointer resolve(const Node::Pointer &self, Context &context) const override
         {
-            return Node::make<Declaration>(mId, mValue->freeze(context));
+            auto resolvedValue = mValue->resolve(mValue, context);
+
+            if (resolvedValue != mValue)
+                return Node::make<Declaration>(mId, resolvedValue);
+
+            return self;
         }
 
         Type::Pointer typecheck(TypeContext &context) const override
         {
             auto valueType = mValue->typecheck(context);
-            context.setTypeFor("::" + mId->name(), valueType);
+            context.setTypeFor(mId->name(), valueType);
             return valueType;
         }
 

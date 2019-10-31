@@ -25,14 +25,14 @@ namespace ast
             return std::make_shared<T>(std::forward<Args>(args)...);
         }
 
-        static bool equals(const Pointer &a, const Pointer &b)
+        static bool equals(const Type::Pointer &a, const Type::Pointer &b)
         {
-            return a->operator==(b);
+            return a->equals(b);
         }
 
-        static bool distinct(const Pointer &a, const Pointer &b)
+        static bool distinct(const Type::Pointer &a, const Type::Pointer &b)
         {
-            return a->operator!=(b);
+            return !a->equals(b);
         }
 
     public:
@@ -40,22 +40,7 @@ namespace ast
         /**
          * Type equality by value
          */
-        virtual bool operator ==(const Type &t) const = 0;
-
-        inline bool operator !=(const Type &t) const
-        {
-            return !operator==(t);
-        }
-
-        inline bool operator ==(const Pointer &p) const
-        {
-            return p->operator==(*this);
-        }
-
-        inline bool operator !=(const Pointer &p) const
-        {
-            return p->operator!=(*this);
-        }
+        virtual bool equals(const Type::Pointer &t) const = 0;
 
         /**
          * @return A description of this type as string

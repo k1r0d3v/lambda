@@ -12,9 +12,10 @@ namespace ast::NodeType
 
         NaturalConstant,
         BooleanConstant,
+        StringConstant,
         Condition,
         LocalDefinition,
-        Primitive,
+        NativeApplication,
 
         Unit,
         Sequence,

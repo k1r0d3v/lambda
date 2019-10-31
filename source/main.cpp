@@ -14,6 +14,27 @@ bool doYouReallyWantExit()
     return line == "Y" || line == "y" || line.empty();
 }
 
+void getline(std::istream &is, std::string &line, std::string delim)
+{
+    line.clear();
+
+    while(true)
+    {
+        std::string tmp;
+        std::getline(std::cin, tmp);
+        line += tmp;
+
+        auto index = line.find(delim);
+        if (index != std::string::npos)
+        {
+            line = line.substr(0, index + delim.length());
+            return;
+        }
+    }
+
+    //std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+
 // TODO: Add argv parameters
 // TODO: --help, -h
 // TODO: --execute <file>, -e <file>
@@ -31,7 +52,7 @@ int main(int argc, char **argv)
                   << TERM_FG_START(TERM_GREEN) << "]" << TERM_RESET() << ": ";
 
         // Read until ;
-        std::getline(std::cin, line, ';');
+        getline(std::cin, line, ";;");
 
         // Check for Ctrl-D
         if (std::cin.eof())
@@ -46,12 +67,6 @@ int main(int argc, char **argv)
             else
                 continue;
         }
-
-        // Do not remove the ; character
-        line.append(";");
-
-        // Ignore values after ;
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
         // Line ast
         try
@@ -92,15 +107,25 @@ int main(int argc, char **argv)
 
         try
         {
+            // Typecheck first
+            auto os = std::ostringstream();
+            //std::ostream &redirect = os;
+            //std::ostream &original = std::cout;
+
+            // Redirect stdcout
+            //original.rdbuf(redirect.rdbuf(original.rdbuf()));
+
             auto typeResult = root.typecheck(typeContext);
-            //auto evalResult = root.evaluate(context);
-            //If do you want to enable line recording
-            //context.setValue("_" + std::to_string(lineNumber), evalResult);
+            auto evalResult = root.evaluate(context);
+
+            // Restore stdcout
+            //original.rdbuf(redirect.rdbuf(original.rdbuf()));
 
             std::cout << TERM_FG_START(TERM_GREEN) << "Out["
                       << TERM_BOLD_START() << TERM_FG_START(TERM_LIGHT_GREEN)  << lineNumber << TERM_RESET()
                       << TERM_FG_START(TERM_GREEN) << "]"
-                      << TERM_RESET() << ": " << /*""evalResult->toString() << " | " <<*/ typeResult->toString() << std::endl << std::endl;
+                      << TERM_RESET() << ": "
+                      << evalResult->toString() << " ;; " << typeResult->toString() << std::endl << os.str() << std::endl;
         }
         catch (const ast::ASTException &e)
         {

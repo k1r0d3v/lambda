@@ -14,11 +14,12 @@ namespace ast
     public:
         explicit ConstantType(const string &name) : mName(name) { }
 
-        bool operator==(const Type &t) const override
+        bool equals(const Type::Pointer &t) const override
         {
-            auto ct = dynamic_cast<const ConstantType *>(&t);
+            auto ct = Type::cast<ConstantType>(t);
             if (ct != nullptr)
                 return mName == ct->mName;
+
             return false;
         }
 

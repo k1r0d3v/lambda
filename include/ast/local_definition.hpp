@@ -34,15 +34,51 @@ namespace ast
             return mBody;
         }
 
-        Node::Pointer evaluate(Context &context) const override
+        /*
+        // Preserving let node
+
+        Node::Pointer evaluate(const Node::Pointer &self, Context &context) const override
         {
-            auto
-            return mBody->evaluate(context);
+            auto lastValue = context.setValue(mId->name(), mValue->evaluate(mValue, context));
+            auto evaluatedBody = mBody->evaluate(mBody, context);
+            context.setValue(mId->name(), lastValue);
+            return evaluatedBody;
         }
 
-        Node::Pointer freeze(Context &context) const override
+        Node::Pointer resolve(const Node::Pointer &self, Context &context) const override
         {
-            return Node::make<LocalDefinition>(mId, mValue->freeze(context), mBody->freeze(context));
+            auto resolvedValue = mValue->resolve(mValue, context);
+
+            // Conserve id's equals to mId, will be resolved in evaluation time
+            auto lastValue = context.setValue(mId->name(), nullptr);
+            auto resolvedBody = mValue->resolve(mValue, context);
+            // Restore id value if any
+            context.setValue(mId->name(), lastValue);
+
+            if (resolvedValue != mValue || resolvedBody != mBody)
+                return Node::make<LocalDefinition>(mId, resolvedValue, resolvedBody);
+
+            return self;
+        }
+        */
+
+        Node::Pointer evaluate(const Node::Pointer &self, Context &context) const override
+        {
+            auto resolved = this->resolve(self, context);
+            return resolved->evaluate(resolved, context);
+        }
+
+        Node::Pointer resolve(const Node::Pointer &self, Context &context) const override
+        {
+            auto resolvedValue = mValue->resolve(mValue, context);
+
+            // Conserve id's equals to mId, will be resolved in evaluation time
+            auto lastValue = context.setValue(mId->name(), resolvedValue);
+            auto resolvedBody = mValue->resolve(mValue, context);
+            // Restore id value if any
+            context.setValue(mId->name(), lastValue);
+
+            return resolvedBody;
         }
 
         Type::Pointer typecheck(TypeContext &context) const override

@@ -1,0 +1,6 @@
+let println = lambda x. print x; print "\n";;
+
+println "*****************";;
+println "*  Test module  *";;
+println "*****************";;
+

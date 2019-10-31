@@ -18,9 +18,11 @@
 #include "unit.hpp"
 #include "sequence.hpp"
 #include "declaration.hpp"
+#include "string_constant.hpp"
 #include "ast/types/type.hpp"
 #include "ast/types/arrow_type.hpp"
 #include "ast/types/constant_type.hpp"
+#include "print_primitive.hpp"
 //
 
 namespace ast
@@ -40,7 +42,7 @@ namespace ast
         Node::Pointer evaluate(Context &context)
         {
             assert(mRoot != nullptr);
-            return mRoot->evaluate(context);
+            return mRoot->evaluate(mRoot, context);
         }
 
         string toString() const

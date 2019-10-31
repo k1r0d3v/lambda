@@ -10,7 +10,7 @@ namespace ast
     class BoolType : public ConstantType
     {
     public:
-        static const Type::PointerType<BoolType> BOOL;
+        static const Type::PointerType<BoolType> INSTANCE;
 
     public:
         explicit BoolType() : ConstantType("Bool") { }

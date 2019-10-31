@@ -18,7 +18,15 @@ namespace ast
                 : Node(NodeType::Application),
                   mLeft(std::move(left)),
                   mRight(std::move(right))
-        { }
+        {
+            // Curry style application, reorder the tree
+            if (mRight->nodeType() == NodeType::Application)
+            {
+                auto myRight = Node::cast<Application>(mRight);
+                mLeft = Node::make<Application>(mLeft, myRight->left());
+                mRight = myRight->right();
+            }
+        }
 
         const Node::Pointer &left() const
         {
@@ -30,7 +38,7 @@ namespace ast
             return mRight;
         }
 
-        Node::Pointer evaluate(Context &context) const override
+        Node::Pointer evaluate(const Node::Pointer &self, Context &context) const override
         {
             // Creates a pointer to this with no deleter
             Node::Pointer t = Node::makeNoDeletablePtr<Node>(const_cast<Application *>(this));
@@ -46,42 +54,35 @@ namespace ast
 
                 // Evaluates left side if not an abstraction
                 if (leftTerm->nodeType() != NodeType::Abstraction)
-                    leftTerm = leftTerm->evaluate(context);
+                    leftTerm = leftTerm->evaluate(leftTerm, context);
 
                 if (leftTerm->nodeType() != NodeType::Abstraction)
                     throw UnexpectedException("Application not resolved before evaluation, unexpected left term");
 
-                if (rightTerm->nodeType() == NodeType::Application)
-                {
-                    // We have a curry form, reorder the tree to apply the nodes in the correct order
-                    auto r = Node::cast<Application>(rightTerm);
-                    t = Node::make<Application>(Node::make<Application>(leftTerm, r->left()), r->right());
-                }
-                else
-                {
-                    // First freeze the abstraction with evaluate
-                    auto abstraction = Node::cast<Abstraction>(leftTerm->evaluate(context));
 
-                    // Push argument
-                    auto lastArgumentValue = context.setValue(abstraction->argument()->name(),
-                                                              rightTerm->evaluate(context));
+                auto abstraction = Node::cast<Abstraction>(leftTerm);
 
-                    // Evaluate body
-                    t = abstraction->body()->evaluate(context);
-
-                    // Pop argument
-                    context.setValue(abstraction->argument()->name(), lastArgumentValue);
-                }
+                // Push argument
+                context.stackPush(rightTerm->evaluate(rightTerm, context));
+                // Evaluate
+                t = abstraction->body()->evaluate(abstraction->body(), context);
+                // Pop argument
+                context.stackPop();
 
                 // Try to reuse the stack to avoid stack overflows
             } while (t->nodeType() == NodeType::Application);
 
-            return t->evaluate(context);
+            return t->evaluate(t, context);
         }
 
-        Node::Pointer freeze(Context &context) const override
+        Node::Pointer resolve(const Node::Pointer &self, Context &context) const override
         {
-            return Node::make<Application>(mLeft->freeze(context), mRight->freeze(context));;
+            auto resolvedLeft = mLeft->resolve(mLeft, context);
+            auto resolvedRight = mRight->resolve(mRight, context);
+
+            if (resolvedLeft != mLeft || resolvedRight != mRight)
+                return Node::make<Application>(resolvedLeft, resolvedRight);
+            else return self;
         }
 
         Type::Pointer typecheck(TypeContext &context) const override
@@ -91,22 +92,12 @@ namespace ast
             if (leftType == nullptr)
                 throw TypeException("Expected an abstraction");
 
-            if (mRight->nodeType() == NodeType::Application)
-            {
-                // We have a curry form, reorder the tree to apply the nodes in the correct order
-                auto r = Node::cast<Application>(mRight);
-                auto t = Node::make<Application>(Node::make<Application>(mLeft, r->left()), r->right());
-                return t->typecheck(context);
-            }
-            else
-            {
-                Type::Pointer rightType = mRight->typecheck(context);
+            Type::Pointer rightType = mRight->typecheck(context);
 
-                if (Type::distinct(leftType->left(), rightType))
-                    throw TypeException("Incompatible types");
+            if (Type::distinct(leftType->left(), rightType))
+                throw TypeException("Incompatible types");
 
-                return leftType->right();
-            }
+            return leftType->right();
         }
 
         Node::Pointer copy() const override

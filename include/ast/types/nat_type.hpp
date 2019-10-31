@@ -10,7 +10,7 @@ namespace ast
     class NatType : public ConstantType
     {
     public:
-        static const Type::PointerType<NatType> NAT;
+        static const Type::PointerType<NatType> INSTANCE;
 
     public:
         explicit NatType() : ConstantType("Nat") { }

@@ -31,20 +31,9 @@ namespace ast
             return mType;
         }
 
-        // TODO: Correct checks
-        Node::Pointer evaluate(Context &context) const override
+        Node::Pointer evaluate(const Node::Pointer &self, Context &context) const override
         {
-            auto valueOfName = context.getValue(mName);
-
-            if (valueOfName == nullptr)
-                throw UnexpectedException("No argument has been pushed");
-
-            return valueOfName->evaluate(context);
-        }
-
-        Node::Pointer freeze(Context &context) const override
-        {
-            return Node::make<Variable>(mName, mType);
+            return self;
         }
 
         Type::Pointer typecheck(TypeContext &context) const override
@@ -65,6 +54,25 @@ namespace ast
     private:
         string mName;
         Type::Pointer mType;
+    };
+
+    class IndexedVariable : public Variable
+    {
+    public:
+        using Pointer = Node::PointerType<Variable>;
+
+    public:
+        explicit IndexedVariable(size_t index, const Variable::Pointer &var)
+                : Variable(*var), mIndex(index)
+        { }
+
+        Node::Pointer evaluate(const Node::Pointer &self, Context &context) const override
+        {
+            return context.stackAtIndex(mIndex);
+        }
+
+    private:
+        size_t mIndex;
     };
 }
 

@@ -37,7 +37,9 @@ namespace yy { class Driver; }
 %token <int> NUMBER             "number"
 %token <std::string> IDENTIFIER "identifier"
 %token <std::string> TYPE_NAME  "type name"
+%token <std::string> STRING     "string"
 
+%token K_PRINT                  "print"
 %token K_SUCC                   "succ"
 %token K_PRED                   "pred"
 %token K_ISZERO                 "iszero"
@@ -57,18 +59,21 @@ namespace yy { class Driver; }
 %token S_EQ                     "="
 %token S_COLON                  ":"
 %token S_SEMICOLON              ";"
+%token S_LINE_END               ";;"
 %token S_ARROW                  "->"
 
 
 %type <ast::Node::Pointer> term
 %type <ast::Type::Pointer> variable_type
+%type <ast::Node::Pointer> sequence
 %type <ast::AST*> s
 
 %%
-s:
-      term { YY_DRIVERDATA->setRoot($1); $$ = YY_DRIVERDATA; }
-    | term S_SEMICOLON s { YY_DRIVERDATA->setRoot(ast::Sequence::join($1, YY_DRIVERDATA->root())); $$ = YY_DRIVERDATA; }
-    | K_LET IDENTIFIER S_EQ term S_SEMICOLON s { YY_DRIVERDATA->setRoot(ast::Sequence::join(MKNODE(Declaration, MKNODE(Identifier, $2), $4), YY_DRIVERDATA->root())); $$ = YY_DRIVERDATA; }
+/* TODO: Clean the grammar please!! */
+
+s:    sequence { YY_DRIVERDATA->setRoot(ast::Sequence::join($1, YY_DRIVERDATA->root())); $$ = YY_DRIVERDATA; }
+    | sequence S_LINE_END s { YY_DRIVERDATA->setRoot(ast::Sequence::join($1, YY_DRIVERDATA->root())); $$ = YY_DRIVERDATA; }
+    | K_LET IDENTIFIER S_EQ sequence S_LINE_END s { YY_DRIVERDATA->setRoot(ast::Sequence::join(MKNODE(Declaration, MKNODE(Identifier, $2), $4), YY_DRIVERDATA->root())); $$ = YY_DRIVERDATA; }
     | END { $$ = YY_DRIVERDATA; }
     | error { };
 
@@ -77,20 +82,25 @@ variable_type: S_LPAREN variable_type S_RPAREN { $$ = $2; }
     | variable_type S_ARROW variable_type { $$ = MKTYPE(ArrowType, $1, $3); }
     | error { };
 
-term: S_LPAREN term S_RPAREN { $$ = $2; }
+term: S_LPAREN sequence S_RPAREN { $$ = $2; }
     | S_LPAREN S_RPAREN { $$ = MKNODE(Unit); }
     | NUMBER { $$ = MKNODE(NaturalConstant, $1); }
     | IDENTIFIER  { $$ = MKNODE(Identifier, $1); }
+    | STRING  { $$ = MKNODE(StringConstant, $1); }
     | K_TRUE { $$ = MKNODE(BooleanConstant, true); }
     | K_FALSE { $$ = MKNODE(BooleanConstant, false); }
-    | K_LET IDENTIFIER S_EQ term K_IN term { $$ = MKNODE(LocalDefinition, MKNODE(Identifier, $2), $4, $6); }
+    | K_LET IDENTIFIER S_EQ term K_IN sequence { $$ = MKNODE(LocalDefinition, MKNODE(Identifier, $2), $4, $6); }
     | K_IF term K_THEN term K_ELSE term { $$ = MKNODE(Conditional, $2, $4, $6); }
-    | K_LAMBDA IDENTIFIER S_COLON variable_type S_DOT term { $$ = MKNODE(Abstraction, MKNODE(Variable, $2, $4), $6); }
+    | K_LAMBDA IDENTIFIER S_COLON variable_type S_DOT sequence { $$ = MKNODE(Abstraction, MKNODE(Variable, $2, $4), $6); }
     | K_SUCC term {  $$ = MKNODE(Successor, $2); }
     | K_PRED term { $$ = MKNODE(Predecessor, $2); }
     | K_ISZERO term { $$ = MKNODE(IsZero, $2); }
+    | K_PRINT term {  $$ = MKNODE(Print, $2); }
     | term term { $$ = MKNODE(Application, $1, $2); }
     | error { };
+
+sequence: term { $$ = $1; }
+        | term S_SEMICOLON sequence { $$ = ast::Sequence::join($1, $3); };
 
 %%
 

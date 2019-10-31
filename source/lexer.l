@@ -6,9 +6,13 @@
 
 // Code run each time a pattern is matched
 #define YY_USER_ACTION  loc.columns(yyleng);
+
+static std::string strbuf;
 %}
 
 WHITESPACE  [ \t]
+
+%x STRING
 
 %%
 %{
@@ -22,14 +26,25 @@ WHITESPACE  [ \t]
 {WHITESPACE}+           { loc.step(); }
 \n+                     { loc.lines(yyleng); loc.step(); }
 
+\"                                  { BEGIN STRING; strbuf.clear(); }
+<STRING>[^\\"\n]*                   { strbuf += yytext; }
+<STRING>\\n                         { strbuf += '\n'; }
+<STRING>\\t                         { strbuf += '\t'; }
+<STRING>\\x[0-9A-Fa-f][0-9A-Fa-f]?  { strbuf += strtol(yytext+2, 0, 16); }
+<STRING>\\[\\"]                     { strbuf += yytext[1]; }
+<STRING>\"                          {  BEGIN INITIAL; return yy::Parser::make_STRING(strbuf.data(), loc); }
+
+
 \(                      { return yy::Parser::make_S_LPAREN(loc); }
 \)                      { return yy::Parser::make_S_RPAREN(loc); }
 \.                      { return yy::Parser::make_S_DOT(loc); }
 \=                      { return yy::Parser::make_S_EQ(loc); }
 \:                      { return yy::Parser::make_S_COLON(loc); }
-\;                      { return yy::Parser::make_S_SEMICOLON(loc); }
+;;                      { return yy::Parser::make_S_LINE_END(loc); }
+;                       { return yy::Parser::make_S_SEMICOLON(loc); }
 ->                      { return yy::Parser::make_S_ARROW(loc); }
 
+print                   { return yy::Parser::make_K_PRINT(loc); }
 succ                    { return yy::Parser::make_K_SUCC(loc); }
 pred                    { return yy::Parser::make_K_PRED(loc); }
 iszero                  { return yy::Parser::make_K_ISZERO(loc); }
@@ -42,6 +57,7 @@ let                     { return yy::Parser::make_K_LET(loc); }
 letrec                  { return yy::Parser::make_K_LETREC(loc); }
 in                      { return yy::Parser::make_K_IN(loc); }
 lambda                  { return yy::Parser::make_K_LAMBDA(loc); }
+
 
 [0-9]+                  { return yy::Parser::make_NUMBER(atoi(yytext), loc); }
 [a-z_][a-z0-9_]*        { return yy::Parser::make_IDENTIFIER(yytext, loc); }

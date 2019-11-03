@@ -3,7 +3,6 @@
 
 #include "../common.hpp"
 #include "type.hpp"
-#include "constant_type.hpp"
 
 namespace ast
 {

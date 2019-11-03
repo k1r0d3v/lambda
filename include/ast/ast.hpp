@@ -22,7 +22,12 @@
 #include "ast/types/type.hpp"
 #include "ast/types/arrow_type.hpp"
 #include "ast/types/constant_type.hpp"
+#include "ast/types/register_type.hpp"
 #include "print_primitive.hpp"
+#include "ascription.hpp"
+#include "tuple.hpp"
+#include "register.hpp"
+#include "operator_dot.hpp"
 //
 
 namespace ast

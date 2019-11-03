@@ -53,12 +53,8 @@ namespace ast
                 rightTerm = application->right();
 
                 // Evaluates left side if not an abstraction
-                if (leftTerm->nodeType() != NodeType::Abstraction)
-                    leftTerm = leftTerm->evaluate(leftTerm, context);
-
-                if (leftTerm->nodeType() != NodeType::Abstraction)
-                    throw UnexpectedException("Application not resolved before evaluation, unexpected left term");
-
+                // We must resolve the abstraction calling evaluate in her
+                leftTerm = leftTerm->evaluate(leftTerm, context);
 
                 auto abstraction = Node::cast<Abstraction>(leftTerm);
 
@@ -85,6 +81,7 @@ namespace ast
             else return self;
         }
 
+        // TODO: Change exception messages
         Type::Pointer typecheck(TypeContext &context) const override
         {
             auto leftType = Type::cast<ArrowType>(mLeft->typecheck(context));

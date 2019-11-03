@@ -1,6 +1,7 @@
 #ifndef LAMBDA_TYPE_HPP
 #define LAMBDA_TYPE_HPP
 
+#include <ast/exception.hpp>
 #include "../common.hpp"
 
 namespace ast
@@ -41,6 +42,11 @@ namespace ast
          * Type equality by value
          */
         virtual bool equals(const Type::Pointer &t) const = 0;
+
+        virtual Type::Pointer typeOfField(const string &name)
+        {
+            throw AttributeException("\'" + this->toString() + "\' object has no attribute \'" + name + "\'");
+        }
 
         /**
          * @return A description of this type as string

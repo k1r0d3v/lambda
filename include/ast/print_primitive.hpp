@@ -37,7 +37,7 @@ namespace ast
     public:
         explicit Print(Node::Pointer argument)
                 : NativeApplication("print",
-                                    {{std::move(argument), StrType::INSTANCE}},
+                                    {{std::move(argument), DynType::INSTANCE}},
                                     {print, UnitType::INSTANCE}) { }
 
     };

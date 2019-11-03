@@ -45,7 +45,7 @@ add_executable(lambda
         include/ast/declaration.hpp
         include/ast/types/type.hpp
         include/ast/types/constant_type.hpp
-        include/ast/types/arrow_type.hpp include/ast/types/bool_type.hpp include/ast/types/nat_type.hpp include/ast/types/type_context.hpp source/ast/types/types.cpp include/ast/types/unit_type.hpp include/ast/identifier.hpp include/ast/native_application.hpp include/ast/types/str_type.hpp include/ast/string_constant.hpp include/ast/print_primitive.hpp)
+        include/ast/types/arrow_type.hpp include/ast/types/bool_type.hpp include/ast/types/nat_type.hpp include/ast/types/type_context.hpp source/ast/types/types.cpp include/ast/types/unit_type.hpp include/ast/identifier.hpp include/ast/native_application.hpp include/ast/types/str_type.hpp include/ast/string_constant.hpp include/ast/print_primitive.hpp include/ast/ascription.hpp include/ast/types/register_type.hpp include/ast/register.hpp include/ast/operator_dot.hpp include/ast/types/tuple_type.hpp include/ast/tuple.hpp include/ast/types/dynamic_type.hpp include/ast/pattern.hpp)
 
 # Add include folder to include directories
 target_include_directories(lambda PRIVATE include/)

@@ -7,9 +7,11 @@
 #include <utility> // std::move
 #include <cassert> // assert
 #include <vector>
+#include <map>
 
 namespace ast
 {
+    using std::pair;
     using std::string;
     using std::to_string;
 

@@ -14,7 +14,7 @@ bool doYouReallyWantExit()
     return line == "Y" || line == "y" || line.empty();
 }
 
-void getline(std::istream &is, std::string &line, std::string delim)
+void getline(std::istream &is, std::string &line, const std::string& delim)
 {
     line.clear();
 
@@ -31,8 +31,6 @@ void getline(std::istream &is, std::string &line, std::string delim)
             return;
         }
     }
-
-    //std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
 // TODO: Add argv parameters
@@ -58,6 +56,7 @@ int main(int argc, char **argv)
         if (std::cin.eof())
         {
             // Reset std::cin and read trash values
+            //std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             clearerr(stdin);
             std::cin.clear();
 
@@ -107,25 +106,20 @@ int main(int argc, char **argv)
 
         try
         {
-            // Typecheck first
-            auto os = std::ostringstream();
-            //std::ostream &redirect = os;
-            //std::ostream &original = std::cout;
-
-            // Redirect stdcout
-            //original.rdbuf(redirect.rdbuf(original.rdbuf()));
-
             auto typeResult = root.typecheck(typeContext);
             auto evalResult = root.evaluate(context);
 
-            // Restore stdcout
-            //original.rdbuf(redirect.rdbuf(original.rdbuf()));
+            // Line store
+            auto lineIdName = (ast::string)"_" + ast::to_string(lineNumber);
+            typeContext.setTypeFor(lineIdName, typeResult);
+            context.setValue(lineIdName, evalResult);
+            //
 
             std::cout << TERM_FG_START(TERM_GREEN) << "Out["
                       << TERM_BOLD_START() << TERM_FG_START(TERM_LIGHT_GREEN)  << lineNumber << TERM_RESET()
                       << TERM_FG_START(TERM_GREEN) << "]"
                       << TERM_RESET() << ": "
-                      << evalResult->toString() << " ;; " << typeResult->toString() << std::endl << os.str() << std::endl;
+                      << evalResult->toString() << " ;; " << typeResult->toString() << std::endl << std::endl;
         }
         catch (const ast::ASTException &e)
         {

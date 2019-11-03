@@ -24,7 +24,7 @@ WHITESPACE  [ \t]
 %}
 
 {WHITESPACE}+           { loc.step(); }
-\n+                     { loc.lines(yyleng); loc.step(); }
+\r?\n+                  { loc.lines(yyleng); loc.step(); }
 
 \"                                  { BEGIN STRING; strbuf.clear(); }
 <STRING>[^\\"\n]*                   { strbuf += yytext; }
@@ -37,6 +37,9 @@ WHITESPACE  [ \t]
 
 \(                      { return yy::Parser::make_S_LPAREN(loc); }
 \)                      { return yy::Parser::make_S_RPAREN(loc); }
+\{                      { return yy::Parser::make_S_LBRACKET(loc); }
+\}                      { return yy::Parser::make_S_RBRACKET(loc); }
+\,                      { return yy::Parser::make_S_COMMA(loc); }
 \.                      { return yy::Parser::make_S_DOT(loc); }
 \=                      { return yy::Parser::make_S_EQ(loc); }
 \:                      { return yy::Parser::make_S_COLON(loc); }
@@ -57,6 +60,8 @@ let                     { return yy::Parser::make_K_LET(loc); }
 letrec                  { return yy::Parser::make_K_LETREC(loc); }
 in                      { return yy::Parser::make_K_IN(loc); }
 lambda                  { return yy::Parser::make_K_LAMBDA(loc); }
+as                      { return yy::Parser::make_K_AS(loc); }
+Dyn                     { return yy::Parser::make_K_DYN(loc); }
 
 
 [0-9]+                  { return yy::Parser::make_NUMBER(atoi(yytext), loc); }

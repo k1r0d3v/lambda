@@ -6,22 +6,38 @@
 #include "common.hpp"
 #include "exception.hpp"
 #include "ast/types/type.hpp"
+#include "pattern.hpp"
 
 namespace ast
 {
-    class Identifier : public Node
+    class Identifier : public Pattern
     {
     public:
         using Pointer = Node::PointerType<Identifier>;
 
     public:
         explicit Identifier(string name)
-                : Node(NodeType::Variable), mName(std::move(name))
+                : Pattern(NodeType::Variable), mName(std::move(name))
         { }
 
         const string &name() const
         {
             return mName;
+        }
+
+        Pattern::MatchIdenfiers matchIdentifiers() const override
+        {
+            return { mName };
+        }
+
+        Pattern::MatchResult match(const Node::Pointer &value, Context &context) const override
+        {
+            return { {mName, value} };
+        }
+
+        Pattern::TypecheckMatchResult typecheckMatch(const Type::Pointer &type, TypeContext &context) const override
+        {
+            return { {mName, type} };
         }
 
         Node::Pointer evaluate(const Node::Pointer &self, Context &context) const override

@@ -1,11 +1,10 @@
 #ifndef LAMBDA_UNIT_HPP
 #define LAMBDA_UNIT_HPP
 
-#include <ast/types/unit_type.hpp>
 #include "common.hpp"
 #include "node_type.hpp"
 #include "node.hpp"
-#include "ast/types/constant_type.hpp"
+#include "ast/types/unit_type.hpp"
 
 namespace ast
 {

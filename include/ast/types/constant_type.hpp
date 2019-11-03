@@ -3,6 +3,7 @@
 
 #include "../common.hpp"
 #include "type.hpp"
+#include "dynamic_type.hpp"
 
 namespace ast
 {
@@ -19,7 +20,9 @@ namespace ast
             auto ct = Type::cast<ConstantType>(t);
             if (ct != nullptr)
                 return mName == ct->mName;
-
+            // TODO: Move this from here
+            else if (Type::cast<DynType>(t) != nullptr)
+                return true;
             return false;
         }
 

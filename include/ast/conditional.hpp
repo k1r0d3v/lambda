@@ -27,9 +27,6 @@ namespace ast
         {
             auto evalResult = mCondition->evaluate(mCondition, context);
 
-            if (evalResult->nodeType() != NodeType::BooleanConstant)
-                throw UnexpectedException("Condition not resolved before evaluation, unexpected condition value");
-
             if (Node::cast<BooleanConstant>(evalResult)->value())
                 return mThen->evaluate(mThen, context);
             else

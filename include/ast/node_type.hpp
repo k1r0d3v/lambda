@@ -20,6 +20,11 @@ namespace ast::NodeType
         Unit,
         Sequence,
         Declaration,
+        Ascription,
+        Tuple,
+        Register,
+        Dynamic,
+        OperatorDot,
     };
 }
 

@@ -1,6 +1,29 @@
-let println = lambda x. print x; print "\n";;
+let println = lambda x : Dyn. print x; print "\n";;
 
 println "*****************";;
 println "*  Test module  *";;
 println "*****************";;
 
+println "** Testing sequence";;
+
+println "** Testing naturals";;
+
+println "** Testing booleans";;
+
+println "** Testing unit";;
+
+println "** Testing identifiers";;
+
+println "** Testing ascriptions";;
+
+println "** Testing abstractions";;
+
+println "** Testing applications";;
+
+println "** Testing conditionals";;
+
+println "** Testing registers";;
+
+println "** Testing tuples";;
+
+println "** Testing letrec";;

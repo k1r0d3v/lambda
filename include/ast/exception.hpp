@@ -28,17 +28,17 @@ namespace ast
         std::string mWhat;
     };
 
-    class UnexpectedException : public ASTException
+    class MatchException : public ASTException
     {
     public:
-        explicit UnexpectedException(const string &message)
+        explicit MatchException(const string &message)
         {
             mWhat = (string)head() + ": " + message;
         }
 
         const char *head() const noexcept override
         {
-            return TERM_FG_START(TERM_RED) "UnexpectedError" TERM_RESET();
+            return TERM_FG_START(TERM_RED) "MatchError" TERM_RESET();
         }
     };
 
@@ -53,6 +53,20 @@ namespace ast
         const char *head() const noexcept override
         {
             return TERM_FG_START(TERM_RED) "NameError" TERM_RESET();
+        }
+    };
+
+    class AttributeException : public ASTException
+    {
+    public:
+        explicit AttributeException(const string &message)
+        {
+            mWhat = (string)head() + ": " + message;
+        }
+
+        const char *head() const noexcept override
+        {
+            return TERM_FG_START(TERM_RED) "AttributeError" TERM_RESET();
         }
     };
 

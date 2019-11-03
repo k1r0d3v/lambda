@@ -4,6 +4,7 @@
 #include <ast/types/type_context.hpp>
 #include <functional>
 #include "common.hpp"
+#include "exception.hpp"
 
 namespace ast
 {
@@ -47,15 +48,26 @@ namespace ast
          */
         virtual Node::Pointer evaluate(const Node::Pointer &self, Context &context) const = 0;
 
+        // Note: Do not evaluate terms here, this phase only replace id's by nodes.
+        // An evaluation in this phase can lead to undesired results because this function
+        // is called on abstractions evaluation.
         virtual Node::Pointer resolve(const Node::Pointer &self, Context &context) const
         {
             return self;
+        }
+
+        virtual Node::Pointer operator_dot(const Node::Pointer &self, const string &field, Context &context) const
+        {
+            // TODO: Create custom exception
+            throw std::runtime_error("Not implemented");
         }
 
         /**
          *
          */
         virtual Type::Pointer typecheck(TypeContext &context) const = 0;
+
+        //virtual bool isTerminal() const { return false; }
 
         /**
          * @return String representation of this node and children.

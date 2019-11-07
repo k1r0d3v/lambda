@@ -1,10 +1,7 @@
 #ifndef LAMBDA_UNIT_HPP
 #define LAMBDA_UNIT_HPP
 
-#include "common.hpp"
-#include "node_type.hpp"
-#include "node.hpp"
-#include "ast/types/unit_type.hpp"
+#include <ast/node.hpp>
 
 namespace ast
 {
@@ -14,28 +11,17 @@ namespace ast
         using Pointer = Node::PointerType<Unit>;
 
     public:
-        explicit Unit() : Node(NodeType::Unit)
-        { }
+        explicit Unit();
 
-        Node::Pointer evaluate(const Node::Pointer &self, Context &context) const override
-        {
-            return self;
-        }
+        Node::Pointer evaluate(Context &context) const override;
 
-        Type::Pointer typecheck(TypeContext &context) const override
-        {
-            return UnitType::INSTANCE;
-        }
+        Type::Pointer typecheck(TypeContext &context) const override;
 
-        Node::Pointer copy() const override
-        {
-            return Node::make<Unit>();
-        }
+        Node::Pointer transform(NodeVisitor *visitor) override;
 
-        string toString() const override
-        {
-            return "()";
-        }
+        Node::Pointer copy() const override;
+
+        string toString() const override;
     };
 }
 

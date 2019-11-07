@@ -1,8 +1,8 @@
 #ifndef LAMBDA_BOOL_TYPE_HPP
 #define LAMBDA_BOOL_TYPE_HPP
 
-#include "../common.hpp"
-#include "type.hpp"
+#include <ast/types/constant_type.hpp>
+#include <ast/types/type_kind.hpp>
 
 namespace ast
 {
@@ -12,7 +12,7 @@ namespace ast
         static const Type::PointerType<BoolType> INSTANCE;
 
     public:
-        explicit BoolType() : ConstantType("Bool") { }
+        explicit BoolType() : ConstantType(TypeKind::Bool, "Bool") { }
     };
 }
 

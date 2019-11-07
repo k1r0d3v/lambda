@@ -1,11 +1,9 @@
 #ifndef LAMBDA_VARIABLE_HPP
 #define LAMBDA_VARIABLE_HPP
 
-#include "node.hpp"
-#include "node_type.hpp"
-#include "common.hpp"
-#include "exception.hpp"
-#include "ast/types/type.hpp"
+#include <ast/common.hpp>
+#include <ast/node.hpp>
+#include <ast/node_kind.hpp>
 
 namespace ast
 {
@@ -15,64 +13,25 @@ namespace ast
         using Pointer = Node::PointerType<Variable>;
 
     public:
-        explicit Variable(string name, Type::Pointer type)
-                : Node(NodeType::Variable), mName(std::move(name)), mType(std::move(type))
-        {
-            assert(mType != nullptr);
-        }
+        explicit Variable(string name, Type::Pointer type);
 
-        const string &name() const
-        {
-            return mName;
-        }
+        const string &name() const { return mName; }
 
-        const Type::Pointer &type() const
-        {
-            return mType;
-        }
+        const Type::Pointer &type() const { return mType; }
 
-        Node::Pointer evaluate(const Node::Pointer &self, Context &context) const override
-        {
-            return self;
-        }
+        Node::Pointer evaluate(Context &context) const override;
 
-        Type::Pointer typecheck(TypeContext &context) const override
-        {
-            return mType;
-        }
+        Type::Pointer typecheck(TypeContext &context) const override;
 
-        Node::Pointer copy() const override
-        {
-            return Node::make<Variable>(mName, mType);
-        }
+        Node::Pointer transform(NodeVisitor *visitor) override;
 
-        string toString() const override
-        {
-            return mName;
-        }
+        Node::Pointer copy() const override;
+
+        string toString() const override;
 
     private:
         string mName;
         Type::Pointer mType;
-    };
-
-    class IndexedVariable : public Variable
-    {
-    public:
-        using Pointer = Node::PointerType<Variable>;
-
-    public:
-        explicit IndexedVariable(size_t index, const Variable::Pointer &var)
-                : Variable(*var), mIndex(index)
-        { }
-
-        Node::Pointer evaluate(const Node::Pointer &self, Context &context) const override
-        {
-            return context.stackAtIndex(mIndex);
-        }
-
-    private:
-        size_t mIndex;
     };
 }
 

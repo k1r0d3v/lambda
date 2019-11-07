@@ -51,10 +51,15 @@ namespace yy { class Driver; }
 %token K_ELSE                   "else"
 %token K_LET                    "let"
 %token K_LETREC                 "letrec"
+%token K_FIX                    "fix"
 %token K_IN                     "in"
 %token K_LAMBDA                 "lambda"
 %token K_AS                     "as"
 %token K_DYN                    "Dyn"
+%token K_BOOL                   "Bool"
+%token K_NAT                    "Nat"
+%token K_STR                    "Str"
+%token K_UNIT                   "Unit"
 
 %token S_LPAREN                 "("
 %token S_RPAREN                 ")"
@@ -81,6 +86,10 @@ namespace yy { class Driver; }
 %type <ast::Node::Pointer> sequence
 %type <ast::AST*> s
 
+%precedence K_IN
+%precedence S_LINE_END
+%precedence S_SEMICOLON
+
 %%
 /* TODO: Clean the grammar please!! */
 
@@ -89,7 +98,7 @@ namespace yy { class Driver; }
  */
 
 s:    sequence S_LINE_END s { YY_DRIVERDATA->setRoot(ast::Sequence::join($1, YY_DRIVERDATA->root())); $$ = YY_DRIVERDATA; }
-/*| K_LET IDENTIFIER S_EQ sequence S_LINE_END s { YY_DRIVERDATA->setRoot(ast::Sequence::join(MKNODE(Declaration, MKNODE(Identifier, $2), $4), YY_DRIVERDATA->root())); $$ = YY_DRIVERDATA; }*/
+    | K_LET IDENTIFIER S_EQ sequence S_LINE_END s { YY_DRIVERDATA->setRoot(ast::Sequence::join(MKNODE(Declaration, MKNODE(Identifier, $2), $4), YY_DRIVERDATA->root())); $$ = YY_DRIVERDATA; }
     | END { $$ = YY_DRIVERDATA; }
     | error { };
 
@@ -98,7 +107,11 @@ s:    sequence S_LINE_END s { YY_DRIVERDATA->setRoot(ast::Sequence::join($1, YY_
  */
 
 variable_type: S_LPAREN variable_type S_RPAREN { $$ = $2; }
-    | TYPE_NAME { $$ = MKTYPE(ConstantType, $1); }
+    | TYPE_NAME { $$ = MKTYPE(ConstantType, ast::TypeKind::Composed, $1); }
+    | K_BOOL { $$ = MKTYPE(BoolType); }
+    | K_NAT { $$ = MKTYPE(NatType); }
+    | K_STR { $$ = MKTYPE(StrType); }
+    | K_UNIT { $$ = MKTYPE(UnitType); }
     | K_DYN { $$ = MKTYPE(DynType); }
     | variable_type S_ARROW variable_type { $$ = MKTYPE(ArrowType, $1, $3); }
     | S_LBRACKET tuple_types S_RBRACKET { $$ = MKTYPE(TupleType, ast::list<ast::Type::Pointer>({$2.begin(), $2.end()})); }
@@ -148,8 +161,10 @@ term: S_LPAREN sequence S_RPAREN { $$ = $2; }
     | term K_AS variable_type { $$ = MKNODE(Ascription, $1, $3); }
     | S_LBRACKET tuple_terms S_RBRACKET { $$ = MKNODE(Tuple, ast::list<ast::Node::Pointer>({$2.begin(), $2.end()})); }
     | S_LBRACKET register_terms S_RBRACKET { $$ = MKNODE(Register, $2); }
-    | term S_DOT IDENTIFIER { $$ = MKNODE(OperatorDot, $1, $3); }
-    | term S_DOT NUMBER { $$ = MKNODE(OperatorDot, $1, $3); }
+    | term S_DOT IDENTIFIER { $$ = MKNODE(OperatorDot, $1, MKNODE(Identifier, $3)); }
+    | term S_DOT NUMBER { $$ = MKNODE(OperatorDot, $1, MKNODE(NaturalConstant, $3)); }
+    | K_FIX term { $$ = MKNODE(Fix, $2); }
+    | K_LETREC IDENTIFIER S_COLON variable_type S_EQ term K_IN term { $$ = MKNODE(LocalDefinition, MKNODE(Identifier, $2), MKNODE(Fix, MKNODE(Abstraction, MKNODE(Variable, $2, $4), $6)), $8); }
     | error { };
 
 tuple_terms: term { $$ = { $1 }; }

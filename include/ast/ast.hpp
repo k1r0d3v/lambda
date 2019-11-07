@@ -20,14 +20,21 @@
 #include "declaration.hpp"
 #include "string_constant.hpp"
 #include "ast/types/type.hpp"
+#include "ast/types/dynamic_type.hpp"
 #include "ast/types/arrow_type.hpp"
 #include "ast/types/constant_type.hpp"
+#include "ast/types/tuple_type.hpp"
 #include "ast/types/register_type.hpp"
+#include "ast/types/bool_type.hpp"
+#include "ast/types/nat_type.hpp"
+#include "ast/types/str_type.hpp"
+#include "ast/types/unit_type.hpp"
 #include "print_primitive.hpp"
 #include "ascription.hpp"
 #include "tuple.hpp"
 #include "register.hpp"
 #include "operator_dot.hpp"
+#include "fix.hpp"
 //
 
 namespace ast
@@ -47,7 +54,7 @@ namespace ast
         Node::Pointer evaluate(Context &context)
         {
             assert(mRoot != nullptr);
-            return mRoot->evaluate(mRoot, context);
+            return mRoot->evaluate(context);
         }
 
         string toString() const

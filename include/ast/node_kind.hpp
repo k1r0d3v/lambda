@@ -1,7 +1,7 @@
-#ifndef LAMBDA_NODE_TYPE_HPP
-#define LAMBDA_NODE_TYPE_HPP
+#ifndef LAMBDA_NODE_KIND_HPP
+#define LAMBDA_NODE_KIND_HPP
 
-namespace ast::NodeType
+namespace ast::NodeKind
 {
     enum
     {
@@ -9,22 +9,22 @@ namespace ast::NodeType
         Variable,
         Abstraction,
         Application,
-
         NaturalConstant,
         BooleanConstant,
         StringConstant,
         Condition,
         LocalDefinition,
         NativeApplication,
-
         Unit,
         Sequence,
         Declaration,
         Ascription,
         Tuple,
         Register,
-        Dynamic,
+
+        // Not implemented
         OperatorDot,
+        Fix
     };
 }
 

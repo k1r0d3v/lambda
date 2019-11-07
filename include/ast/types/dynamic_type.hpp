@@ -1,8 +1,8 @@
 #ifndef LAMBDA_DYNAMIC_TYPE_HPP
 #define LAMBDA_DYNAMIC_TYPE_HPP
 
-#include "../common.hpp"
-#include "type.hpp"
+#include <ast/types/type.hpp>
+#include <ast/types/type_kind.hpp>
 
 namespace ast
 {
@@ -15,15 +15,11 @@ namespace ast
         static const Type::PointerType<DynType> INSTANCE;
 
     public:
-        bool equals(const Type::Pointer &t) const override
-        {
-            return true;
-        }
+        explicit DynType() : Type(TypeKind::Dyn) { }
 
-        string toString() const override
-        {
-            return "Dyn";
-        }
+        bool equals(const Type::Pointer &t) const override { return true; }
+
+        string toString() const override { return "Dyn"; }
     };
 }
 

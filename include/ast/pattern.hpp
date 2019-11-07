@@ -1,10 +1,7 @@
 #ifndef LAMBDA_PATTERN_HPP
 #define LAMBDA_PATTERN_HPP
 
-
-#include "common.hpp"
-#include "node_type.hpp"
-#include "node.hpp"
+#include <ast/node.hpp>
 
 namespace ast
 {

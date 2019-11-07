@@ -1,13 +1,9 @@
 #ifndef LAMBDA_NATIVE_APPLICATION_HPP
 #define LAMBDA_NATIVE_APPLICATION_HPP
 
-#include <functional>
+#include <ast/common.hpp>
+#include <ast/node.hpp>
 
-#include "common.hpp"
-#include "node.hpp"
-#include "node_type.hpp"
-#include "types/type.hpp"
-#include "exception.hpp"
 
 namespace ast
 {
@@ -19,7 +15,10 @@ namespace ast
 
     struct NativeFunction
     {
-        std::function<Node::Pointer(const list<NativeArgument>&)> run;
+        using ArgumentsType = list<NativeArgument>;
+        using FunctionType = std::function<Node::Pointer(const ArgumentsType&)>;
+
+        FunctionType run;
         Type::Pointer resultType;
     };
 
@@ -29,54 +28,17 @@ namespace ast
         using Pointer = Node::PointerType<NativeApplication>;
 
     public:
-        explicit NativeApplication(string name, list<NativeArgument> arguments, NativeFunction fun)
-                : Node(NodeType::NativeApplication), mName(std::move(name)), mArguments(std::move(arguments)), mFunction(std::move(fun))
-        { }
+        explicit NativeApplication(string name, NativeFunction::ArgumentsType arguments, NativeFunction fun);
 
-        Node::Pointer evaluate(const Node::Pointer &self, Context &context) const override
-        {
-            list<NativeArgument> arguments;
-            for (const auto &i : mArguments)
-                arguments.push_back({i.value->evaluate(i.value, context), i.valueType});
-            return mFunction.run(arguments);
-        }
+        Node::Pointer evaluate(Context &context) const override;
 
-        Node::Pointer resolve(const Node::Pointer &self, Context &context) const override
-        {
-            list<NativeArgument> arguments;
-            for (const auto &i : mArguments)
-                arguments.push_back({i.value->resolve(i.value, context), i.valueType});
+        Type::Pointer typecheck(TypeContext &context) const override;
 
-            return Node::make<NativeApplication>(mName, arguments, mFunction);
-        }
+        Node::Pointer transform(NodeVisitor *visitor) override;
 
-        Type::Pointer typecheck(TypeContext &context) const override
-        {
-            for (const auto &i : mArguments)
-            {
-                auto type = i.value->typecheck(context);
-                if (Type::distinct(type, i.valueType))
-                    throw TypeException("\'" + type->toString() + "\' is not a \'" + i.valueType->toString() + "\'");
-            }
+        Node::Pointer copy() const override;
 
-            return mFunction.resultType;
-        }
-
-        Node::Pointer copy() const override
-        {
-            return Node::make<NativeApplication>(mName, mArguments, mFunction);
-        }
-
-        string toString() const override
-        {
-            auto os = std::ostringstream();
-            os << "(" << mName << " ";
-            for (const auto &i : mArguments)
-                os << i.value->toString();
-            os << ")";
-
-            return os.str();
-        }
+        string toString() const override;
 
     protected:
         string mName;

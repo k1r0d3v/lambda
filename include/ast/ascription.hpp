@@ -1,11 +1,7 @@
 #ifndef LAMBDA_ASCRIPTION_HPP
 #define LAMBDA_ASCRIPTION_HPP
 
-#include "node.hpp"
-#include "node_type.hpp"
-#include "common.hpp"
-#include "ast/types/type.hpp"
-#include "exception.hpp"
+#include <ast/node.hpp>
 
 namespace ast
 {
@@ -15,32 +11,17 @@ namespace ast
         using Pointer = Node::PointerType<Ascription>;
 
     public:
-        explicit Ascription(Node::Pointer node, Type::Pointer type)
-                : Node(NodeType::Ascription), mNode(std::move(node)), mType(std::move(type))
-        { }
+        explicit Ascription(Node::Pointer node, Type::Pointer type);
 
-        Node::Pointer evaluate(const Node::Pointer &self, Context &context) const override
-        {
-            return mNode->evaluate(mNode, context);
-        }
+        Node::Pointer evaluate(Context &context) const override;
 
-        Type::Pointer typecheck(TypeContext &context) const override
-        {
-            auto nodeType = mNode->typecheck(context);
-            if (Type::distinct(nodeType, mType))
-                throw TypeException("Cannot convert \'" + nodeType->toString() + "\' to \'" + mType->toString() + "\'");
-            return nodeType;
-        }
+        Type::Pointer typecheck(TypeContext &context) const override;
 
-        Node::Pointer copy() const override
-        {
-            return Node::make<Ascription>(mNode, mType);
-        }
+        Node::Pointer transform(NodeVisitor *visitor) override;
 
-        string toString() const override
-        {
-            return mNode->toString();
-        }
+        Node::Pointer copy() const override;
+
+        string toString() const override;
 
     private:
         Node::Pointer mNode;

@@ -1,6 +1,7 @@
 #ifndef LAMBDA_COMMON_HPP
 #define LAMBDA_COMMON_HPP
 
+#include <iostream>
 #include <memory> // std::shared_ptr
 #include <string>
 #include <sstream>
@@ -8,6 +9,8 @@
 #include <cassert> // assert
 #include <vector>
 #include <map>
+#include <functional>
+#include <set>
 
 namespace ast
 {

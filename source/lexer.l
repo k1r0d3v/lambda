@@ -58,11 +58,15 @@ then                    { return yy::Parser::make_K_THEN(loc); }
 else                    { return yy::Parser::make_K_ELSE(loc); }
 let                     { return yy::Parser::make_K_LET(loc); }
 letrec                  { return yy::Parser::make_K_LETREC(loc); }
+fix                     { return yy::Parser::make_K_FIX(loc); }
 in                      { return yy::Parser::make_K_IN(loc); }
 lambda                  { return yy::Parser::make_K_LAMBDA(loc); }
 as                      { return yy::Parser::make_K_AS(loc); }
 Dyn                     { return yy::Parser::make_K_DYN(loc); }
-
+Bool                    { return yy::Parser::make_K_BOOL(loc); }
+Nat                     { return yy::Parser::make_K_NAT(loc); }
+Str                     { return yy::Parser::make_K_STR(loc); }
+Unit                    { return yy::Parser::make_K_UNIT(loc); }
 
 [0-9]+                  { return yy::Parser::make_NUMBER(atoi(yytext), loc); }
 [a-z_][a-z0-9_]*        { return yy::Parser::make_IDENTIFIER(yytext, loc); }

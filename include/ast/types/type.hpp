@@ -1,8 +1,7 @@
 #ifndef LAMBDA_TYPE_HPP
 #define LAMBDA_TYPE_HPP
 
-#include <ast/exception.hpp>
-#include "../common.hpp"
+#include <ast/common.hpp>
 
 namespace ast
 {
@@ -26,32 +25,21 @@ namespace ast
             return std::make_shared<T>(std::forward<Args>(args)...);
         }
 
-        static bool equals(const Type::Pointer &a, const Type::Pointer &b)
-        {
-            return a->equals(b);
-        }
+        static bool equals(const Type::Pointer &a, const Type::Pointer &b);
 
-        static bool distinct(const Type::Pointer &a, const Type::Pointer &b)
-        {
-            return !a->equals(b);
-        }
+        static bool distinct(const Type::Pointer &a, const Type::Pointer &b);
 
     public:
+        explicit Type(int kind);
 
-        /**
-         * Type equality by value
-         */
         virtual bool equals(const Type::Pointer &t) const = 0;
 
-        virtual Type::Pointer typeOfField(const string &name)
-        {
-            throw AttributeException("\'" + this->toString() + "\' object has no attribute \'" + name + "\'");
-        }
-
-        /**
-         * @return A description of this type as string
-         */
         virtual string toString() const = 0;
+
+        int kind() const { return mKind; }
+
+    private:
+        int mKind;
     };
 }
 

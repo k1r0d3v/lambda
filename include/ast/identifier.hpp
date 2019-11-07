@@ -1,12 +1,8 @@
 #ifndef LAMBDA_IDENTIFIER_HPP
 #define LAMBDA_IDENTIFIER_HPP
 
-#include "node.hpp"
-#include "node_type.hpp"
-#include "common.hpp"
-#include "exception.hpp"
-#include "ast/types/type.hpp"
-#include "pattern.hpp"
+#include <ast/node.hpp>
+#include <ast/pattern.hpp>
 
 namespace ast
 {
@@ -16,64 +12,27 @@ namespace ast
         using Pointer = Node::PointerType<Identifier>;
 
     public:
-        explicit Identifier(string name)
-                : Pattern(NodeType::Variable), mName(std::move(name))
-        { }
+        explicit Identifier(string name);
 
-        const string &name() const
-        {
-            return mName;
-        }
+        const string &name() const { return mName; }
 
-        Pattern::MatchIdenfiers matchIdentifiers() const override
-        {
-            return { mName };
-        }
+    public: // Pattern
+        Pattern::MatchIdenfiers matchIdentifiers() const override;
 
-        Pattern::MatchResult match(const Node::Pointer &value, Context &context) const override
-        {
-            return { {mName, value} };
-        }
+        Pattern::MatchResult match(const Node::Pointer &value, Context &context) const override;
 
-        Pattern::TypecheckMatchResult typecheckMatch(const Type::Pointer &type, TypeContext &context) const override
-        {
-            return { {mName, type} };
-        }
+        Pattern::TypecheckMatchResult typecheckMatch(const Type::Pointer &type, TypeContext &context) const override;
 
-        Node::Pointer evaluate(const Node::Pointer &self, Context &context) const override
-        {
-            auto valueOfName = context.getValue(mName);
-            return valueOfName->evaluate(valueOfName, context);
-        }
+    public: // Node
+        Node::Pointer evaluate(Context &context) const override;
 
-        Node::Pointer resolve(const Node::Pointer &self, Context &context) const override
-        {
-            auto valueOfName = context.getValue(mName);
+        Type::Pointer typecheck(TypeContext &context) const override;
 
-            if (valueOfName == nullptr)
-                return self; // We must conserve the id
-            else
-                return valueOfName;
-        }
+        Node::Pointer transform(NodeVisitor *visitor) override;
 
-        Type::Pointer typecheck(TypeContext &context) const override
-        {
-            auto typeOfName = context.getTypeOf(mName);
-            if (typeOfName == nullptr)
-                throw NameException("Name \'" + mName + "\' is not defined");
+        Node::Pointer copy() const override;
 
-            return typeOfName;
-        }
-
-        Node::Pointer copy() const override
-        {
-            return Node::make<Identifier>(mName);
-        }
-
-        string toString() const override
-        {
-            return mName;
-        }
+        string toString() const override;
 
     private:
         string mName;

@@ -103,7 +103,6 @@ int main(int argc, char **argv)
         // Return if parse fails
         if (root.empty()) continue;
 
-
         try
         {
             auto typeResult = root.typecheck(typeContext);

@@ -1,10 +1,7 @@
 #ifndef LAMBDA_SEQUENCE_HPP
 #define LAMBDA_SEQUENCE_HPP
 
-#include "common.hpp"
-#include "node_type.hpp"
-#include "node.hpp"
-
+#include <ast/node.hpp>
 
 namespace ast
 {
@@ -24,99 +21,22 @@ namespace ast
          * @return A sequence formed by @param{a} and @param{b} or if any of params are another @code{Sequence}
          * join his elements instead
          */
-        static Node::Pointer join(const Node::Pointer &a, const Node::Pointer &b)
-        {
-            if (a == nullptr)
-                return b;
-
-            if (b == nullptr)
-                return a;
-
-            list<Node::Pointer> elements;
-
-            if (a != nullptr)
-            {
-                if (a->nodeType() == NodeType::Sequence)
-                {
-                    auto aElements = Node::cast<Sequence>(a)->elements();
-                    elements.insert(elements.end(), aElements.begin(), aElements.end());
-                } else elements.push_back(a);
-            }
-
-            if (b != nullptr)
-            {
-                if (b->nodeType() == NodeType::Sequence)
-                {
-                    auto bElements = Node::cast<Sequence>(b)->elements();
-                    elements.insert(elements.end(), bElements.begin(), bElements.end());
-                } else elements.push_back(b);
-            }
-
-            return Node::make<Sequence>(elements);
-        }
+        static Node::Pointer join(const Node::Pointer &a, const Node::Pointer &b);
 
     public:
-        explicit Sequence(const list<Node::Pointer> &elements)
-                : Node(NodeType::Sequence), mElements(elements) { }
+        explicit Sequence(const list<Node::Pointer> &elements);
 
-        const list<Node::Pointer> &elements() const
-        {
-            return mElements;
-        }
+        const list<Node::Pointer> &elements() const { return mElements; }
 
-        Node::Pointer evaluate(const Node::Pointer &self, Context &context) const override
-        {
-            auto r = Node::cast<Node>(Node::make<Unit>());
+        Node::Pointer evaluate(Context &context) const override;
 
-            for (const auto& i : mElements)
-                r = i->evaluate(i, context);
+        Type::Pointer typecheck(TypeContext &context) const override;
 
-            // Return the last sequence element
-            return r;
-        }
+        Node::Pointer transform(NodeVisitor *visitor) override;
 
-        Node::Pointer resolve(const Node::Pointer &self, Context &context) const override
-        {
-            list<Node::Pointer> elements;
-            for (const auto &i : mElements)
-                elements.push_back(i->resolve(i, context));
+        Node::Pointer copy() const override;
 
-            return Node::make<Sequence>(elements);
-        }
-
-        Type::Pointer typecheck(TypeContext &context) const override
-        {
-            Type::Pointer type = UnitType::INSTANCE;
-
-            for (const auto& i : mElements)
-                type = i->typecheck(context);
-
-            return type;
-        }
-
-        Node::Pointer copy() const override
-        {
-            return Node::make<Sequence>(mElements);
-        }
-
-        string toString() const override
-        {
-            auto os = std::ostringstream();
-
-            for (const auto& i : mElements)
-                os << i->toString() << "; ";
-
-            auto str = os.str();
-
-            // Remove trailing ;
-            if (!str.empty())
-            {
-                str.pop_back();
-                str.pop_back();
-            }
-
-            return str;
-        }
+        string toString() const override;
 
     private:
         list<Node::Pointer> mElements;

@@ -26,4 +26,6 @@ println "** Testing registers";;
 
 println "** Testing tuples";;
 
+println "** Testing fix";;
+
 println "** Testing letrec";;

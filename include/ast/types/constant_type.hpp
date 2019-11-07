@@ -1,9 +1,7 @@
 #ifndef LAMBDA_CONSTANT_TYPE_HPP
 #define LAMBDA_CONSTANT_TYPE_HPP
 
-#include "../common.hpp"
-#include "type.hpp"
-#include "dynamic_type.hpp"
+#include <ast/types/type.hpp>
 
 namespace ast
 {
@@ -13,27 +11,14 @@ namespace ast
         using Pointer = Type::PointerType<ConstantType>;
 
     public:
-        explicit ConstantType(const string &name) : mName(name) { }
+        explicit ConstantType(int kind, const string &name);
 
-        bool equals(const Type::Pointer &t) const override
-        {
-            auto ct = Type::cast<ConstantType>(t);
-            if (ct != nullptr)
-                return mName == ct->mName;
-            // TODO: Move this from here
-            else if (Type::cast<DynType>(t) != nullptr)
-                return true;
-            return false;
-        }
+        const string &name() const { return mName; }
 
-        const char *name() const {
-            return mName.data();
-        }
+    public: // Type
+        bool equals(const Type::Pointer &t) const override;
 
-        string toString() const override
-        {
-            return mName;
-        }
+        string toString() const override;
 
     private:
         string mName;

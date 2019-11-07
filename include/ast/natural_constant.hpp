@@ -1,12 +1,7 @@
 #ifndef LAMBDA_NATURAL_CONSTANT_HPP
 #define LAMBDA_NATURAL_CONSTANT_HPP
 
-#include <ast/types/nat_type.hpp>
-#include "common.hpp"
-#include "node.hpp"
-#include "node_type.hpp"
-#include "ast/types/type.hpp"
-#include "ast/types/constant_type.hpp"
+#include <ast/node.hpp>
 
 namespace ast
 {
@@ -17,35 +12,19 @@ namespace ast
         using NaturalValueType = unsigned long;
 
     public:
-        explicit NaturalConstant(NaturalValueType value)
-                : Node(NodeType::NaturalConstant), mValue(value)
-        { }
+        explicit NaturalConstant(NaturalValueType value);
 
-        const NaturalValueType &value() const
-        {
-            return mValue;
-        }
+        const NaturalValueType &value() const { return mValue; }
 
-        Node::Pointer evaluate(const Node::Pointer &self, Context &context) const override
-        {
-            return self;
-        }
+        Node::Pointer evaluate(Context &context) const override;
 
-        Type::Pointer typecheck(TypeContext &context) const override
-        {
-            return NatType::INSTANCE;
-        }
+        Type::Pointer typecheck(TypeContext &context) const override;
 
-        Node::Pointer copy() const override
-        {
-            return Node::make<NaturalConstant>(mValue);
-        }
+        Node::Pointer transform(NodeVisitor *visitor) override;
 
-        string toString() const override
-        {
-            return to_string(mValue);
-        }
+        Node::Pointer copy() const override;
 
+        string toString() const override;
     private:
         NaturalValueType mValue;
     };

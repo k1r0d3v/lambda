@@ -1,11 +1,7 @@
 #ifndef LAMBDA_BOOLEAN_CONSTANT_HPP
 #define LAMBDA_BOOLEAN_CONSTANT_HPP
 
-#include <ast/types/bool_type.hpp>
-#include "common.hpp"
-#include "node.hpp"
-#include "node_type.hpp"
-#include "ast/types/constant_type.hpp"
+#include <ast/node.hpp>
 
 namespace ast
 {
@@ -16,34 +12,19 @@ namespace ast
         using Pointer = Node::PointerType<BooleanConstant>;
 
     public:
-        explicit BooleanConstant(bool value)
-                : Node(NodeType::BooleanConstant), mValue(value)
-        { }
+        explicit BooleanConstant(bool value);
 
-        const bool &value() const
-        {
-            return mValue;
-        }
+        const bool &value() const { return mValue; }
 
-        Node::Pointer evaluate(const Node::Pointer &self, Context &context) const override
-        {
-            return self;
-        }
+        Node::Pointer evaluate(Context &context) const override;
 
-        Type::Pointer typecheck(TypeContext &context) const override
-        {
-            return BoolType::INSTANCE;
-        }
+        Type::Pointer typecheck(TypeContext &context) const override;
 
-        Node::Pointer copy() const override
-        {
-            return Node::make<BooleanConstant>(mValue);
-        }
+        Node::Pointer transform(NodeVisitor *visitor) override;
 
-        string toString() const override
-        {
-            return string(mValue ? "true" : "false");
-        }
+        Node::Pointer copy() const override;
+
+        string toString() const override;
 
     private:
         bool mValue;

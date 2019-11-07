@@ -27,7 +27,7 @@ add_executable(lambda
         include/ast/common.hpp
         include/ast/application.hpp
         include/ast/abstraction.hpp
-        include/ast/node_type.hpp
+        include/ast/node_kind.hpp
         include/driver.hpp
         include/ast_driver.hpp
         source/driver.cpp
@@ -45,7 +45,9 @@ add_executable(lambda
         include/ast/declaration.hpp
         include/ast/types/type.hpp
         include/ast/types/constant_type.hpp
-        include/ast/types/arrow_type.hpp include/ast/types/bool_type.hpp include/ast/types/nat_type.hpp include/ast/types/type_context.hpp source/ast/types/types.cpp include/ast/types/unit_type.hpp include/ast/identifier.hpp include/ast/native_application.hpp include/ast/types/str_type.hpp include/ast/string_constant.hpp include/ast/print_primitive.hpp include/ast/ascription.hpp include/ast/types/register_type.hpp include/ast/register.hpp include/ast/operator_dot.hpp include/ast/types/tuple_type.hpp include/ast/tuple.hpp include/ast/types/dynamic_type.hpp include/ast/pattern.hpp)
+        include/ast/fix.hpp
+        include/ast/node_visitor.hpp
+        include/ast/types/arrow_type.hpp include/ast/types/bool_type.hpp include/ast/types/nat_type.hpp include/ast/types/type_context.hpp source/ast/types/type_instances.cpp include/ast/types/unit_type.hpp include/ast/identifier.hpp include/ast/native_application.hpp include/ast/types/str_type.hpp include/ast/string_constant.hpp include/ast/print_primitive.hpp include/ast/ascription.hpp include/ast/types/register_type.hpp include/ast/register.hpp include/ast/operator_dot.hpp include/ast/types/tuple_type.hpp include/ast/tuple.hpp include/ast/types/dynamic_type.hpp include/ast/pattern.hpp source/ast/abstraction.cpp source/ast/variable.cpp source/ast/application.cpp source/ast/ascription.cpp source/ast/boolean_constant.cpp source/ast/conditional.cpp source/ast/context.cpp source/ast/declaration.cpp source/ast/identifier.cpp source/ast/local_definition.cpp source/ast/native_application.cpp source/ast/natural_constant.cpp source/ast/natural_primitives.cpp source/ast/operator_dot.cpp source/ast/print_primitive.cpp source/ast/register.cpp source/ast/sequence.cpp source/ast/string_constant.cpp source/ast/tuple.cpp source/ast/unit.cpp source/ast/fix.cpp source/ast/types/type.cpp source/ast/types/constant_type.cpp source/ast/types/arrow_type.cpp source/ast/types/register_type.cpp source/ast/types/tuple_type.cpp source/ast/node.cpp include/ast/operable_object.hpp include/ast/types/operable_type.hpp source/ast/node_visitor.cpp)
 
 # Add include folder to include directories
 target_include_directories(lambda PRIVATE include/)

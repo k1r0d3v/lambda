@@ -1,11 +1,8 @@
 #ifndef LAMBDA_PRINT_PRIMITIVE_HPP
 #define LAMBDA_PRINT_PRIMITIVE_HPP
 
-#include "types/unit_type.hpp"
-#include <iostream>
-#include <ast/types/str_type.hpp>
-#include "native_application.hpp"
-#include "unit.hpp"
+#include <ast/node.hpp>
+#include <ast/native_application.hpp>
 
 namespace ast
 {
@@ -14,32 +11,8 @@ namespace ast
     public:
         using Pointer = Node::PointerType<Print>;
 
-    private:
-        static Node::Pointer print(const list<NativeArgument> &args)
-        {
-            auto arg = args[0].value;
-
-            if (arg->nodeType() == NodeType::StringConstant)
-            {
-                auto str = Node::cast<StringConstant>(arg);
-                std::cout << str->value();
-            }
-            else if (arg->nodeType() == NodeType::NaturalConstant)
-            {
-                auto nat = Node::cast<NaturalConstant>(arg);
-                std::cout << nat->value();
-            }
-            else std::cout << arg->toString();
-
-            return Node::make<Unit>();
-        }
-
     public:
-        explicit Print(Node::Pointer argument)
-                : NativeApplication("print",
-                                    {{std::move(argument), DynType::INSTANCE}},
-                                    {print, UnitType::INSTANCE}) { }
-
+        explicit Print(Node::Pointer argument);
     };
 }
 

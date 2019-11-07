@@ -1,9 +1,8 @@
 #ifndef LAMBDA_STR_TYPE_HPP
 #define LAMBDA_STR_TYPE_HPP
 
-#include "../common.hpp"
-#include "type.hpp"
-#include "constant_type.hpp"
+#include <ast/types/constant_type.hpp>
+#include <ast/types/type_kind.hpp>
 
 namespace ast
 {
@@ -13,7 +12,7 @@ namespace ast
         static const Type::PointerType<StrType> INSTANCE;
 
     public:
-        explicit StrType() : ConstantType("Str") { }
+        explicit StrType() : ConstantType(TypeKind::Str, "Str") { }
     };
 }
 

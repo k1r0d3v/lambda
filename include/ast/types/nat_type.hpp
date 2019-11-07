@@ -1,9 +1,8 @@
 #ifndef LAMBDA_NAT_TYPE_HPP
 #define LAMBDA_NAT_TYPE_HPP
 
-#include "../common.hpp"
-#include "type.hpp"
-#include "constant_type.hpp"
+#include <ast/types/constant_type.hpp>
+#include <ast/types/type_kind.hpp>
 
 namespace ast
 {
@@ -13,7 +12,7 @@ namespace ast
         static const Type::PointerType<NatType> INSTANCE;
 
     public:
-        explicit NatType() : ConstantType("Nat") { }
+        explicit NatType() : ConstantType(TypeKind::Nat, "Nat") { }
     };
 }
 

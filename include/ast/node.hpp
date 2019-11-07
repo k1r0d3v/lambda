@@ -1,18 +1,19 @@
 #ifndef LAMBDA_NODE_HPP
 #define LAMBDA_NODE_HPP
 
+#include <ast/common.hpp>
+#include <ast/types/type.hpp>
 #include <ast/types/type_context.hpp>
-#include <functional>
-#include "common.hpp"
-#include "exception.hpp"
 
 namespace ast
 {
-    class Context; // Forward declaration of Context
+    class Context;
+    class NodeVisitor;
 
-    // TODO: Add character offset to the node
     /**
-     *  Abstract Syntax Tree Node
+     *  Base class for nodes
+     *
+     *  TODO: Add character offset to the node
      */
     class Node
     {
@@ -34,62 +35,31 @@ namespace ast
             return std::make_shared<T>(std::forward<Args>(args)...);
         }
 
-        template<typename T>
-        static PointerType<T> makeNoDeletablePtr(T *ptr)
-        {
-            return PointerType<T>(PointerType<T>{}, ptr);
-        }
+        static Node::Pointer transform(const Node::Pointer &node, NodeVisitor *visitor);
+
+        static Node::Pointer transform(const Node::Pointer &node, NodeVisitor &&visitor);
 
     public:
-        explicit Node(int nodeType) : mNodeType(nodeType) { }
+        explicit Node(int kind) : mKind(kind) { }
 
-        /**
-         *
-         */
-        virtual Node::Pointer evaluate(const Node::Pointer &self, Context &context) const = 0;
+        virtual Node::Pointer evaluate(Context &context) const = 0;
 
-        // Note: Do not evaluate terms here, this phase only replace id's by nodes.
-        // An evaluation in this phase can lead to undesired results because this function
-        // is called on abstractions evaluation.
-        virtual Node::Pointer resolve(const Node::Pointer &self, Context &context) const
-        {
-            return self;
-        }
-
-        virtual Node::Pointer operator_dot(const Node::Pointer &self, const string &field, Context &context) const
-        {
-            // TODO: Create custom exception
-            throw std::runtime_error("Not implemented");
-        }
-
-        /**
-         *
-         */
         virtual Type::Pointer typecheck(TypeContext &context) const = 0;
 
-        //virtual bool isTerminal() const { return false; }
-
-        /**
-         * @return String representation of this node and children.
-         */
-        virtual string toString() const = 0;
-
-        /**
-         * @return A copy of this node tree.
-         */
-        virtual Node::Pointer copy() const = 0;
-
         /**
          *
-         * @return Integer value representing the node type in the tree.
+         * @return nullptr if this node is not replaced (children can be replaced even so) else the replace node
          */
-        int nodeType() const
-        {
-            return mNodeType;
-        }
+        virtual Node::Pointer transform(NodeVisitor *visitor) = 0;
+
+        virtual string toString() const = 0;
+
+        virtual Node::Pointer copy() const = 0;
+
+        int kind() const { return mKind; }
 
     private:
-        const int mNodeType;
+        const int mKind;
     };
 }
 

@@ -20,7 +20,7 @@ WHITESPACE  [ \t]
   // driver variable comes from YY_DECL prototype argument
   yy::location& loc = driver->yyLocation();
   // Code run each time yylex is called
-  loc.step ();
+  loc.step();
 %}
 
 {WHITESPACE}+           { loc.step(); }
@@ -62,7 +62,7 @@ fix                     { return yy::Parser::make_K_FIX(loc); }
 in                      { return yy::Parser::make_K_IN(loc); }
 lambda                  { return yy::Parser::make_K_LAMBDA(loc); }
 as                      { return yy::Parser::make_K_AS(loc); }
-Dyn                     { return yy::Parser::make_K_DYN(loc); }
+Top                     { return yy::Parser::make_K_TOP(loc); }
 Bool                    { return yy::Parser::make_K_BOOL(loc); }
 Nat                     { return yy::Parser::make_K_NAT(loc); }
 Str                     { return yy::Parser::make_K_STR(loc); }

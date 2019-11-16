@@ -6,6 +6,7 @@
 
 namespace ast
 {
+    // TODO: Change to TopType
     class DynType : public Type
     {
     public:
@@ -19,7 +20,7 @@ namespace ast
 
         bool equals(const Type::Pointer &t) const override { return true; }
 
-        string toString() const override { return "Dyn"; }
+        string toString() const override { return "Top"; }
     };
 }
 

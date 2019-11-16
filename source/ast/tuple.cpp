@@ -9,7 +9,6 @@ using namespace ast;
 Tuple::Tuple(list<Node::Pointer> elements)
                 : Pattern(NodeKind::Tuple), mElements(std::move(elements)) { }
 
-
 Pattern::MatchIdenfiers Tuple::matchIdentifiers() const
 {
     Pattern::MatchIdenfiers tmp;

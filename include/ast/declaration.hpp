@@ -12,9 +12,9 @@ namespace ast
         using Pointer = Node::PointerType<Declaration>;
 
     public:
-        explicit Declaration(Identifier::Pointer id, Node::Pointer value);
+        explicit Declaration(Pattern::Pointer pattern, Node::Pointer value);
 
-        const Identifier::Pointer &id() const { return mId; }
+        const Pattern::Pointer &pattern() const { return mPattern; }
 
         const Node::Pointer &value() const { return mValue; }
 
@@ -29,8 +29,7 @@ namespace ast
         string toString() const override;
 
     private:
-        // TODO: Change id by Pattern::Pointer
-        Identifier::Pointer mId;
+        Pattern::Pointer mPattern;
         Node::Pointer mValue;
     };
 }

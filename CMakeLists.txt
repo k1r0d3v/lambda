@@ -11,7 +11,7 @@ set(FLEX_BISON_OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/generated/lambda)
 file(MAKE_DIRECTORY ${FLEX_BISON_OUTPUT_DIR})
 
 # Add flex and bison
-BISON_TARGET(lambda_parser source/parser.y ${FLEX_BISON_OUTPUT_DIR}/parser.cpp)
+BISON_TARGET(lambda_parser source/parser.y ${FLEX_BISON_OUTPUT_DIR}/parser.cpp VERBOSE ${FLEX_BISON_OUTPUT_DIR})
 FLEX_TARGET(lambda_lexer source/lexer.l ${FLEX_BISON_OUTPUT_DIR}/lexer.cpp COMPILE_FLAGS "--header-file=${FLEX_BISON_OUTPUT_DIR}/lexer.hpp")
 ADD_FLEX_BISON_DEPENDENCY(lambda_lexer lambda_parser)
 

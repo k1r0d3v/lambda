@@ -1,4 +1,4 @@
-let println = lambda x : Dyn. print x; print "\n";;
+let println = lambda x : Top. print x; print "\n";;
 
 println "*****************";;
 println "*  Test module  *";;

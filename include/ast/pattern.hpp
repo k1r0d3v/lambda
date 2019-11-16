@@ -14,7 +14,7 @@ namespace ast
         using MatchIdenfiers = list<string>;
 
     public:
-        explicit Pattern(int type) : Node(type) { }
+        explicit Pattern(int kind) : Node(kind) { }
 
         virtual MatchIdenfiers matchIdentifiers() const = 0;
 

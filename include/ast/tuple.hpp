@@ -4,6 +4,7 @@
 #include <ast/node.hpp>
 #include <ast/pattern.hpp>
 #include <ast/operable_object.hpp>
+#include <ast/node_kind.hpp>
 
 namespace ast
 {
@@ -14,6 +15,11 @@ namespace ast
 
     public:
         explicit Tuple(list<Node::Pointer> elements);
+
+        template<typename Iterator>
+        Tuple(Iterator begin, Iterator end) : Pattern(NodeKind::Tuple) {
+            mElements = {begin, end};
+        }
 
         const list<Node::Pointer> &elements() const { return mElements; }
 

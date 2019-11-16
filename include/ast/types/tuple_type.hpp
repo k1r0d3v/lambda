@@ -3,6 +3,7 @@
 
 #include <ast/types/type.hpp>
 #include <ast/types/operable_type.hpp>
+#include <ast/types/type_kind.hpp>
 
 namespace ast
 {
@@ -10,6 +11,11 @@ namespace ast
     {
     public:
         explicit TupleType(list<Type::Pointer> types);
+
+        template<typename Iterator>
+        TupleType(Iterator begin, Iterator end) : OperableType(TypeKind::Tuple) {
+            mElements = {begin, end};
+        }
 
         const list<Type::Pointer> &elements() const { return mElements; }
 

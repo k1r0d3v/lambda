@@ -67,6 +67,7 @@ Bool                    { return yy::Parser::make_K_BOOL(loc); }
 Nat                     { return yy::Parser::make_K_NAT(loc); }
 Str                     { return yy::Parser::make_K_STR(loc); }
 Unit                    { return yy::Parser::make_K_UNIT(loc); }
+alias                   { return yy::Parser::make_K_ALIAS(loc); }
 
 [0-9]+                  { return yy::Parser::make_NUMBER(atoi(yytext), loc); }
 [a-z_][a-z0-9_]*        { return yy::Parser::make_IDENTIFIER(yytext, loc); }

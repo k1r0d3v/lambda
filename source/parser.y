@@ -60,6 +60,7 @@ namespace  yy  {  class  Driver;  }
 %token  K_NAT  "Nat"
 %token  K_STR  "Str"
 %token  K_UNIT  "Unit"
+%token  K_ALIAS  "alias"
 
 %token  S_LPAREN  "("
 %token  S_RPAREN  ")"
@@ -77,12 +78,12 @@ namespace  yy  {  class  Driver;  }
   TODO: Check precedences
 */
 %right       S_ARROW
-%left        S_DOT
 %nonassoc    K_THEN
 %nonassoc    K_ELSE
 %left        S_SEMICOLON
-%left        K_AS
 %left        K_FIX K_SUCC K_PRED K_ISZERO K_PRINT
+%left        K_AS
+%left        S_DOT
 %precedence  S_LPAREN  S_RPAREN
 %left        K_IN
 %precedence  S_LINE_END
@@ -107,6 +108,7 @@ namespace  yy  {  class  Driver;  }
 %type  <ast::Node::Pointer>  print
 %type  <ast::Node::Pointer>  file
 %type  <ast::Node::Pointer>  operator_dot
+%type  <ast::Node::Pointer>  alias
 
 %type  <ast::Node::Pointer>  term
 %type  <ast::Node::Pointer>  tuple
@@ -137,21 +139,26 @@ s:
 file:
   END                  { $$ = ast::Node::Pointer(); }
 | term S_LINE_END file { $$ = ast::Sequence::join($1, $3); }
-|  assignment S_LINE_END file  {  $$ = ast::Sequence::join($1,  $3);  }
+| assignment S_LINE_END file  {  $$ = ast::Sequence::join($1,  $3);  }
+| alias S_LINE_END file { $$ = ast::Sequence::join($1,  $3); }
 ;
 
 assignment:
-    K_LET pattern S_EQ term { $$ = MKNODE(Declaration, $2, $4); }
+  K_LET pattern S_EQ term { $$ = MKNODE(Declaration, $2, $4); }
+;
+
+alias:
+  K_ALIAS TYPE_NAME S_COLON type_name { $$ = MKNODE(Alias, $2, $4); }
 ;
 
 type_name:
   S_LPAREN  type_name  S_RPAREN  {  $$  =  $2;  }
-|  TYPE_NAME  {  $$  =  MKTYPE(ConstantType,  ast::TypeKind::Composed,  $1);  }
+|  TYPE_NAME  {  $$  =  MKTYPE(UndefinedType,  $1);  }
 |  K_BOOL  {  $$  =  MKTYPE(BoolType);  }
 |  K_NAT  {  $$  =  MKTYPE(NatType);  }
 |  K_STR  {  $$  =  MKTYPE(StrType);  }
 |  K_UNIT  {  $$  =  MKTYPE(UnitType);  }
-|  K_TOP  {  $$  =  MKTYPE(DynType);  }
+|  K_TOP  {  $$  =  MKTYPE(TopType);  }
 |  type_name  S_ARROW  type_name  {  $$  =  MKTYPE(ArrowType,  $1,  $3);  }
 |  tuple_type  {  $$  =  $1;  }
 |  register_type { $$  =  $1; }

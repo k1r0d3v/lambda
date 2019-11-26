@@ -4,7 +4,7 @@
 #include <ast/natural_constant.hpp>
 #include <ast/unit.hpp>
 #include <ast/types/unit_type.hpp>
-#include <ast/types/dynamic_type.hpp>
+#include <ast/types/top_type.hpp>
 
 
 using namespace ast;
@@ -30,5 +30,6 @@ static Node::Pointer print(const NativeFunction::ArgumentsType &args)
 
 Print::Print(Node::Pointer argument)
     : NativeApplication("print",
-                        {{std::move(argument), DynType::INSTANCE}},
+                        {{std::move(argument), TopType::INSTANCE}},
                         {print, UnitType::INSTANCE}) { }
+                        

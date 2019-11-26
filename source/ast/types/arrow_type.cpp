@@ -1,18 +1,24 @@
 #include <ast/types/arrow_type.hpp>
 #include <ast/types/type_kind.hpp>
-#include <ast/types/dynamic_type.hpp>
+#include <ast/types/top_type.hpp>
 
 using namespace ast;
 
 ArrowType::ArrowType(Type::Pointer left, Type::Pointer right)
     :  Type(TypeKind::Arrow), mLeft(std::move(left)), mRight(std::move(right)) { }
 
-bool ArrowType::equals(const Type::Pointer &t) const
+bool ArrowType::isTypeOf(const Type::Pointer &t) const
 {
-    auto at = Type::cast<ArrowType>(t);
-    if (at != nullptr)
-        return Type::equals(mLeft, at->mLeft) && Type::equals(mRight, at->mRight);
-    else if (t->kind() == TypeKind::Dyn) // TODO: Move this from here
+    auto tType = Type::cast<ArrowType>(t);
+    if (tType != nullptr)
+        return tType->mLeft->isTypeOf(mLeft) && tType->mRight->isTypeOf(mRight);
+
+    return false;
+}
+
+bool ArrowType::isSubtypeOf(const Type::Pointer &t) const
+{
+    if (t->kind() == TypeKind::Top)
         return true;
     return false;
 }
@@ -34,4 +40,10 @@ string ArrowType::toString() const
         os << mRight->toString();
 
     return os.str();
+}
+
+void ArrowType::resolve(TypeContext &context)
+{
+    mLeft->resolve(context);
+    mRight->resolve(context);
 }

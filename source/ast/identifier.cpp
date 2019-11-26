@@ -37,7 +37,7 @@ Node::Pointer Identifier::evaluate(Context &context) const
     return valueOfName->evaluate(context);
 }
 
-Type::Pointer Identifier::typecheck(TypeContext &context) const
+Type::Pointer Identifier::typecheck(TypeContext &context)
 {
     auto typeOfName = context.getTypeOf(mName);
     if (typeOfName == nullptr)

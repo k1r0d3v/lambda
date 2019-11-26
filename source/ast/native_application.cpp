@@ -21,13 +21,14 @@ Node::Pointer NativeApplication::evaluate(Context &context) const
     return mFunction.run(arguments);
 }
 
-Type::Pointer NativeApplication::typecheck(TypeContext &context) const
+Type::Pointer NativeApplication::typecheck(TypeContext &context)
 {
     for (const auto &i : mArguments)
     {
         auto type = i.value->typecheck(context);
-        if (Type::distinct(type, i.valueType))
-            throw TypeException("\'" + type->toString() + "\' is not a \'" + i.valueType->toString() + "\'");
+        if (!type->isTypeOf(i.valueType))
+            if (!type->isSubtypeOf(i.valueType))
+                throw TypeException("\'" + type->toString() + "\' is not a \'" + i.valueType->toString() + "\'");
     }
 
     return mFunction.resultType;

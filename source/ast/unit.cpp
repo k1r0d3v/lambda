@@ -13,7 +13,7 @@ Node::Pointer Unit::evaluate(Context &context) const
     return this->copy();
 }
 
-Type::Pointer Unit::typecheck(TypeContext &context) const
+Type::Pointer Unit::typecheck(TypeContext &context)
 {
     return UnitType::INSTANCE;
 }

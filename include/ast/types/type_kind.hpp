@@ -10,10 +10,10 @@ namespace ast::TypeKind
         Nat,
         Str,
         Unit,
-        Dyn,
+        Top,
         Tuple,
         Register,
-        Composed,
+        Undefined,
     };
 }
 

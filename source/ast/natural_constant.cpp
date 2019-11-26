@@ -15,7 +15,7 @@ Node::Pointer NaturalConstant::evaluate(Context &context) const
     return this->copy();
 }
 
-Type::Pointer NaturalConstant::typecheck(TypeContext &context) const
+Type::Pointer NaturalConstant::typecheck(TypeContext &context)
 {
     return NatType::INSTANCE;
 }

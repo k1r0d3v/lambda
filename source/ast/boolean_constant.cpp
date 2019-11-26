@@ -14,7 +14,7 @@ Node::Pointer BooleanConstant::evaluate(Context &context) const
     return this->copy();
 }
 
-Type::Pointer BooleanConstant::typecheck(TypeContext &context) const
+Type::Pointer BooleanConstant::typecheck(TypeContext &context)
 {
     return BoolType::INSTANCE;
 }

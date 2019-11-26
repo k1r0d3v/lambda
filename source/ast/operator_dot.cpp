@@ -22,14 +22,14 @@ Node::Pointer OperatorDot::evaluate(Context &context) const
     return operable->operator_dot(mField, context);
 }
 
-Type::Pointer OperatorDot::typecheck(TypeContext &context) const
+Type::Pointer OperatorDot::typecheck(TypeContext &context)
 {
     auto sourceType = Type::cast<OperableType>(mSource->typecheck(context));
 
     if (sourceType == nullptr)
         throw AttributeException("\'" + this->toString() + "\' object has no attribute \'" + mField->toString() + "\'");
 
-    return sourceType->typeof_dot(mField);
+    return sourceType->typeOfDot(mField);
 }
 
 Node::Pointer OperatorDot::copy() const

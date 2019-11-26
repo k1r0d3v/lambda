@@ -30,7 +30,7 @@ Node::Pointer Fix::evaluate(Context &context) const
     return body;
 }
 
-Type::Pointer Fix::typecheck(TypeContext &context) const
+Type::Pointer Fix::typecheck(TypeContext &context)
 {
     auto typeTerm = mTerm->typecheck(context);
     auto arrowType = Type::cast<ArrowType>(typeTerm);
@@ -38,7 +38,7 @@ Type::Pointer Fix::typecheck(TypeContext &context) const
     if (arrowType == nullptr)
         throw TypeException("\'" + typeTerm->toString() + "\' is not an abstraction");
 
-    if (Type::distinct(arrowType->left(), arrowType->right()))
+    if (!arrowType->left()->isTypeOf(arrowType->right()))
         throw TypeException("\'" + arrowType->left()->toString() + "\' is not \'" + arrowType->right()->toString() + "\'");
 
     return arrowType->left();

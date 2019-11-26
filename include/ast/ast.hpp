@@ -20,7 +20,7 @@
 #include "declaration.hpp"
 #include "string_constant.hpp"
 #include "ast/types/type.hpp"
-#include "ast/types/dynamic_type.hpp"
+#include "ast/types/top_type.hpp"
 #include "ast/types/arrow_type.hpp"
 #include "ast/types/constant_type.hpp"
 #include "ast/types/tuple_type.hpp"
@@ -29,12 +29,14 @@
 #include "ast/types/nat_type.hpp"
 #include "ast/types/str_type.hpp"
 #include "ast/types/unit_type.hpp"
+#include "types/undefined_type.hpp"
 #include "print_primitive.hpp"
 #include "ascription.hpp"
 #include "tuple.hpp"
 #include "register.hpp"
 #include "operator_dot.hpp"
 #include "fix.hpp"
+#include "alias.hpp"
 //
 
 namespace ast

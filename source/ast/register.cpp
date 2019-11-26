@@ -68,7 +68,7 @@ Pattern::TypecheckMatchResult Register::typecheckMatch(const Type::Pointer &type
         if (iPattern == nullptr)
             throw MatchException( "\'" + i.second->toString() + "\' is not a pattern");
 
-        auto matchResult = iPattern->typecheckMatch(typeRegister->typeof_name(i.first), context);
+        auto matchResult = iPattern->typecheckMatch(typeRegister->typeOfName(i.first), context);
 
         // TODO: Check duplicated ids
         for (const auto &j : matchResult)
@@ -88,7 +88,7 @@ Node::Pointer Register::evaluate(Context &context) const
     return Node::make<Register>(elements);
 }
 
-Type::Pointer Register::typecheck(TypeContext &context) const
+Type::Pointer Register::typecheck(TypeContext &context)
 {
     std::map<string, Type::Pointer> types;
 

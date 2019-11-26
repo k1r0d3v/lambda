@@ -5,6 +5,8 @@
 
 namespace ast
 {
+    class TypeContext;
+
     class Type
     {
     public:
@@ -25,14 +27,14 @@ namespace ast
             return std::make_shared<T>(std::forward<Args>(args)...);
         }
 
-        static bool equals(const Type::Pointer &a, const Type::Pointer &b);
-
-        static bool distinct(const Type::Pointer &a, const Type::Pointer &b);
-
     public:
-        explicit Type(int kind);
+        explicit Type(int kind) : mKind(kind) { }
 
-        virtual bool equals(const Type::Pointer &t) const = 0;
+        virtual void resolve(TypeContext &context) { }
+
+        virtual bool isTypeOf(const Type::Pointer &t) const = 0;
+
+        virtual bool isSubtypeOf(const Type::Pointer &t) const = 0;
 
         virtual string toString() const = 0;
 

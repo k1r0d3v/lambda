@@ -26,7 +26,7 @@ namespace ast
     public: // Node
         Node::Pointer evaluate(Context &context) const override;
 
-        Type::Pointer typecheck(TypeContext &context) const override;
+        Type::Pointer typecheck(TypeContext &context) override;
 
         Node::Pointer transform(NodeVisitor *visitor) override;
 

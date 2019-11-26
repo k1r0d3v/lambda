@@ -62,7 +62,7 @@ Node::Pointer Sequence::resolve(const Node::Pointer &self, Context &context) con
 }
 */
 
-Type::Pointer Sequence::typecheck(TypeContext &context) const
+Type::Pointer Sequence::typecheck(TypeContext &context)
 {
     Type::Pointer type = UnitType::INSTANCE;
 

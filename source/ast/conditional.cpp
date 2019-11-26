@@ -25,17 +25,17 @@ Node::Pointer Conditional::evaluate(Context &context) const
         return mElse->evaluate(context);
 }
 
-Type::Pointer Conditional::typecheck(TypeContext &context) const
+Type::Pointer Conditional::typecheck(TypeContext &context)
 {
     auto conditionType = mCondition->typecheck(context);
 
-    if (Type::distinct(conditionType, BoolType::INSTANCE))
+    if (!conditionType->isTypeOf(BoolType::INSTANCE))
         throw TypeException("Expected \'Bool\' not \'" + conditionType->toString() + "\'");
 
     auto thenType = mThen->typecheck(context);
     auto elseType = mElse->typecheck(context);
 
-    if (Type::distinct(thenType, elseType))
+    if (!thenType->isTypeOf(elseType))
         throw TypeException("Incompatible operand types \'" + thenType->toString() + "\' and \'" + elseType->toString() + "\'");
 
     return thenType;

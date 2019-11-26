@@ -20,6 +20,8 @@
 #include <ast/unit.hpp>
 #include <ast/operator_dot.hpp>
 #include <ast/fix.hpp>
+#include <ast/alias.hpp>
+
 
 namespace ast
 {
@@ -112,6 +114,11 @@ namespace ast
         }
 
         virtual Node::Pointer visitOperatorDot(OperatorDot *node)
+        {
+            return nullptr;
+        }
+
+        virtual Node::Pointer visitAlias(Alias *node)
         {
             return nullptr;
         }

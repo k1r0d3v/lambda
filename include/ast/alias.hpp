@@ -1,21 +1,20 @@
-#ifndef LAMBDA_VARIABLE_HPP
-#define LAMBDA_VARIABLE_HPP
+#ifndef LAMBDA_ALIAS_HPP
+#define LAMBDA_ALIAS_HPP
 
-#include <ast/common.hpp>
 #include <ast/node.hpp>
-#include <ast/node_kind.hpp>
+#include <ast/types/constant_type.hpp>
 
 namespace ast
 {
-    class Variable : public Node
+    class Alias : public Node
     {
     public:
-        using Pointer = Node::PointerType<Variable>;
+        using Pointer = Node::PointerType<Alias>;
 
     public:
-        explicit Variable(string name, Type::Pointer type);
+        explicit Alias(string alias, Type::Pointer type);
 
-        const string &name() const { return mName; }
+        const string &alias() const { return mAlias; }
 
         const Type::Pointer &type() const { return mType; }
 
@@ -30,9 +29,9 @@ namespace ast
         string toString() const override;
 
     private:
-        string mName;
+        string mAlias;
         Type::Pointer mType;
     };
 }
 
-#endif //LAMBDA_VARIABLE_HPP
+#endif //LAMBDA_ALIAS_HPP

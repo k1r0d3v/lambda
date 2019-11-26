@@ -9,17 +9,17 @@ namespace ast
     class ArrowType : public Type
     {
     public:
-        static const Type::PointerType<ArrowType> NAT_NAT;
-        static const Type::PointerType<ArrowType> NAT_BOOL;
-
-    public:
         explicit ArrowType(Type::Pointer left, Type::Pointer right);
 
         Type::Pointer left() const { return mLeft; }
 
         Type::Pointer right() const { return mRight; }
 
-        bool equals(const Type::Pointer &t) const override;
+        void resolve(TypeContext &context) override;
+
+        bool isTypeOf(const Type::Pointer &t) const override;
+
+        bool isSubtypeOf(const Type::Pointer &t) const override;
 
         string toString() const override;
 

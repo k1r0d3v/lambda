@@ -61,7 +61,7 @@ Pattern::TypecheckMatchResult Tuple::typecheckMatch(const Type::Pointer &type, T
         if (iPattern == nullptr)
             throw MatchException( "\'" + mElements[i]->toString() + "\' is not a pattern");
 
-        auto iType = typeTuple->typeof_index(i);
+        auto iType = typeTuple->typeofIndex(i);
         auto matchResult = iPattern->typecheckMatch(iType, context);
 
         // TODO: Check duplicated ids
@@ -82,7 +82,7 @@ Node::Pointer Tuple::evaluate(Context &context) const
     return Node::make<Tuple>(elements);
 }
 
-Type::Pointer Tuple::typecheck(TypeContext &context) const
+Type::Pointer Tuple::typecheck(TypeContext &context)
 {
     list<Type::Pointer> types;
 

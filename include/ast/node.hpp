@@ -44,7 +44,7 @@ namespace ast
 
         virtual Node::Pointer evaluate(Context &context) const = 0;
 
-        virtual Type::Pointer typecheck(TypeContext &context) const = 0;
+        virtual Type::Pointer typecheck(TypeContext &context) = 0;
 
         /**
          *

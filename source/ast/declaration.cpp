@@ -21,7 +21,7 @@ Node::Pointer Declaration::evaluate(Context &context) const
     return this->copy();
 }
 
-Type::Pointer Declaration::typecheck(TypeContext &context) const
+Type::Pointer Declaration::typecheck(TypeContext &context)
 {
     auto valueType = mValue->typecheck(context);
     auto matchResult = mPattern->typecheckMatch(valueType, context);

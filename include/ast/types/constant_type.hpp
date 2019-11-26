@@ -16,7 +16,9 @@ namespace ast
         const string &name() const { return mName; }
 
     public: // Type
-        bool equals(const Type::Pointer &t) const override;
+        bool isTypeOf(const Type::Pointer &t) const override;
+
+        bool isSubtypeOf(const Type::Pointer &t) const override ;
 
         string toString() const override;
 

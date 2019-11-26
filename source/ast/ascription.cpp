@@ -13,10 +13,14 @@ Node::Pointer Ascription::evaluate(Context &context) const
     return mNode->evaluate(context);
 }
 
-Type::Pointer Ascription::typecheck(TypeContext &context) const
+Type::Pointer Ascription::typecheck(TypeContext &context)
 {
+    // Resolve aliases
+    mType->resolve(context);
+
+    // Typecheck
     auto nodeType = mNode->typecheck(context);
-    if (Type::distinct(nodeType, mType))
+    if (!nodeType->isTypeOf(mType))
         throw TypeException("Cannot convert \'" + nodeType->toString() + "\' to \'" + mType->toString() + "\'");
     return nodeType;
 }

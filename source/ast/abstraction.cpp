@@ -3,6 +3,7 @@
 #include <ast/node_visitor.hpp>
 #include <ast/context.hpp>
 #include <ast/exception.hpp>
+#include <ast/types/undefined_type.hpp>
 
 using namespace ast;
 
@@ -24,13 +25,17 @@ Node::Pointer Abstraction::evaluate(Context &context) const
     return this->copy();
 }
 
-Type::Pointer Abstraction::typecheck(TypeContext &context) const
+Type::Pointer Abstraction::typecheck(TypeContext &context)
 {
     // Push argument
     auto lastArgumentType = context.setTypeFor(mVariable->name(), mVariable->type());
 
+    // Resolve aliases
+    Type::Pointer varType = mVariable->type();
+    varType->resolve(context);
+
     // Typecheck
-    auto arrowType = Type::make<ArrowType>(mVariable->type(), mBody->typecheck(context));
+    auto arrowType = Type::make<ArrowType>(varType, mBody->typecheck(context));
 
     // Pop argument
     context.setTypeFor(mVariable->name(), lastArgumentType);

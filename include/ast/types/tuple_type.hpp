@@ -19,11 +19,15 @@ namespace ast
 
         const list<Type::Pointer> &elements() const { return mElements; }
 
-        bool equals(const Type::Pointer &t) const override;
+        void resolve(TypeContext &context) override;
 
-        Type::Pointer typeof_dot(const Node::Pointer &b) override;
+        bool isTypeOf(const Type::Pointer &t) const override;
 
-        Type::Pointer typeof_index(int index);
+        bool isSubtypeOf(const Type::Pointer &t) const override;
+
+        Type::Pointer typeOfDot(const Node::Pointer &b) override;
+
+        Type::Pointer typeofIndex(int index);
 
         string toString() const override;
 

@@ -29,7 +29,7 @@ Node::Pointer LocalDefinition::evaluate(Context &context) const
     return evaluatedBody;
 }
 
-Type::Pointer LocalDefinition::typecheck(TypeContext &context) const
+Type::Pointer LocalDefinition::typecheck(TypeContext &context)
 {
     // Push argument
     auto valueType = mValue->typecheck(context);

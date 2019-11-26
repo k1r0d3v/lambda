@@ -41,7 +41,7 @@ Node::Pointer StringConstant::evaluate(Context &context) const
     return this->copy();
 }
 
-Type::Pointer StringConstant::typecheck(TypeContext &context) const
+Type::Pointer StringConstant::typecheck(TypeContext &context)
 {
     return StrType::INSTANCE;
 }

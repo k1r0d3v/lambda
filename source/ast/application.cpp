@@ -59,19 +59,20 @@ Node::Pointer Application::evaluate(Context &context) const
     return t->evaluate(context);
 }
 
-Type::Pointer Application::typecheck(TypeContext &context) const
+Type::Pointer Application::typecheck(TypeContext &context)
 {
     auto leftType = Type::cast<ArrowType>(mLeft->typecheck(context));
 
     // TODO: Change exception messages
     if (leftType == nullptr)
-        throw TypeException("Expected an abstraction");
+        throw TypeException("Expected an arrow type");
 
     Type::Pointer rightType = mRight->typecheck(context);
 
     // TODO: Change exception messages
-    if (Type::distinct(leftType->left(), rightType))
-        throw TypeException("Incompatible types");
+    if (!leftType->left()->isTypeOf(rightType))
+        if (!rightType->isSubtypeOf(leftType->left()))
+            throw TypeException("Incompatible types");
 
     return leftType->right();
 }

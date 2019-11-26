@@ -14,7 +14,7 @@ namespace ast
     public:
         explicit OperableType(int kind) : Type(kind) { }
 
-        virtual Type::Pointer typeof_dot(const Node::Pointer &b) = 0;
+        virtual Type::Pointer typeOfDot(const Node::Pointer &b) = 0;
     };
 }
 

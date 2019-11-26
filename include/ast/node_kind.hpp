@@ -21,10 +21,9 @@ namespace ast::NodeKind
         Ascription,
         Tuple,
         Register,
-
-        // Not implemented
         OperatorDot,
-        Fix
+        Fix,
+        Alias,
     };
 }
 

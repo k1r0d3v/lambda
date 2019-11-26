@@ -19,7 +19,7 @@ Node::Pointer Variable::evaluate(Context &context) const
     throw NameException("Variable \'" + mName + "\' hasn't been replaced");
 }
 
-Type::Pointer Variable::typecheck(TypeContext &context) const
+Type::Pointer Variable::typecheck(TypeContext &context)
 {
     return mType;
 }

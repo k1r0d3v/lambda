@@ -1,5 +1,5 @@
-#ifndef LAMBDA_NAT_TYPE_HPP
-#define LAMBDA_NAT_TYPE_HPP
+#ifndef LAMBDA_FLOAT_TYPE_HPP
+#define LAMBDA_FLOAT_TYPE_HPP
 
 #include <ast/types/constant_type.hpp>
 #include <ast/types/type_kind.hpp>
@@ -16,4 +16,4 @@ namespace ast
     };
 }
 
-#endif //LAMBDA_NAT_TYPE_HPP
+#endif //LAMBDA_FLOAT_TYPE_HPP

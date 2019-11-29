@@ -8,6 +8,7 @@ namespace ast::TypeKind
         Arrow,
         Bool,
         Nat,
+        Float,
         Str,
         Unit,
         Top,

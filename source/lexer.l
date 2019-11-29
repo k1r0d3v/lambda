@@ -65,6 +65,7 @@ as                      { return yy::Parser::make_K_AS(loc); }
 Top                     { return yy::Parser::make_K_TOP(loc); }
 Bool                    { return yy::Parser::make_K_BOOL(loc); }
 Nat                     { return yy::Parser::make_K_NAT(loc); }
+Float                   { return yy::Parser::make_K_FLOAT(loc); }
 Str                     { return yy::Parser::make_K_STR(loc); }
 Unit                    { return yy::Parser::make_K_UNIT(loc); }
 alias                   { return yy::Parser::make_K_ALIAS(loc); }

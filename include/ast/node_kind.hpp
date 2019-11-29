@@ -10,6 +10,7 @@ namespace ast::NodeKind
         Abstraction,
         Application,
         NaturalConstant,
+        FloatConstant,
         BooleanConstant,
         StringConstant,
         Condition,

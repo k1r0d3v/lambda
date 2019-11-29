@@ -31,6 +31,7 @@ namespace  yy  {  class  Driver;  }
 //  Make  the  ast  operations  shorter
 #define  MKNODE(T,  ...)  ast::Node::make<ast::T>(__VA_ARGS__)
 #define  MKTYPE(T,  ...)  ast::Type::make<ast::T>(__VA_ARGS__)
+#define  MKERROR(l, m) yy::Parser::error(l, m); throw  yy::Parser::syntax_error(l,  m);
 }  //  end  %code
 
 
@@ -58,6 +59,7 @@ namespace  yy  {  class  Driver;  }
 %token  K_TOP  "Top"
 %token  K_BOOL  "Bool"
 %token  K_NAT  "Nat"
+%token  K_FLOAT  "Float"
 %token  K_STR  "Str"
 %token  K_UNIT  "Unit"
 %token  K_ALIAS  "alias"
@@ -90,6 +92,7 @@ namespace  yy  {  class  Driver;  }
 
 %type  <ast::Node::Pointer>  unit
 %type  <ast::Node::Pointer>  natural_constant
+%type  <ast::Node::Pointer>  float_constant
 %type  <ast::Node::Pointer>  string_constant
 %type  <ast::Node::Pointer>  bool_constant
 %type  <ast::Node::Pointer>  abstraction
@@ -109,6 +112,7 @@ namespace  yy  {  class  Driver;  }
 %type  <ast::Node::Pointer>  file
 %type  <ast::Node::Pointer>  operator_dot
 %type  <ast::Node::Pointer>  alias
+%type  <const char*>  error
 
 %type  <ast::Node::Pointer>  term
 %type  <ast::Node::Pointer>  tuple
@@ -156,6 +160,7 @@ type_name:
 |  TYPE_NAME  {  $$  =  MKTYPE(UndefinedType,  $1);  }
 |  K_BOOL  {  $$  =  MKTYPE(BoolType);  }
 |  K_NAT  {  $$  =  MKTYPE(NatType);  }
+|  K_FLOAT  {  $$  =  MKTYPE(FloatType);  }
 |  K_STR  {  $$  =  MKTYPE(StrType);  }
 |  K_UNIT  {  $$  =  MKTYPE(UnitType);  }
 |  K_TOP  {  $$  =  MKTYPE(TopType);  }
@@ -172,6 +177,10 @@ natural_constant:
   NUMBER  {  $$  =  MKNODE(NaturalConstant,  $1);  }
 ;
 
+float_constant:
+  NUMBER S_DOT NUMBER  {  $$  =  MKNODE(FloatConstant, (double) str($1)+"."str($3));  }
+;
+
 string_constant:
   STRING  {  $$  =  MKNODE(StringConstant,  $1);  }
 ;
@@ -183,10 +192,12 @@ bool_constant:
 
 identifier:
   IDENTIFIER  {  $$  =  MKNODE(Identifier,  $1);  }
+
 ;
 
 abstraction:
   K_LAMBDA  IDENTIFIER  S_COLON  type_name  S_DOT term  {  $$  =  MKNODE(Abstraction,  MKNODE(Variable,  $2,  $4),  $6);  }
+| K_LAMBDA  IDENTIFIER  S_COLON  error S_DOT term {  MKERROR(location_type(), $4) }
 ;
 
 application:
@@ -300,6 +311,7 @@ term:
   S_LPAREN  term  S_RPAREN  {  $$  =  $2;  }
 |  unit  {  $$  =  $1;  }
 |  natural_constant  {  $$  =  $1;  }
+|  float_constant  {  $$  =  $1;  }
 |  string_constant  {  $$  =  $1;  }
 |  bool_constant  {  $$  =  $1;  }
 |  abstraction  {  $$  =  $1;  }
@@ -327,5 +339,5 @@ term:
   */
 void  yy::Parser::error(const  location_type  &l,  const  std::string  &message)
 {
-  throw  yy::Parser::syntax_error(l,  message);
+  std::cout << message << std::endl;
 }

@@ -14,6 +14,7 @@
 #include <ast/sequence.hpp>
 #include <ast/declaration.hpp>
 #include <ast/natural_constant.hpp>
+#include <ast/float_constant.hpp>
 #include <ast/boolean_constant.hpp>
 #include <ast/string_constant.hpp>
 #include <ast/native_application.hpp>
@@ -84,6 +85,11 @@ namespace ast
         }
 
         virtual Node::Pointer visitNatural(NaturalConstant *node)
+        {
+            return nullptr;
+        }
+
+        virtual Node::Pointer visitFloat(FloatConstant *node)
         {
             return nullptr;
         }

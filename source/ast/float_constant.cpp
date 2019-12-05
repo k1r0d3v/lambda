@@ -7,7 +7,7 @@
 using namespace ast;
 
 FloatConstant::FloatConstant(FloatValueType value)
-        : Node(NodeKind::FloatConstant), mValue(value) { }
+        : Node(NodeKind::FloatConstant), mValue(value) {}
 
 
 Node::Pointer FloatConstant::evaluate(Context &context) const

@@ -21,6 +21,7 @@ namespace ast::NodeKind
         Declaration,
         Ascription,
         Tuple,
+        List,
         Register,
         OperatorDot,
         Fix,

@@ -13,6 +13,7 @@ namespace ast::TypeKind
         Unit,
         Top,
         Tuple,
+        List,
         Register,
         Undefined,
     };

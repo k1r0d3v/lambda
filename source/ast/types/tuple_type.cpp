@@ -29,14 +29,12 @@ bool TupleType::isTypeOf(const Type::Pointer &t) const
 
 bool TupleType::isSubtypeOf(const Type::Pointer &t) const
 {
-    if (t->kind() == TypeKind::Top)
-        return true;
-    return false;
+    return t->kind() == TypeKind::Top;
 }
 
 Type::Pointer TupleType::typeOfDot(const Node::Pointer &b)
 {
-    if (b->kind() != NodeKind::NaturalConstant)
+    if (b->kind() != NodeKind::NaturalConstant)//TODO Los Float tambien??
         throw AttributeException("\'" + b->toString() + "\' is not a natural");
 
     int index = Node::cast<NaturalConstant>(b)->value();

@@ -101,7 +101,7 @@ add_executable(lambda
         source/ast/alias.cpp
         include/ast/alias.hpp
         include/ast/types/undefined_type.hpp
-        source/ast/types/undefined_type.cpp)
+        source/ast/types/undefined_type.cpp include/ast/list.hpp source/ast/list.cpp include/ast/types/list_type.hpp source/ast/types/list_type.cpp)
 
 # Add include folder to include directories
 target_include_directories(lambda PRIVATE include/)

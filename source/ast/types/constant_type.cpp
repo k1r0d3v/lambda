@@ -15,9 +15,7 @@ bool ConstantType::isTypeOf(const Type::Pointer &t) const
 
 bool ConstantType::isSubtypeOf(const Type::Pointer &t) const
 {
-    if (t->kind() == TypeKind::Top)
-        return true;
-    return false;
+    return t->kind() == TypeKind::Top;
 }
 
 

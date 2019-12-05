@@ -12,6 +12,7 @@
 #include <ast/tuple.hpp>
 #include <ast/register.hpp>
 #include <ast/sequence.hpp>
+#include <ast/list.hpp>
 #include <ast/declaration.hpp>
 #include <ast/natural_constant.hpp>
 #include <ast/float_constant.hpp>
@@ -75,6 +76,11 @@ namespace ast
         }
 
         virtual Node::Pointer visitSequence(Sequence *node)
+        {
+            return nullptr;
+        }
+
+        virtual Node::Pointer visitList(List *node)
         {
             return nullptr;
         }

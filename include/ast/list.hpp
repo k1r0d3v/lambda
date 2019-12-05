@@ -7,22 +7,21 @@
 
 namespace ast
 {
-
-
     class List : public Pattern
     {
     public:
         using Pointer = Node::PointerType<List>;
 
     public:
-        explicit List(list<Node::Pointer> elements);
+        explicit List(vector<Node::Pointer> elements);
+
+        explicit List(Type::Pointer elementType);
 
         List(Node::Pointer head, List::Pointer tail);
 
         const Node::Pointer &head() const { return mHead; }
 
         const Pointer &tail() const { return mTail; }
-
 
     public: // Node
         Node::Pointer evaluate(Context &context) const override;
@@ -53,7 +52,8 @@ namespace ast
         List::Pointer mTail;
         Node::Pointer mHead;
 
-        list<Node::Pointer> mTemporal;
+        Type::Pointer mElementType; // Only for empty
+        vector<Node::Pointer> mTemporal;
     };
 }
 

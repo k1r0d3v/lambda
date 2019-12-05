@@ -7,18 +7,12 @@
 #include <utility>
 
 using namespace ast;
-/*
-List::List(const list<Node::Pointer> &elements) : Pattern(NodeKind::List)
-{
-    if (!elements.empty())
-    {
-        mHead = *elements.begin();
-        auto foo = list<Node::Pointer>{elements.begin() + 1, elements.end()};
-        mTail = Node::make<List>(foo);
-    }
-}*/
-List::List(list<Node::Pointer> elements) :
-        Pattern(NodeKind::List), mTemporal(std::move(elements)) {}
+
+List::List(vector<Node::Pointer> elements) :
+        Pattern(NodeKind::List), mTemporal(std::move(elements)) { }
+
+List::List(Type::Pointer elementType)
+    : Pattern(NodeKind::List), mElementType(std::move(elementType)) { }
 
 List::List(Node::Pointer head, List::Pointer tail)
         :Pattern(NodeKind::List), mHead(std::move(head)), mTail(std::move(tail)) {}
@@ -26,61 +20,74 @@ List::List(Node::Pointer head, List::Pointer tail)
 Node::Pointer List::evaluate(Context &context) const
 {
     if (mHead == nullptr)
-        return Node::make<List>(list<Node::Pointer>());
-    auto headEval = Node::cast<List>(mHead->evaluate(context));
-    /*if (headEval != nullptr && headEval->mHead == nullptr && mTail->mHead == nullptr )
-    {
-        return Node::make<List>(list<Node::Pointer>());
-    } else if (headEval != nullptr && headEval->mHead == nullptr && mTail->mHead != nullptr){
-        // TODO Excepcion La estoy liando porque no podria declarar listas de listas
-        throw MatchException("Holaaa");
-    }*/
-    return Node::make<List>(mHead->evaluate(context), Node::cast<List>(mTail->evaluate(context)));
+        return Node::make<List>(mElementType);
+
+    List::Pointer tail = nullptr;
+    if (mTail != nullptr)
+        tail = Node::cast<List>(mTail->evaluate(context));
+
+    return Node::make<List>(mHead->evaluate(context), tail);
+}
+
+static List::Pointer vectorToList(size_t index, vector<Node::Pointer> &v)
+{
+    assert(!v.empty());
+
+    if (index == 0)
+        return Node::cast<List>(v[index]);
+
+    auto tail = vectorToList(index - 1, v);
+    if (tail->head() == nullptr) // If empty list
+        return Node::make<List>(v[index], tail->tail());
+    else
+        return Node::make<List>(v[index], tail);
 }
 
 Type::Pointer List::typecheck(TypeContext &context)
 {
-    // In this code it is expected that the list is upside down and has more than 1 element
     if (!mTemporal.empty())
     {
-        auto typeList = mTemporal[0]->typecheck(context);
-        if(typeList->kind() != TypeKind::List){
-            throw TypeException("The last element concat is not a List");
-        }
-        List::Pointer aux = Node::make<List>(mTemporal[0], nullptr);
-        for(size_t i=1; i < mTemporal.size() - 1; i++){
-            aux = Node::make<List>(mTemporal[i], aux);
-        }
-        mHead = mTemporal[mTemporal.size() - 1];
-        mTail = aux;
+
+        auto last = mTemporal[0];
+        if (last->typecheck(context)->kind() != TypeKind::List)
+            throw TypeException("Last element must be a list");
+
+        auto l = vectorToList(mTemporal.size() - 1, mTemporal);
+        mHead = l->head();
+        mTail = l->tail();
         mTemporal.clear();
     }
 
-    if (mHead == nullptr)
-        return Type::make<ListType>(TopType::INSTANCE);
+    if (mHead == nullptr) // Empty list
+        return Type::make<ListType>(mElementType);
 
-    auto type = mHead->typecheck(context);
+    if (mElementType == nullptr)
+        mElementType = mHead->typecheck(context);
 
-    auto head = mTail->mHead;
-    auto tail = mTail->mTail;
-    while (head != nullptr)
+    auto head = mHead;
+    auto tail = mTail;
+
+    if (tail != nullptr)
     {
-        if(!type->isTypeOf(head->typecheck(context))){
-            throw TypeException("Expected type : " + type->toString() + "not the type: "+ head->typecheck(context)->toString());
-        }
-        if(tail != nullptr)
+        do
         {
             head = tail->mHead;
             tail = tail->mTail;
-        }
+
+            auto t = head->typecheck(context);
+            if (!t->isTypeOf(mElementType))
+                throw TypeException(
+                        "List element type is \'" + t->toString() + "\' not \'" + mElementType->toString() + "\'");
+        } while (tail != nullptr);
     }
-    return Type::make<ListType>(type);
+
+    return Type::make<ListType>(mElementType);
 }
 
 Node::Pointer List::copy() const
 {
     if(mHead == nullptr){
-        return Node::make<List>(list<Node::Pointer>());
+        return Node::make<List>(vector<Node::Pointer>());
     }
     return Node::make<List>(mHead->copy(), Node::cast<List>(mTail->copy()));
 }
@@ -91,22 +98,29 @@ string List::toString() const
     str += "[";
 
     if(mHead == nullptr)
-    {
+        return "[]";
+    else
+        str += mHead->toString();
+
+    if (mTail != nullptr)
+        str += mTail->toStringTail();
+    else
         str += "]";
-    }else{
-        str +=  mHead->toString() + mTail->toStringTail();
-    }
+
     return str;
 }
 
 string List::toStringTail() const{
     string str;
     if(mHead == nullptr)
-    {
         str += "]";
-    }else{
-        str += "; " + mHead->toString() + mTail->toStringTail();
-    }
+    else
+        str += ", " + mHead->toString();
+
+    if (mTail != nullptr)
+        str += mTail->toStringTail();
+    else
+        str += "]";
     return str;
 }
 
@@ -117,16 +131,8 @@ Node::Pointer List::transform(NodeVisitor *visitor)
     if (self != nullptr)
         return self;
 
-    if(mHead != nullptr)
-    {
-        auto h = mHead->transform(visitor);
-        if(h != nullptr)
-        {
-            h = mHead;
-            if (mTail != nullptr)
-                mTail = Node::cast<List>(mTail->transform(visitor));
-        }
-    }
+    mHead = Node::transform(mHead, visitor);
+    mTail = Node::cast<List>(Node::transform(mTail, visitor));
     return nullptr;
 }
 

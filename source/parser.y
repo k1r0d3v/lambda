@@ -82,16 +82,20 @@ namespace  yy  {  class  Driver;  }
 
 /*
   TODO: Check precedences
+
+  Upper is realised before
 */
+%precedence  S_LPAREN  S_RPAREN
 %right       S_ARROW
+%left        S_DOT
+%nonassoc    S_SEMICOLON
 %nonassoc    K_THEN
 %nonassoc    K_ELSE
-%left        S_SEMICOLON
-%left        K_FIX K_SUCC K_PRED K_ISZERO K_PRINT
+%left        APPLICATION
+%left        OPERATOR_DOT
 %left        K_AS
 %right       S_COLON2
-%left        S_DOT
-%precedence  S_LPAREN  S_RPAREN
+%left        K_FIX K_SUCC K_PRED K_ISZERO K_PRINT
 %left        K_IN
 %precedence  S_LINE_END
 
@@ -102,7 +106,7 @@ namespace  yy  {  class  Driver;  }
 %type  <ast::Node::Pointer>  bool_constant
 %type  <ast::Node::Pointer>  abstraction
 %type  <ast::Node::Pointer>  ascription
-//%type  <ast::Node::Pointer>  application /* Shift reduce warnings comes from here */
+%type  <ast::Node::Pointer>  application /* Shift reduce warnings comes from here */
 %type  <ast::Node::Pointer>  identifier
 %type  <ast::Node::Pointer>  if_then_else
 %type  <ast::Node::Pointer>  let_in
@@ -124,7 +128,7 @@ namespace  yy  {  class  Driver;  }
 %type  <ast::List::Pointer>  list_terms
 %type  <std::deque<ast::Node::Pointer>> tuple_terms
 %type  <ast::List::Pointer> list_concat
-%type  <ast::list<ast::Node::Pointer>> list_concat_terms
+%type  <ast::vector<ast::Node::Pointer>> list_concat_terms
 %type  <ast::Node::Pointer>  register
 %type  <std::map<ast::string, ast::Node::Pointer>> register_terms
 
@@ -138,7 +142,7 @@ namespace  yy  {  class  Driver;  }
 %type  <ast::Pattern::Pointer>  pattern
 %type  <ast::Pattern::Pointer>  tuple_pattern
 %type  <std::deque<ast::Pattern::Pointer>> tuple_pattern_terms
-%type  <ast::Pattern::Pointer>  list_pattern
+//%type  <ast::Pattern::Pointer>  list_pattern
 %type  <ast::List::Pointer>  list_pattern_terms
 %type  <ast::Pattern::Pointer>  register_pattern
 %type  <std::map<ast::string, ast::Pattern::Pointer>> register_pattern_terms
@@ -217,11 +221,9 @@ abstraction:
 | K_LAMBDA  IDENTIFIER  S_COLON  error S_DOT term {  MKERROR(driver->yyLocation(), "The value assigment to identifier is not a valid type.") }
 | K_LAMBDA  IDENTIFIER  S_COLON  type_name  S_DOT error { MKERROR(driver->yyLocation(), "The value expected is a term") }
 
-;
-/*
 application:
-  term term  {  $$  =  MKNODE(Application,  $1,  $2);  }
-;*/
+  term term %prec APPLICATION {  $$  =  MKNODE(Application,  $1,  $2);  }
+;
 
 ascription:
   term  K_AS  type_name  {  $$  =  MKNODE(Ascription,  $1,  $3);  }
@@ -236,7 +238,7 @@ pattern:
   IDENTIFIER { $$ = MKNODE(Identifier, $1); }
 | tuple_pattern { $$ = $1; }
 | register_pattern { $$ = $1; }
-| list_pattern { $$ = $1; }
+//| list_pattern { $$ = $1; }
 ;
 
 let_in:
@@ -305,20 +307,17 @@ tuple_pattern_terms:
 
 list:
   S_LBRACKET list_terms S_RBRACKET { $$ = $2; }
-//| S_LBRACKET term S_RBRACKET { $$ = MKNODE(List, $2, MKNODE(List,ast::list<ast::Node::Pointer>())); }
-| S_LBRACKET  S_RBRACKET { $$ = MKNODE(List, ast::list<ast::Node::Pointer>()); }
+| S_LBRACKET type_name S_RBRACKET { $$ = MKNODE(List, $2); }
 ;
 
 list_terms:
-  term { $$ = MKNODE(List, $1, MKNODE(List,ast::list<ast::Node::Pointer>())); }
+  term { $$ = MKNODE(List, $1, nullptr); }
 | term S_COMMA list_terms { $$ = MKNODE(List, $1, $3); }
 ;
 
+
 list_concat:
    S_LBRACKET term S_COLON2 list_concat_terms S_RBRACKET { $4.push_back($2); $$ = MKNODE(List, $4); }
-//  term S_COLON2 list_concat { $$ = MKNODE(List, $1, ast::Node::cast<ast::List>($3)); }
-//| term S_COLON2 list { $$ = MKNODE(List, $1, ast::Node::cast<ast::List>($3)); }
-//| term S_COLON2 IDENTIFIER { $$ = MKNODE(List, $1, MKNODE(List, MKNODE(Identifier, $3), MKNODE(List, ast::list<ast::Node::Pointer>()))); }
 ;
 
 list_concat_terms:
@@ -326,14 +325,16 @@ list_concat_terms:
 | term S_COLON2 list_concat_terms { $3.push_back($1); $$ = $3; }
 ;
 
+/*
 list_pattern:
   S_LBRACKET list_pattern_terms S_RBRACKET { $$ = $2; }
 ;
 
 list_pattern_terms:
   IDENTIFIER S_COLON2 list_pattern_terms { $$ = MKNODE(List, MKNODE(Identifier, $1), ast::Node::cast<ast::List>($3)); }
-| IDENTIFIER { $$ = MKNODE(List, MKNODE(Identifier, $1), MKNODE(List, ast::list<ast::Node::Pointer>())); }
+| IDENTIFIER { $$ = MKNODE(List, MKNODE(Identifier, $1), MKNODE(List, ast::vector<ast::Node::Pointer>())); }
 ;
+*/
 
 list_type:
   S_LBRACKET type_name S_RBRACKET { $$ = MKTYPE(ListType, $2); }
@@ -378,22 +379,22 @@ register_pattern_terms:
 ;
 
 operator_dot:
-  term S_DOT IDENTIFIER { $$  =  MKNODE(OperatorDot,  $1,  MKNODE(Identifier,  $3)); }
-| term S_DOT NUMBER  {  $$  =  MKNODE(OperatorDot,  $1,  MKNODE(NaturalConstant,  $3));  }
-| term S_DOT error { MKERROR(driver->yyLocation(), "The method to access the value is not appropriate") }
+  term S_DOT IDENTIFIER %prec OPERATOR_DOT { $$  =  MKNODE(OperatorDot,  $1,  MKNODE(Identifier,  $3)); }
+| term S_DOT NUMBER %prec OPERATOR_DOT  {  $$  =  MKNODE(OperatorDot,  $1,  MKNODE(NaturalConstant,  $3));  }
+| term S_DOT error %prec OPERATOR_DOT { MKERROR(driver->yyLocation(), "The method to access the value is not appropriate") }
 ;
 
 term:
   S_LPAREN  term  S_RPAREN  {  $$  =  $2;  }
-|  unit  {  $$  =  $1;  }
-|  natural_constant  {  $$  =  $1;  }
-|  float_constant  {  $$  =  $1;  }
-|  string_constant  {  $$  =  $1;  }
-|  bool_constant  {  $$  =  $1;  }
-|  abstraction  {  $$  =  $1;  }
-|  ascription { $$ = $1; }
-//|  application  {  $$  =  $1;  }
-|  identifier  {  $$  =  $1;  }
+| unit  {  $$  =  $1;  }
+| natural_constant  {  $$  =  $1;  }
+| float_constant  {  $$  =  $1;  }
+| string_constant  {  $$  =  $1;  }
+| bool_constant  {  $$  =  $1;  }
+| abstraction  {  $$  =  $1;  }
+| ascription { $$ = $1; }
+| application  {  $$  =  $1;  }
+| identifier  {  $$  =  $1;  }
 | if_then_else  { $$ = $1; }
 | let_in  { $$ = $1; }
 | sequence  { $$ = $1; }

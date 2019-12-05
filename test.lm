@@ -3,29 +3,76 @@ let println = lambda x : Top. print x; print "\n";;
 println "*****************";;
 println "*  Test module  *";;
 println "*****************";;
+println "";;
 
-println "** Testing sequence";;
+println "** Testing print";;
+print "This is a Nat: "; println 0;;
+print "This is a Str: "; println "Hello world";;
+print "This is a Bool: "; println true;;
+println "";;
+
+println "** Testing aliases";;
+alias U : Unit;;
+alias NN : Nat->Nat;;
+
+println "Now U is an alias of Unit";;
+println "Now NN is an alias of Nat->Nat";;
+let uid = lambda x : U. x;;
+let nnid = lambda x : NN. x;;
+println "Examples: ";;
+print " "; println uid;;
+print " "; println nnid;;
+println "";;
 
 println "** Testing naturals";;
+print "The successor of 0 is: "; println succ 0;;
+print "The predecessor of 1 is: "; println pred 1;;
+print "Is zero 0?: "; println iszero 0;;
+print "Is zero 1?: "; println iszero 1;;
+println "";;
+
 
 println "** Testing booleans";;
+print "If false then true else false: "; println (if false then true else false);;
+println "";;
 
-println "** Testing unit";;
 
 println "** Testing identifiers";;
+println "Defining nat_id as nat->nat: ";;
+let nat_id = lambda x : Nat. x;;
+print "nat_id: "; println nat_id;;
+println "";;
+
 
 println "** Testing ascriptions";;
+print "Ascription of Nat: "; println 0 as Nat;;
+println "";;
+
 
 println "** Testing abstractions";;
+println (lambda x : Nat->(Nat->Nat). lambda y : Nat->Nat. x 0);;
+println "";;
+
 
 println "** Testing applications";;
+println "";;
+
 
 println "** Testing conditionals";;
+println "";;
+
 
 println "** Testing registers";;
+println "";;
+
 
 println "** Testing tuples";;
+println "";;
+
 
 println "** Testing fix";;
+println "";;
+
 
 println "** Testing letrec";;
+println "";;

@@ -10,14 +10,14 @@ namespace ast
     class TupleType : public OperableType
     {
     public:
-        explicit TupleType(list<Type::Pointer> types);
+        explicit TupleType(vector<Type::Pointer> types);
 
         template<typename Iterator>
         TupleType(Iterator begin, Iterator end) : OperableType(TypeKind::Tuple) {
             mElements = {begin, end};
         }
 
-        const list<Type::Pointer> &elements() const { return mElements; }
+        const vector<Type::Pointer> &elements() const { return mElements; }
 
         void resolve(TypeContext &context) override;
 
@@ -32,7 +32,7 @@ namespace ast
         string toString() const override;
 
     private:
-        list<Type::Pointer> mElements;
+        vector<Type::Pointer> mElements;
     };
 }
 

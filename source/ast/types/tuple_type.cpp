@@ -8,7 +8,7 @@
 
 using namespace ast;
 
-TupleType::TupleType(list<Type::Pointer> types)
+TupleType::TupleType(vector<Type::Pointer> types)
     : OperableType(TypeKind::Tuple), mElements(std::move(types)) { }
 
 bool TupleType::isTypeOf(const Type::Pointer &t) const

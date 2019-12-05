@@ -43,11 +43,11 @@ Type::Pointer List::typecheck(TypeContext &context)
     // In this code it is expected that the list is upside down and has more than 1 element
     if (!mTemporal.empty())
     {
-        List::Pointer list = Node::cast<List>(mTemporal[0]);
-        if(list == nullptr){
+        auto typeList = mTemporal[0]->typecheck(context);
+        if(typeList->kind() != TypeKind::List){
             throw TypeException("The last element concat is not a List");
         }
-        List::Pointer aux = list;
+        List::Pointer aux = Node::make<List>(mTemporal[0], nullptr);
         for(size_t i=1; i < mTemporal.size() - 1; i++){
             aux = Node::make<List>(mTemporal[i], aux);
         }

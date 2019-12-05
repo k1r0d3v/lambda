@@ -38,9 +38,7 @@ bool RegisterType::isTypeOf(const Type::Pointer &t) const
 
 bool RegisterType::isSubtypeOf(const Type::Pointer &t) const
 {
-    if (t->kind() == TypeKind::Top)
-        return true;
-    return false;
+    return t->kind() == TypeKind::Top;
 }
 
 Type::Pointer RegisterType::typeOfDot(const Node::Pointer &b)

@@ -44,7 +44,6 @@ Pattern::MatchResult Register::match(const Node::Pointer &value, Context &contex
         auto attr = valueRegister->mElements.find(i.first);
         auto matchResult = Node::cast<Pattern>(i.second)->match(attr->second, context);
 
-        // TODO: Check duplicated ids
         for (const auto &j : matchResult)
             tmp.push_back(j);
     }
@@ -70,9 +69,18 @@ Pattern::TypecheckMatchResult Register::typecheckMatch(const Type::Pointer &type
 
         auto matchResult = iPattern->typecheckMatch(typeRegister->typeOfName(i.first), context);
 
-        // TODO: Check duplicated ids
         for (const auto &j : matchResult)
             tmp.push_back(j);
+    }
+
+    // Check duplicated ids
+    for (size_t j=0; j < tmp.size(); j++){
+        for (size_t k=j+1; k < tmp.size(); k++)
+        {
+            if(tmp[k].first == tmp[j].first){
+                throw DuplicatePatternException("Duplicate identifiers 2'" + tmp[k].first +"' in the pattern of register");
+            }
+        }
     }
 
     return tmp;
@@ -139,6 +147,5 @@ Node::Pointer Register::transform(NodeVisitor *visitor)
 
 Node::Pointer Register::operatorDot(const Node::Pointer &b, Context &context) const
 {
-    // TODO: Do checks? Or leave it to the typecheck?
     return mElements.find(Node::cast<Identifier>(b)->name())->second;
 }

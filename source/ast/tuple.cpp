@@ -68,6 +68,7 @@ Pattern::TypecheckMatchResult Tuple::typecheckMatch(const Type::Pointer &type, T
             tmp.push_back(j);
         }
     }
+
     // Check duplicated ids
     for (size_t j=0; j < tmp.size(); j++){
         for (size_t k=j+1; k < tmp.size(); k++)

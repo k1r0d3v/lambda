@@ -17,7 +17,7 @@ namespace ast
 
         explicit List(Type::Pointer elementType);
 
-        List(Node::Pointer head, List::Pointer tail);
+        explicit List(Node::Pointer head, List::Pointer tail);
 
         const Node::Pointer &head() const { return mHead; }
 
@@ -51,9 +51,8 @@ namespace ast
     private:
         List::Pointer mTail;
         Node::Pointer mHead;
-
+        vector<Node::Pointer> mConcatList;
         Type::Pointer mElementType; // Only for empty
-        vector<Node::Pointer> mTemporal;
     };
 }
 

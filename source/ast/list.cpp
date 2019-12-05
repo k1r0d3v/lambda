@@ -9,7 +9,7 @@
 using namespace ast;
 
 List::List(vector<Node::Pointer> elements) :
-        Pattern(NodeKind::List), mTemporal(std::move(elements)) { }
+        Pattern(NodeKind::List), mConcatList(std::move(elements)) { }
 
 List::List(Type::Pointer elementType)
     : Pattern(NodeKind::List), mElementType(std::move(elementType)) { }
@@ -17,8 +17,26 @@ List::List(Type::Pointer elementType)
 List::List(Node::Pointer head, List::Pointer tail)
         :Pattern(NodeKind::List), mHead(std::move(head)), mTail(std::move(tail)) {}
 
+static List::Pointer vectorToList(size_t index, const vector<Node::Pointer> &v, Context &context)
+{
+    assert(!v.empty());
+
+    if (index == 0)
+        return Node::cast<List>(v[index]->evaluate(context));
+
+    auto tail = vectorToList(index - 1, v, context);
+
+    if (tail->head() == nullptr) // If empty list
+        return Node::make<List>(v[index]->evaluate(context), tail->tail());
+    else
+        return Node::make<List>(v[index]->evaluate(context), tail);
+}
+
 Node::Pointer List::evaluate(Context &context) const
 {
+    if (!mConcatList.empty())
+        return vectorToList(mConcatList.size() - 1, mConcatList, context);
+
     if (mHead == nullptr)
         return Node::make<List>(mElementType);
 
@@ -29,35 +47,31 @@ Node::Pointer List::evaluate(Context &context) const
     return Node::make<List>(mHead->evaluate(context), tail);
 }
 
-static List::Pointer vectorToList(size_t index, vector<Node::Pointer> &v)
-{
-    assert(!v.empty());
-
-    if (index == 0)
-        return Node::cast<List>(v[index]);
-
-    auto tail = vectorToList(index - 1, v);
-    if (tail->head() == nullptr) // If empty list
-        return Node::make<List>(v[index], tail->tail());
-    else
-        return Node::make<List>(v[index], tail);
-}
 
 Type::Pointer List::typecheck(TypeContext &context)
 {
-    if (!mTemporal.empty())
+    // If is a concat_list
+    if (!mConcatList.empty())
     {
+        auto last = mConcatList[0];
+        auto lastType = last->typecheck(context);
+        if (lastType->kind() != TypeKind::List)
+            throw TypeException("Expected a last element list");
 
-        auto last = mTemporal[0];
-        if (last->typecheck(context)->kind() != TypeKind::List)
-            throw TypeException("Last element must be a list");
+        mElementType = Type::cast<ListType>(lastType)->type();
 
-        auto l = vectorToList(mTemporal.size() - 1, mTemporal);
-        mHead = l->head();
-        mTail = l->tail();
-        mTemporal.clear();
+        for (auto i = mConcatList.size() - 2; i > 0; i--)
+        {
+            auto t = mConcatList[i]->typecheck(context);
+            if (!t->isTypeOf(mElementType))
+                throw TypeException(
+                        "List element type is \'" + t->toString() + "\' not \'" + mElementType->toString() + "\'");
+        }
+
+        return Type::make<ListType>(mElementType);
     }
 
+    // Else lineal type check of elements
     if (mHead == nullptr) // Empty list
         return Type::make<ListType>(mElementType);
 
@@ -86,16 +100,28 @@ Type::Pointer List::typecheck(TypeContext &context)
 
 Node::Pointer List::copy() const
 {
-    if(mHead == nullptr){
-        return Node::make<List>(vector<Node::Pointer>());
-    }
-    return Node::make<List>(mHead->copy(), Node::cast<List>(mTail->copy()));
+    // TODO: Shallow or deep copy?
+    auto tmp = Node::make<List>(mElementType);
+    tmp->mHead = mHead;
+    tmp->mTail = mTail;
+    tmp->mConcatList = mConcatList;
+    return tmp;
 }
 
 string List::toString() const
 {
     string str;
     str += "[";
+
+    if (!mConcatList.empty())
+    {
+        for (auto it = mConcatList.rbegin(); it != mConcatList.rend(); it++)
+            str += (*it)->toString() + "::";
+
+        if (*str.rbegin() == ':')
+            return str.substr(0, str.size() - 2) + "]";
+        return str + "]";
+    }
 
     if(mHead == nullptr)
         return "[]";
@@ -139,24 +165,17 @@ Node::Pointer List::transform(NodeVisitor *visitor)
 Pattern::MatchIdenfiers List::matchIdentifiers() const
 {
     Pattern::MatchIdenfiers tmp;
-    auto head = mHead;
-    auto tail = mTail;
 
-    while (head != nullptr)
+    for (const auto &i : mConcatList)
     {
-        auto iPattern = Node::cast<Pattern>(head);
+        auto iPattern = Node::cast<Pattern>(i);
 
         if (iPattern == nullptr)
-            throw MatchException( "\'" + head->toString() + "\' is not a pattern");
+            throw MatchException( "\'" + i->toString() + "\' is not a pattern");
 
         auto matchResult = iPattern->matchIdentifiers();
         for (const auto &j : matchResult)
             tmp.push_back(j);
-        if(tail != nullptr)
-        {
-            head = tail->mHead;
-            tail = tail->mTail;
-        }
     }
 
     return tmp;
@@ -165,50 +184,25 @@ Pattern::MatchIdenfiers List::matchIdentifiers() const
 Pattern::MatchResult List::match(const Node::Pointer &value, Context &context) const
 {
     Pattern::MatchResult tmp = {};
+
     auto valueList = Node::cast<List>(value);
-    auto head = mHead;
-    auto tail = mTail;
-    Pattern::MatchResult matchResult;
 
-    do{
-        if (valueList == nullptr)
-            throw MatchException("Unexpected pattern length");
+    if (valueList->mHead == nullptr)
+        throw MatchException("Empty lists can not be matched");
 
-        matchResult = Node::cast<Pattern>(head)->match(valueList, context);
+    auto matchResult = Node::cast<Pattern>(mConcatList[1])->match(valueList->mHead, context);
 
-        // Recollect matching results
-        for (const auto &j : matchResult)
-            tmp.push_back(j);
+    // Recollect matching results of head
+    for (const auto &j : matchResult)
+        tmp.push_back(j);
 
-        if(tail != nullptr)
-        {
-            head = tail->mHead;
-            tail = tail->mTail;
-            valueList = valueList->mTail;
-        }
-    }while(tail != nullptr);
-    while (head != nullptr)
-    {
-        if (valueList == nullptr)
-            throw MatchException("Unexpected pattern length");
+    auto tail = valueList->mTail != nullptr ? valueList->mTail : Node::make<List>(mElementType);
 
-        if(tail->mHead == nullptr){
-            matchResult = Node::cast<Pattern>(head)->match(valueList, context);
-        }else{
-            matchResult = Node::cast<Pattern>(head)->match(valueList->mHead, context);
-        }
+    matchResult = Node::cast<Pattern>(mConcatList[0])->match(tail, context);
 
-        // Recollect matching results
-        for (const auto &j : matchResult)
-            tmp.push_back(j);
-
-        if(tail != nullptr)
-        {
-            head = tail->mHead;
-            tail = tail->mTail;
-            valueList = valueList->mTail;
-        }
-    }
+    // Recollect matching results of tail
+    for (const auto &j : matchResult)
+        tmp.push_back(j);
 
     return tmp;
 }
@@ -217,32 +211,27 @@ Pattern::TypecheckMatchResult List::typecheckMatch(const Type::Pointer &type, Ty
 {
     Pattern::TypecheckMatchResult tmp = {};
 
-    auto typeList = Type::cast<ListType>(type);
-    auto head = mHead;
-    auto tail = mTail;
+    auto listType = Type::cast<ListType>(type);
 
-    if (typeList == nullptr)
+    if (listType == nullptr)
         throw MatchException("\'" + type->toString() + "\' is not a list");
 
-    while (head != nullptr)
-    {
-        auto iPattern = Node::cast<Pattern>(head);
+    auto iPattern = Node::cast<Pattern>(mConcatList[1]);
+    if (iPattern == nullptr)
+        throw MatchException("\'" + mConcatList[1]->toString() + "\' is not a pattern");
 
-        if (iPattern == nullptr)
-            throw MatchException( "\'" + head->toString() + "\' is not a pattern");
+    auto matchResult = iPattern->typecheckMatch(listType->type(), context);
 
-        auto matchResult = iPattern->typecheckMatch(typeList->type(), context);
+    for (const auto &j : matchResult)
+        tmp.push_back(j);
 
-        // TODO: Check duplicated ids
-        for (const auto &j : matchResult)
-            tmp.push_back(j);
+    iPattern = Node::cast<Pattern>(mConcatList[0]);
+    if (iPattern == nullptr)
+        throw MatchException("\'" + mConcatList[0]->toString() + "\' is not a pattern");
 
-        if(tail != nullptr)
-        {
-            head = tail->mHead;
-            tail = tail->mTail;
-        }
-    }
+    matchResult = iPattern->typecheckMatch(listType, context);
 
+    for (const auto &j : matchResult)
+        tmp.push_back(j);
     return tmp;
 }

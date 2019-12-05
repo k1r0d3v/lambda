@@ -327,7 +327,7 @@ list_concat_terms:
 
 
 list_pattern:
-  S_LBRACKET IDENTIFIER S_COLON2 IDENTIFIER S_RBRACKET { $$ = MKNODE(List,MKNODE(Identifier,$2),MKNODE(List,MKNODE(Identifier,$4),nullptr)); }
+  S_LBRACKET IDENTIFIER S_COLON2 IDENTIFIER S_RBRACKET { $$ = MKNODE(List, ast::vector<ast::Node::Pointer>{ MKNODE(Identifier,$4), MKNODE(Identifier,$2) }); }
 ;
 /*
 list_pattern_terms:

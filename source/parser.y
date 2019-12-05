@@ -76,15 +76,19 @@ namespace  yy  {  class  Driver;  }
 
 /*
   TODO: Check precedences
+
+  Upper is realised before
 */
+%precedence  S_LPAREN  S_RPAREN
 %right       S_ARROW
+%left        S_DOT
+%nonassoc    S_SEMICOLON
 %nonassoc    K_THEN
 %nonassoc    K_ELSE
-%left        S_SEMICOLON
-%left        K_FIX K_SUCC K_PRED K_ISZERO K_PRINT
+%left        APPLICATION
+%left        OPERATOR_DOT
 %left        K_AS
-%left        S_DOT
-%precedence  S_LPAREN  S_RPAREN
+%left        K_FIX K_SUCC K_PRED K_ISZERO K_PRINT
 %left        K_IN
 %precedence  S_LINE_END
 
@@ -191,7 +195,7 @@ abstraction:
 ;
 
 application:
-  term  term  {  $$  =  MKNODE(Application,  $1,  $2);  }
+  term term %prec APPLICATION {  $$  =  MKNODE(Application,  $1,  $2);  }
 ;
 
 ascription:
@@ -293,20 +297,20 @@ register_pattern_terms:
 ;
 
 operator_dot:
-  term S_DOT IDENTIFIER { $$  =  MKNODE(OperatorDot,  $1,  MKNODE(Identifier,  $3)); }
-| term S_DOT NUMBER  {  $$  =  MKNODE(OperatorDot,  $1,  MKNODE(NaturalConstant,  $3));  }
+  term S_DOT IDENTIFIER %prec OPERATOR_DOT { $$  =  MKNODE(OperatorDot,  $1,  MKNODE(Identifier,  $3)); }
+| term S_DOT NUMBER %prec OPERATOR_DOT {  $$  =  MKNODE(OperatorDot,  $1,  MKNODE(NaturalConstant,  $3));  }
 ;
 
 term:
   S_LPAREN  term  S_RPAREN  {  $$  =  $2;  }
-|  unit  {  $$  =  $1;  }
-|  natural_constant  {  $$  =  $1;  }
-|  string_constant  {  $$  =  $1;  }
-|  bool_constant  {  $$  =  $1;  }
-|  abstraction  {  $$  =  $1;  }
-|  ascription { $$ = $1; }
-|  application  {  $$  =  $1;  }
-|  identifier  {  $$  =  $1;  }
+| unit  {  $$  =  $1;  }
+| natural_constant  {  $$  =  $1;  }
+| string_constant  {  $$  =  $1;  }
+| bool_constant  {  $$  =  $1;  }
+| abstraction  {  $$  =  $1;  }
+| ascription { $$ = $1; }
+| application  {  $$  =  $1;  }
+| identifier  {  $$  =  $1;  }
 | if_then_else  { $$ = $1; }
 | let_in  { $$ = $1; }
 | sequence  { $$ = $1; }

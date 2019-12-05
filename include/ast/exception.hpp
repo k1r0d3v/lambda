@@ -83,6 +83,34 @@ namespace ast
             return TERM_FG_START(TERM_RED) "TypeError" TERM_RESET();
         }
     };
+
+    class IndexOutOfBoundsException : public ASTException
+    {
+    public:
+        explicit IndexOutOfBoundsException(const string &message)
+        {
+            mWhat = (string)head() + ": " + message;
+        }
+
+        const char *head() const noexcept override
+        {
+            return TERM_FG_START(TERM_RED) "IndexOutOfBounds" TERM_RESET();
+        }
+    };
+
+    class DuplicatePatternException : public ASTException
+    {
+    public:
+        explicit DuplicatePatternException(const string &message)
+        {
+            mWhat = (string)head() + ": " + message;
+        }
+
+        const char *head() const noexcept override
+        {
+            return TERM_FG_START(TERM_RED) "DuplicatePattern" TERM_RESET();
+        }
+    };
 }
 
 #endif //LAMBDA_EXCEPTION_HPP

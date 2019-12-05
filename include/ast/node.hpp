@@ -13,7 +13,6 @@ namespace ast
     /**
      *  Base class for nodes
      *
-     *  TODO: Add character offset to the node
      */
     class Node
     {

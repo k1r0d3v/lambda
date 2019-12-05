@@ -34,12 +34,12 @@ bool TupleType::isSubtypeOf(const Type::Pointer &t) const
 
 Type::Pointer TupleType::typeOfDot(const Node::Pointer &b)
 {
-    if (b->kind() != NodeKind::NaturalConstant)//TODO Los Float tambien??
+    if (b->kind() != NodeKind::NaturalConstant)
         throw AttributeException("\'" + b->toString() + "\' is not a natural");
 
     int index = Node::cast<NaturalConstant>(b)->value();
     if (index < 0 || index >= mElements.size())
-        throw std::runtime_error(""); // TODO: Exception indexOutOfBounds
+        throw IndexOutOfBoundsException("The index " + to_string(index) + " is out of bounds of the tuple with size " + to_string(mElements.size()));
 
     return mElements[index];
 }
@@ -47,7 +47,7 @@ Type::Pointer TupleType::typeOfDot(const Node::Pointer &b)
 Type::Pointer TupleType::typeofIndex(int index)
 {
     if (index < 0 || index >= mElements.size())
-        throw std::runtime_error(""); // TODO: Exception indexOutOfBounds
+        throw IndexOutOfBoundsException("The index " + to_string(index) + " is out of bounds of the tuple with size" + to_string(mElements.size()));
 
     return mElements[index];
 }

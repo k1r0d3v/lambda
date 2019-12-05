@@ -59,14 +59,23 @@ Pattern::TypecheckMatchResult Tuple::typecheckMatch(const Type::Pointer &type, T
     {
         auto iPattern = Node::cast<Pattern>(mElements[i]);
         if (iPattern == nullptr)
-            throw MatchException( "\'" + mElements[i]->toString() + "\' is not a pattern");
+            throw MatchException("\'" + mElements[i]->toString() + "\' is not a pattern");
 
         auto iType = typeTuple->typeofIndex(i);
         auto matchResult = iPattern->typecheckMatch(iType, context);
 
-        // TODO: Check duplicated ids
-        for (const auto &j : matchResult)
+        for (const auto &j : matchResult){
             tmp.push_back(j);
+        }
+    }
+    // Check duplicated ids
+    for (size_t j=0; j < tmp.size(); j++){
+        for (size_t k=j+1; k < tmp.size(); k++)
+        {
+            if(tmp[k].first == tmp[j].first){
+                throw DuplicatePatternException("Duplicate identifiers '" + tmp[k].first +"' in the pattern of tuple");
+            }
+        }
     }
 
     return tmp;
@@ -132,6 +141,5 @@ Node::Pointer Tuple::transform(NodeVisitor *visitor)
 
 Node::Pointer Tuple::operatorDot(const Node::Pointer &b, Context &context) const
 {
-    // TODO: Do checks? Or leave it to the typecheck?
     return mElements[Node::cast<NaturalConstant>(b)->value()];
 }

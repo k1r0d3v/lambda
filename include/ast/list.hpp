@@ -21,7 +21,11 @@ namespace ast
 
         const Node::Pointer &head() const { return mHead; }
 
-        const Pointer &tail() const { return mTail; }
+        const List::Pointer &tail() const { return mTail; }
+
+        bool empty() const {
+            return mConcatList.empty() && mHead == nullptr && mTail == nullptr;
+        }
 
     public: // Node
         Node::Pointer evaluate(Context &context) const override;

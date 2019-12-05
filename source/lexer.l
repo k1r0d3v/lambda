@@ -54,6 +54,7 @@ print                   { return yy::Parser::make_K_PRINT(loc); }
 succ                    { return yy::Parser::make_K_SUCC(loc); }
 pred                    { return yy::Parser::make_K_PRED(loc); }
 iszero                  { return yy::Parser::make_K_ISZERO(loc); }
+isempty                 { return yy::Parser::make_K_ISEMPTY(loc); }
 true                    { return yy::Parser::make_K_TRUE(loc); }
 false                   { return yy::Parser::make_K_FALSE(loc); }
 if                      { return yy::Parser::make_K_IF(loc); }

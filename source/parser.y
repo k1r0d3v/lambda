@@ -46,6 +46,7 @@ namespace  yy  {  class  Driver;  }
 %token  K_SUCC  "succ"
 %token  K_PRED  "pred"
 %token  K_ISZERO  "iszero"
+%token  K_ISEMPTY  "isempty"
 %token  K_TRUE  "true"
 %token  K_FALSE  "false"
 %token  K_IF  "if"
@@ -82,8 +83,6 @@ namespace  yy  {  class  Driver;  }
 
 /*
   TODO: Check precedences
-
-  Upper is realised before
 */
 %precedence  S_LPAREN  S_RPAREN
 %right       S_ARROW
@@ -91,12 +90,12 @@ namespace  yy  {  class  Driver;  }
 %nonassoc    S_SEMICOLON
 %nonassoc    K_THEN
 %nonassoc    K_ELSE
-%left        APPLICATION
 %left        OPERATOR_DOT
 %left        K_AS
 %right       S_COLON2
 %left        K_FIX K_SUCC K_PRED K_ISZERO K_PRINT
 %left        K_IN
+%left        APPLICATION
 %precedence  S_LINE_END
 
 %type  <ast::Node::Pointer>  unit
@@ -117,6 +116,7 @@ namespace  yy  {  class  Driver;  }
 %type  <ast::Node::Pointer>  succ
 %type  <ast::Node::Pointer>  pred
 %type  <ast::Node::Pointer>  iszero
+%type  <ast::Node::Pointer>  isempty
 %type  <ast::Node::Pointer>  print
 %type  <ast::Node::Pointer>  file
 %type  <ast::Node::Pointer>  operator_dot
@@ -143,7 +143,6 @@ namespace  yy  {  class  Driver;  }
 %type  <ast::Pattern::Pointer>  tuple_pattern
 %type  <std::deque<ast::Pattern::Pointer>> tuple_pattern_terms
 %type  <ast::Pattern::Pointer>  list_pattern
-//%type  <ast::List::Pointer>  list_pattern_terms
 %type  <ast::Pattern::Pointer>  register_pattern
 %type  <std::map<ast::string, ast::Pattern::Pointer>> register_pattern_terms
 
@@ -271,6 +270,9 @@ pred: K_PRED term {  $$  =  MKNODE(Predecessor,  $2);  }
 iszero: K_ISZERO term {  $$  =  MKNODE(IsZero,  $2);  }
 ;
 
+isempty: K_ISEMPTY term { $$ = MKNODE(IsEmpty,  $2); }
+;
+
 print: K_PRINT term {  $$  =  MKNODE(Print,  $2);  }
 ;
 
@@ -329,12 +331,6 @@ list_concat_terms:
 list_pattern:
   S_LBRACKET IDENTIFIER S_COLON2 IDENTIFIER S_RBRACKET { $$ = MKNODE(List, ast::vector<ast::Node::Pointer>{ MKNODE(Identifier,$4), MKNODE(Identifier,$2) }); }
 ;
-/*
-list_pattern_terms:
-  IDENTIFIER S_COLON2 list_pattern_terms { $$ = MKNODE(List, MKNODE(Identifier, $1), ast::Node::cast<ast::List>($3)); }
-| IDENTIFIER { $$ = MKNODE(List, MKNODE(Identifier, $1), MKNODE(List, ast::vector<ast::Node::Pointer>())); }
-;
-*/
 
 list_type:
   S_LBRACKET type_name S_RBRACKET { $$ = MKTYPE(ListType, $2); }
@@ -404,6 +400,7 @@ term:
 | succ  { $$ = $1; }
 | pred  { $$ = $1; }
 | iszero  { $$ = $1; }
+| isempty  { $$ = $1; }
 | print  { $$ = $1; }
 | tuple  { $$ = $1; }
 | register  { $$ = $1; }

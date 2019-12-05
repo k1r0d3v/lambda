@@ -41,6 +41,7 @@
 #include "operator_dot.hpp"
 #include "fix.hpp"
 #include "alias.hpp"
+#include "list_primitives.hpp"
 //
 
 namespace ast

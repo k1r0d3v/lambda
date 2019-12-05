@@ -157,8 +157,19 @@ Node::Pointer List::transform(NodeVisitor *visitor)
     if (self != nullptr)
         return self;
 
-    mHead = Node::transform(mHead, visitor);
-    mTail = Node::cast<List>(Node::transform(mTail, visitor));
+    if (!mConcatList.empty())
+    {
+        for (auto &i : mConcatList)
+            i = Node::transform(i, visitor);
+    }
+    else
+    {
+        if (mHead != nullptr)
+            mHead = Node::transform(mHead, visitor);
+        if (mTail != nullptr)
+            mTail = Node::cast<List>(Node::transform(mTail, visitor));
+    }
+
     return nullptr;
 }
 

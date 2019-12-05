@@ -55,20 +55,40 @@ println "";;
 
 
 println "** Testing applications";;
+(lambda x : Nat. succ(x)) 5;;
 println "";;
 
 
 println "** Testing conditionals";;
+println ((lambda x:Nat. if iszero(x) then "El valor es 0" else "El valor No es 0")3);;
+println ((lambda x:Nat. if iszero(x) then "El valor es 0" else "El valor No es 0")0);;
 println "";;
 
 
 println "** Testing registers";;
+println ({a:2,b:true,c:2.0});;
+let {a:r1,b:r2} = {a:2,b:1.512};;
+print "r1: "; println (r1);;
+print "r2: "; println (r2);;
+println (let {a:r1,b:r2} = {a:2,b:1.512} in succ(r1));;
+println (lambda x:{a:Nat,b:Bool,c:Float,d:Str}. (x.a));;
 println "";;
 
 
 println "** Testing tuples";;
+println ({2,true,"hellow"});;
+let {a,b} = {0,"hellow"};;
+print "a: "; println (a);;
+print "b: "; println (b);;
+println (let tuple = {true,4});;
+print "tuple_0: " prinln(tuple.0);;
+print "tuple_1: " prinln(tuple.1);;
+println (let {a,b} = {true,4} in pred(b));;
+println (lambda y:Nat. lambda x:{Nat,Float,Str}. (x.y));;
 println "";;
 
+println "** Testing list";;
+println "";;
 
 println "** Testing fix";;
 println "";;

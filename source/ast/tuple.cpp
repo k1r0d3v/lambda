@@ -6,7 +6,7 @@
 
 using namespace ast;
 
-Tuple::Tuple(list<Node::Pointer> elements)
+Tuple::Tuple(vector<Node::Pointer> elements)
                 : Pattern(NodeKind::Tuple), mElements(std::move(elements)) { }
 
 Pattern::MatchIdenfiers Tuple::matchIdentifiers() const
@@ -74,7 +74,7 @@ Pattern::TypecheckMatchResult Tuple::typecheckMatch(const Type::Pointer &type, T
 
 Node::Pointer Tuple::evaluate(Context &context) const
 {
-    list<Node::Pointer> elements;
+    vector<Node::Pointer> elements;
 
     for (const auto &i : mElements)
         elements.push_back(i->evaluate(context));
@@ -84,7 +84,7 @@ Node::Pointer Tuple::evaluate(Context &context) const
 
 Type::Pointer Tuple::typecheck(TypeContext &context)
 {
-    list<Type::Pointer> types;
+    vector<Type::Pointer> types;
 
     for (const auto &i : mElements)
         types.push_back(i->typecheck(context));
@@ -94,7 +94,7 @@ Type::Pointer Tuple::typecheck(TypeContext &context)
 
 Node::Pointer Tuple::copy() const
 {
-    list<Node::Pointer> elements;
+    vector<Node::Pointer> elements;
     for (const auto &i : mElements)
         elements.push_back(i->copy());
 

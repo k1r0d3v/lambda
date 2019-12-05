@@ -15,7 +15,7 @@ Node::Pointer Sequence::join(const Node::Pointer &a, const Node::Pointer &b)
     if (b == nullptr)
         return a;
 
-    list<Node::Pointer> elements;
+    vector<Node::Pointer> elements;
 
     if (a != nullptr)
     {
@@ -38,7 +38,7 @@ Node::Pointer Sequence::join(const Node::Pointer &a, const Node::Pointer &b)
     return Node::make<Sequence>(elements);
 }
 
-Sequence::Sequence(const list<Node::Pointer> &elements)
+Sequence::Sequence(const vector<Node::Pointer> &elements)
         : Node(NodeKind::Sequence), mElements(elements) { }
 
 Node::Pointer Sequence::evaluate(Context &context) const
@@ -54,7 +54,7 @@ Node::Pointer Sequence::evaluate(Context &context) const
 /*
 Node::Pointer Sequence::resolve(const Node::Pointer &self, Context &context) const
 {
-    list<Node::Pointer> elements;
+    vector<Node::Pointer> elements;
     for (const auto &i : mElements)
         elements.push_back(i->resolve(i, context));
 
@@ -74,7 +74,7 @@ Type::Pointer Sequence::typecheck(TypeContext &context)
 
 Node::Pointer Sequence::copy() const
 {
-    list<Node::Pointer> elements;
+    vector<Node::Pointer> elements;
     for (const auto &i : mElements)
         elements.push_back(i->copy());
 

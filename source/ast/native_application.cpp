@@ -15,7 +15,7 @@ NativeApplication::NativeApplication(string name, NativeFunction::ArgumentsType 
 
 Node::Pointer NativeApplication::evaluate(Context &context) const
 {
-    list<NativeArgument> arguments;
+    vector<NativeArgument> arguments;
     for (const auto &i : mArguments)
         arguments.push_back({i.value->evaluate(context), i.valueType});
     return mFunction.run(arguments);
@@ -36,7 +36,7 @@ Type::Pointer NativeApplication::typecheck(TypeContext &context)
 
 Node::Pointer NativeApplication::copy() const
 {
-    list<NativeArgument> arguments;
+    vector<NativeArgument> arguments;
     for (const auto &i : mArguments)
         arguments.push_back({i.value->copy(), i.valueType});
 

@@ -14,14 +14,14 @@ namespace ast
         using Pointer = Node::PointerType<Tuple>;
 
     public:
-        explicit Tuple(list<Node::Pointer> elements);
+        explicit Tuple(vector<Node::Pointer> elements);
 
         template<typename Iterator>
         Tuple(Iterator begin, Iterator end) : Pattern(NodeKind::Tuple) {
             mElements = {begin, end};
         }
 
-        const list<Node::Pointer> &elements() const { return mElements; }
+        const vector<Node::Pointer> &elements() const { return mElements; }
 
     public: // Pattern
         Pattern::MatchIdenfiers matchIdentifiers() const override;
@@ -45,7 +45,7 @@ namespace ast
         Node::Pointer operatorDot(const Node::Pointer &b, Context &context) const override;
 
     private:
-        list<Node::Pointer> mElements;
+        vector<Node::Pointer> mElements;
     };
 }
 

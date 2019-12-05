@@ -17,9 +17,7 @@ namespace ast
     using std::pair;
     using std::string;
     using std::to_string;
-
-    template<typename T>
-    using list = std::vector<T>;
+    using std::vector;
 }
 
 #endif

@@ -9,9 +9,9 @@ namespace ast
     {
     public:
         using Pointer = Node::PointerType<Pattern>;
-        using MatchResult = list<pair<string, Node::Pointer>>;
-        using TypecheckMatchResult = list<pair<string, Type::Pointer>>;
-        using MatchIdenfiers = list<string>;
+        using MatchResult = vector<pair<string, Node::Pointer>>;
+        using TypecheckMatchResult = vector<pair<string, Type::Pointer>>;
+        using MatchIdenfiers = vector<string>;
 
     public:
         explicit Pattern(int kind) : Node(kind) { }

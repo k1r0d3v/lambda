@@ -15,7 +15,7 @@ namespace ast
 
     struct NativeFunction
     {
-        using ArgumentsType = list<NativeArgument>;
+        using ArgumentsType = vector<NativeArgument>;
         using FunctionType = std::function<Node::Pointer(const ArgumentsType&)>;
 
         FunctionType run;
@@ -42,7 +42,7 @@ namespace ast
 
     protected:
         string mName;
-        list<NativeArgument> mArguments;
+        vector<NativeArgument> mArguments;
         NativeFunction mFunction;
     };
 }

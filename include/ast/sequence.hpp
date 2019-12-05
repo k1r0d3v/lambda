@@ -24,9 +24,9 @@ namespace ast
         static Node::Pointer join(const Node::Pointer &a, const Node::Pointer &b);
 
     public:
-        explicit Sequence(const list<Node::Pointer> &elements);
+        explicit Sequence(const vector<Node::Pointer> &elements);
 
-        const list<Node::Pointer> &elements() const { return mElements; }
+        const vector<Node::Pointer> &elements() const { return mElements; }
 
         Node::Pointer evaluate(Context &context) const override;
 
@@ -39,7 +39,7 @@ namespace ast
         string toString() const override;
 
     private:
-        list<Node::Pointer> mElements;
+        vector<Node::Pointer> mElements;
     };
 }
 

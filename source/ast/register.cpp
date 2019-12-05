@@ -137,7 +137,7 @@ Node::Pointer Register::transform(NodeVisitor *visitor)
     return nullptr;
 }
 
-Node::Pointer Register::operator_dot(const Node::Pointer &b, Context &context) const
+Node::Pointer Register::operatorDot(const Node::Pointer &b, Context &context) const
 {
     // TODO: Do checks? Or leave it to the typecheck?
     return mElements.find(Node::cast<Identifier>(b)->name())->second;

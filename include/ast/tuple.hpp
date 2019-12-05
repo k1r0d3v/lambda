@@ -3,12 +3,12 @@
 
 #include <ast/node.hpp>
 #include <ast/pattern.hpp>
-#include <ast/operable_object.hpp>
+#include <ast/operable_node.hpp>
 #include <ast/node_kind.hpp>
 
 namespace ast
 {
-    class Tuple : public Pattern, public OperableObject
+    class Tuple : public Pattern, public OperableNode
     {
     public:
         using Pointer = Node::PointerType<Tuple>;
@@ -42,7 +42,7 @@ namespace ast
         string toString() const override;
 
     public: // Operable
-        Node::Pointer operator_dot(const Node::Pointer &b, Context &context) const override;
+        Node::Pointer operatorDot(const Node::Pointer &b, Context &context) const override;
 
     private:
         list<Node::Pointer> mElements;

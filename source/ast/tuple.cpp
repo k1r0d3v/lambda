@@ -130,7 +130,7 @@ Node::Pointer Tuple::transform(NodeVisitor *visitor)
     return nullptr;
 }
 
-Node::Pointer Tuple::operator_dot(const Node::Pointer &b, Context &context) const
+Node::Pointer Tuple::operatorDot(const Node::Pointer &b, Context &context) const
 {
     // TODO: Do checks? Or leave it to the typecheck?
     return mElements[Node::cast<NaturalConstant>(b)->value()];

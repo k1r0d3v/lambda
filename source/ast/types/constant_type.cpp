@@ -20,7 +20,6 @@ bool ConstantType::isSubtypeOf(const Type::Pointer &t) const
     return false;
 }
 
-
 string ConstantType::toString() const
 {
     return mName;

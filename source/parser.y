@@ -186,7 +186,8 @@ identifier:
 ;
 
 abstraction:
-  K_LAMBDA  IDENTIFIER  S_COLON  type_name  S_DOT term  {  $$  =  MKNODE(Abstraction,  MKNODE(Variable,  $2,  $4),  $6);  }
+  K_LAMBDA  IDENTIFIER  S_COLON type_name  S_DOT term  {  $$  =  MKNODE(Abstraction,  MKNODE(Variable,  $2,  $4),  $6);  }
+| K_LAMBDA  IDENTIFIER  S_COLON error S_DOT term { yy:Parser::error(location_type(), "FOOO"); }
 ;
 
 application:
@@ -325,7 +326,7 @@ term:
 /**
   *  Implement  error  function
   */
-void  yy::Parser::error(const  location_type  &l,  const  std::string  &message)
+void yy::Parser::error(const  location_type  &l,  const  std::string  &message)
 {
   throw  yy::Parser::syntax_error(l,  message);
 }

@@ -1,6 +1,6 @@
 #include <ast/operator_dot.hpp>
 #include <ast/node_kind.hpp>
-#include <ast/operable_object.hpp>
+#include <ast/operable_node.hpp>
 #include <ast/types/operable_type.hpp>
 #include <ast/exception.hpp>
 #include <ast/node_visitor.hpp>
@@ -13,13 +13,13 @@ OperatorDot::OperatorDot(Node::Pointer source, Node::Pointer field)
 
 Node::Pointer OperatorDot::evaluate(Context &context) const
 {
-    auto operable = Node::cast<OperableObject>(mSource->evaluate(context));
+    auto operable = Node::cast<OperableNode>(mSource->evaluate(context));
 
     // For debug purposes
     if (operable == nullptr)
         throw AttributeException("\'" + this->toString() + "\' object has no attribute \'" + mField->toString() + "\'");
 
-    return operable->operator_dot(mField, context);
+    return operable->operatorDot(mField, context);
 }
 
 Type::Pointer OperatorDot::typecheck(TypeContext &context)

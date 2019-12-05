@@ -37,11 +37,14 @@ WHITESPACE  [ \t]
 
 \(                      { return yy::Parser::make_S_LPAREN(loc); }
 \)                      { return yy::Parser::make_S_RPAREN(loc); }
-\{                      { return yy::Parser::make_S_LBRACKET(loc); }
-\}                      { return yy::Parser::make_S_RBRACKET(loc); }
+\{                      { return yy::Parser::make_S_LBRACE(loc); }
+\}                      { return yy::Parser::make_S_RBRACE(loc); }
+\[                      { return yy::Parser::make_S_LBRACKET(loc); }
+\]                      { return yy::Parser::make_S_RBRACKET(loc); }
 \,                      { return yy::Parser::make_S_COMMA(loc); }
 \.                      { return yy::Parser::make_S_DOT(loc); }
 \=                      { return yy::Parser::make_S_EQ(loc); }
+\:\:                    { return yy::Parser::make_S_COLON2(loc); }
 \:                      { return yy::Parser::make_S_COLON(loc); }
 ;;                      { return yy::Parser::make_S_LINE_END(loc); }
 ;                       { return yy::Parser::make_S_SEMICOLON(loc); }
@@ -65,10 +68,12 @@ as                      { return yy::Parser::make_K_AS(loc); }
 Top                     { return yy::Parser::make_K_TOP(loc); }
 Bool                    { return yy::Parser::make_K_BOOL(loc); }
 Nat                     { return yy::Parser::make_K_NAT(loc); }
+Float                   { return yy::Parser::make_K_FLOAT(loc); }
 Str                     { return yy::Parser::make_K_STR(loc); }
 Unit                    { return yy::Parser::make_K_UNIT(loc); }
 alias                   { return yy::Parser::make_K_ALIAS(loc); }
 
+[0-9]+\.[0-9]+          { return yy::Parser::make_FLOAT(atof(yytext), loc); }
 [0-9]+                  { return yy::Parser::make_NUMBER(atoi(yytext), loc); }
 [a-z_][a-z0-9_]*        { return yy::Parser::make_IDENTIFIER(yytext, loc); }
 [A-Z][a-zA-Z]*          { return yy::Parser::make_TYPE_NAME(yytext, loc); }

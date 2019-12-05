@@ -31,11 +31,13 @@ namespace  yy  {  class  Driver;  }
 //  Make  the  ast  operations  shorter
 #define  MKNODE(T,  ...)  ast::Node::make<ast::T>(__VA_ARGS__)
 #define  MKTYPE(T,  ...)  ast::Type::make<ast::T>(__VA_ARGS__)
+#define  MKERROR(l, m) yy::Parser::error(l, m); throw  std::runtime_error(m);
 }  //  end  %code
 
 
 %token  END  0  "EOF"
 %token  <int>  NUMBER  "number"
+%token  <double>  FLOAT  "float"
 %token  <std::string>  IDENTIFIER  "identifier"
 %token  <std::string>  TYPE_NAME  "type  name"
 %token  <std::string>  STRING  "string"
@@ -58,6 +60,7 @@ namespace  yy  {  class  Driver;  }
 %token  K_TOP  "Top"
 %token  K_BOOL  "Bool"
 %token  K_NAT  "Nat"
+%token  K_FLOAT  "Float"
 %token  K_STR  "Str"
 %token  K_UNIT  "Unit"
 %token  K_ALIAS  "alias"
@@ -68,11 +71,14 @@ namespace  yy  {  class  Driver;  }
 %token  S_COMMA  ","
 %token  S_EQ  "="
 %token  S_COLON  ":"
+%token  S_COLON2  "::"
 %token  S_SEMICOLON  ";"
 %token  S_LINE_END  ";;"
 %token  S_ARROW  "->"
-%token  S_LBRACKET  "{"
-%token  S_RBRACKET  "}"
+%token  S_LBRACE  "{"
+%token  S_RBRACE  "}"
+%token  S_LBRACKET  "["
+%token  S_RBRACKET  "]"
 
 /*
   TODO: Check precedences
@@ -88,12 +94,14 @@ namespace  yy  {  class  Driver;  }
 %left        APPLICATION
 %left        OPERATOR_DOT
 %left        K_AS
+%right       S_COLON2
 %left        K_FIX K_SUCC K_PRED K_ISZERO K_PRINT
 %left        K_IN
 %precedence  S_LINE_END
 
 %type  <ast::Node::Pointer>  unit
 %type  <ast::Node::Pointer>  natural_constant
+%type  <ast::Node::Pointer>  float_constant
 %type  <ast::Node::Pointer>  string_constant
 %type  <ast::Node::Pointer>  bool_constant
 %type  <ast::Node::Pointer>  abstraction
@@ -116,19 +124,26 @@ namespace  yy  {  class  Driver;  }
 
 %type  <ast::Node::Pointer>  term
 %type  <ast::Node::Pointer>  tuple
+%type  <ast::Node::Pointer>  list
+%type  <ast::List::Pointer>  list_terms
 %type  <std::deque<ast::Node::Pointer>> tuple_terms
+%type  <ast::List::Pointer> list_concat
+%type  <ast::vector<ast::Node::Pointer>> list_concat_terms
 %type  <ast::Node::Pointer>  register
 %type  <std::map<ast::string, ast::Node::Pointer>> register_terms
 
 %type  <ast::Type::Pointer>  type_name
 %type  <ast::Type::Pointer>  tuple_type
 %type  <std::deque<ast::Type::Pointer>> tuple_type_types
+%type  <ast::Type::Pointer>  list_type
 %type  <ast::Type::Pointer>  register_type
 %type  <std::map<ast::string, ast::Type::Pointer>> register_type_types
 
 %type  <ast::Pattern::Pointer>  pattern
 %type  <ast::Pattern::Pointer>  tuple_pattern
 %type  <std::deque<ast::Pattern::Pointer>> tuple_pattern_terms
+//%type  <ast::Pattern::Pointer>  list_pattern
+%type  <ast::List::Pointer>  list_pattern_terms
 %type  <ast::Pattern::Pointer>  register_pattern
 %type  <std::map<ast::string, ast::Pattern::Pointer>> register_pattern_terms
 
@@ -149,23 +164,30 @@ file:
 
 assignment:
   K_LET pattern S_EQ term { $$ = MKNODE(Declaration, $2, $4); }
+| K_LET error S_EQ term { MKERROR(driver->yyLocation(), "This expression is not appropriate to make an assignment") }
+| K_LET pattern S_EQ error { MKERROR(driver->yyLocation(), "The value expected is a term") }
 ;
 
 alias:
   K_ALIAS TYPE_NAME S_COLON type_name { $$ = MKNODE(Alias, $2, $4); }
+| K_ALIAS TYPE_NAME S_COLON error { MKERROR(driver->yyLocation(), "The value assigment to alias is not a valid type.") }
+| K_ALIAS error S_COLON type_name { MKERROR(driver->yyLocation(), "Not valid characters to the name of alias") }
 ;
 
 type_name:
   S_LPAREN  type_name  S_RPAREN  {  $$  =  $2;  }
+| S_LPAREN  error  S_RPAREN  {  MKERROR(driver->yyLocation(), "Not a valid type.")  }
 |  TYPE_NAME  {  $$  =  MKTYPE(UndefinedType,  $1);  }
 |  K_BOOL  {  $$  =  MKTYPE(BoolType);  }
 |  K_NAT  {  $$  =  MKTYPE(NatType);  }
+|  K_FLOAT  {  $$  =  MKTYPE(FloatType);  }
 |  K_STR  {  $$  =  MKTYPE(StrType);  }
 |  K_UNIT  {  $$  =  MKTYPE(UnitType);  }
 |  K_TOP  {  $$  =  MKTYPE(TopType);  }
 |  type_name  S_ARROW  type_name  {  $$  =  MKTYPE(ArrowType,  $1,  $3);  }
 |  tuple_type  {  $$  =  $1;  }
 |  register_type { $$  =  $1; }
+|  list_type { $$ = $1; }
 ;
 
 unit:
@@ -174,6 +196,10 @@ unit:
 
 natural_constant:
   NUMBER  {  $$  =  MKNODE(NaturalConstant,  $1);  }
+;
+
+float_constant:
+  FLOAT  { $$  =  MKNODE(FloatConstant, $1);  }
 ;
 
 string_constant:
@@ -190,9 +216,10 @@ identifier:
 ;
 
 abstraction:
-  K_LAMBDA  IDENTIFIER  S_COLON type_name  S_DOT term  {  $$  =  MKNODE(Abstraction,  MKNODE(Variable,  $2,  $4),  $6);  }
-| K_LAMBDA  IDENTIFIER  S_COLON error S_DOT term { yy:Parser::error(location_type(), "FOOO"); }
-;
+  K_LAMBDA  IDENTIFIER  S_COLON  type_name  S_DOT term  {  $$  =  MKNODE(Abstraction,  MKNODE(Variable,  $2,  $4),  $6);  }
+| K_LAMBDA  error  S_COLON  type_name  S_DOT term { MKERROR(driver->yyLocation(), "Not valid identifier token to abstraction") }
+| K_LAMBDA  IDENTIFIER  S_COLON  error S_DOT term {  MKERROR(driver->yyLocation(), "The value assigment to identifier is not a valid type.") }
+| K_LAMBDA  IDENTIFIER  S_COLON  type_name  S_DOT error { MKERROR(driver->yyLocation(), "The value expected is a term") }
 
 application:
   term term %prec APPLICATION {  $$  =  MKNODE(Application,  $1,  $2);  }
@@ -200,6 +227,7 @@ application:
 
 ascription:
   term  K_AS  type_name  {  $$  =  MKNODE(Ascription,  $1,  $3);  }
+| term  K_AS  error { MKERROR(driver->yyLocation(), "Not valid type to do ascription") }
 ;
 
 if_then_else:
@@ -210,10 +238,12 @@ pattern:
   IDENTIFIER { $$ = MKNODE(Identifier, $1); }
 | tuple_pattern { $$ = $1; }
 | register_pattern { $$ = $1; }
+//| list_pattern { $$ = $1; }
 ;
 
 let_in:
-  K_LET  pattern  S_EQ  term K_IN term  {  $$  =  MKNODE(LocalDefinition,  $2,  $4,  $6);  }
+  K_LET  pattern  S_EQ  term  K_IN  term  {  $$  =  MKNODE(LocalDefinition,  $2,  $4,  $6);  }
+| K_LET  error  S_EQ  term  K_IN  term  { MKERROR(driver->yyLocation(), "This expression is not appropriate to assignment a term") }
 ;
 
 fix:
@@ -224,6 +254,8 @@ let_rec:
   K_LETREC IDENTIFIER S_COLON type_name S_EQ term K_IN term  {
     $$  =  MKNODE(LocalDefinition,  MKNODE(Identifier,  $2),  MKNODE(Fix,  MKNODE(Abstraction,  MKNODE(Variable,  $2,  $4),  $6)),  $8);
   }
+| K_LETREC IDENTIFIER S_COLON error S_EQ term K_IN term { MKERROR(driver->yyLocation(), "This expression is not appropriate to assignment a term") }
+| K_LETREC error S_COLON type_name S_EQ term K_IN term { MKERROR(driver->yyLocation(), "Not valid identifier to let rec expresion") }
 ;
 
 sequence:
@@ -243,16 +275,18 @@ print: K_PRINT term {  $$  =  MKNODE(Print,  $2);  }
 ;
 
 tuple:
-  S_LBRACKET tuple_terms S_RBRACKET { $$ = MKNODE(Tuple, $2.begin(), $2.end()); }
+  S_LBRACE tuple_terms S_RBRACE { $$ = MKNODE(Tuple, $2.begin(), $2.end()); }
 ;
 
 tuple_type:
-  S_LBRACKET tuple_type_types S_RBRACKET { $$ = MKTYPE(TupleType, $2.begin(), $2.end()); }
+  S_LBRACE tuple_type_types S_RBRACE { $$ = MKTYPE(TupleType, $2.begin(), $2.end()); }
 ;
 
 tuple_type_types:
   type_name { $$ = { $1 }; }
+| error { MKERROR(driver->yyLocation(), "Not valid type assigment to tuple") }
 | type_name S_COMMA tuple_type_types  { $3.push_front($1); $$ = $3; }
+| error S_COMMA tuple_type_types {MKERROR(driver->yyLocation(), "Not valid type assigment to tuple")}
 ;
 
 tuple_terms:
@@ -261,50 +295,100 @@ tuple_terms:
 ;
 
 tuple_pattern:
-  S_LBRACKET tuple_pattern_terms S_RBRACKET { $$ = MKNODE(Tuple, $2.begin(), $2.end()); }
+  S_LBRACE tuple_pattern_terms S_RBRACE { $$ = MKNODE(Tuple, $2.begin(), $2.end()); }
 ;
 
 tuple_pattern_terms:
   pattern { $$ = { $1 }; }
+| error { MKERROR(driver->yyLocation(), "This expression is not appropriate to assignment a tuple element") }
 | pattern S_COMMA tuple_pattern_terms  { $3.push_front($1); $$ = $3; };
+| error S_COMMA tuple_pattern_terms { MKERROR(driver->yyLocation(), "This expression is not appropriate to assignment a tuple element") }
+;
+
+list:
+  S_LBRACKET list_terms S_RBRACKET { $$ = $2; }
+| S_LBRACKET type_name S_RBRACKET { $$ = MKNODE(List, $2); }
+;
+
+list_terms:
+  term { $$ = MKNODE(List, $1, nullptr); }
+| term S_COMMA list_terms { $$ = MKNODE(List, $1, $3); }
+;
+
+
+list_concat:
+   S_LBRACKET term S_COLON2 list_concat_terms S_RBRACKET { $4.push_back($2); $$ = MKNODE(List, $4); }
+;
+
+list_concat_terms:
+  term { $$ = {$1}; }
+| term S_COLON2 list_concat_terms { $3.push_back($1); $$ = $3; }
+;
+
+/*
+list_pattern:
+  S_LBRACKET list_pattern_terms S_RBRACKET { $$ = $2; }
+;
+
+list_pattern_terms:
+  IDENTIFIER S_COLON2 list_pattern_terms { $$ = MKNODE(List, MKNODE(Identifier, $1), ast::Node::cast<ast::List>($3)); }
+| IDENTIFIER { $$ = MKNODE(List, MKNODE(Identifier, $1), MKNODE(List, ast::vector<ast::Node::Pointer>())); }
+;
+*/
+
+list_type:
+  S_LBRACKET type_name S_RBRACKET { $$ = MKTYPE(ListType, $2); }
+| S_LBRACKET error S_RBRACKET { MKERROR(driver->yyLocation(), "Not valid type to list type") }
 ;
 
 register:
-  S_LBRACKET register_terms S_RBRACKET { $$ = MKNODE(Register, $2); }
+  S_LBRACE register_terms S_RBRACE { $$ = MKNODE(Register, $2); }
 ;
 
 register_terms:
   IDENTIFIER S_COLON term { $$ = { {$1, $3} }; }
+| error S_COLON term { MKERROR(driver->yyLocation(), "Not valid identifier to register") }
 | IDENTIFIER S_COLON term S_COMMA register_terms  { $5.insert({$1, $3}); $$ = $5; }
+| error S_COLON term S_COMMA register_terms { MKERROR(driver->yyLocation(), "Not valid identifier to register") }
 ;
 
 register_type:
-  S_LBRACKET register_type_types S_RBRACKET { $$ = MKTYPE(RegisterType, $2); }
+  S_LBRACE register_type_types S_RBRACE { $$ = MKTYPE(RegisterType, $2); }
 ;
 
 register_type_types:
   IDENTIFIER S_COLON type_name { $$ = { {$1, $3} }; }
+| error S_COLON type_name { MKERROR(driver->yyLocation(), "Not valid identifier to register type") }
+| IDENTIFIER S_COLON error { MKERROR(driver->yyLocation(), "Not valid type to register type") }
 | IDENTIFIER S_COLON type_name S_COMMA register_type_types  { $5.insert({$1, $3}); $$ = $5; }
+| error S_COLON type_name S_COMMA register_type_types { MKERROR(driver->yyLocation(), "Not valid identifier to register type") }
+| IDENTIFIER S_COLON error S_COMMA register_type_types { MKERROR(driver->yyLocation(), "Not valid type to register type") }
 ;
 
 register_pattern:
-  S_LBRACKET register_pattern_terms S_RBRACKET { $$ = MKNODE(Register, $2); }
+  S_LBRACE register_pattern_terms S_RBRACE { $$ = MKNODE(Register, $2); }
 ;
 
 register_pattern_terms:
   IDENTIFIER S_COLON pattern { $$ = { {$1, $3} }; }
+| error S_COLON pattern { MKERROR(driver->yyLocation(), "Not valid identifier to assign register value") }
+| IDENTIFIER S_COLON error { MKERROR(driver->yyLocation(), "This expression is not appropriate to assignment a register value") }
 | IDENTIFIER S_COLON pattern S_COMMA register_pattern_terms  { $5.insert({$1, $3}); $$ = $5; }
+| error S_COLON pattern S_COMMA register_pattern_terms { MKERROR(driver->yyLocation(), "Not valid identifier to assign register value") }
+| IDENTIFIER S_COLON error S_COMMA register_pattern_terms { MKERROR(driver->yyLocation(), "This expression is not appropriate to assignment a register value") }
 ;
 
 operator_dot:
   term S_DOT IDENTIFIER %prec OPERATOR_DOT { $$  =  MKNODE(OperatorDot,  $1,  MKNODE(Identifier,  $3)); }
-| term S_DOT NUMBER %prec OPERATOR_DOT {  $$  =  MKNODE(OperatorDot,  $1,  MKNODE(NaturalConstant,  $3));  }
+| term S_DOT NUMBER %prec OPERATOR_DOT  {  $$  =  MKNODE(OperatorDot,  $1,  MKNODE(NaturalConstant,  $3));  }
+| term S_DOT error %prec OPERATOR_DOT { MKERROR(driver->yyLocation(), "The method to access the value is not appropriate") }
 ;
 
 term:
   S_LPAREN  term  S_RPAREN  {  $$  =  $2;  }
 | unit  {  $$  =  $1;  }
 | natural_constant  {  $$  =  $1;  }
+| float_constant  {  $$  =  $1;  }
 | string_constant  {  $$  =  $1;  }
 | bool_constant  {  $$  =  $1;  }
 | abstraction  {  $$  =  $1;  }
@@ -314,6 +398,7 @@ term:
 | if_then_else  { $$ = $1; }
 | let_in  { $$ = $1; }
 | sequence  { $$ = $1; }
+| list { $$ = $1;}
 | fix  { $$ = $1; }
 | let_rec  { $$ = $1; }
 | succ  { $$ = $1; }
@@ -323,6 +408,7 @@ term:
 | tuple  { $$ = $1; }
 | register  { $$ = $1; }
 | operator_dot { $$ = $1; }
+| list_concat  { $$= $1; }
 ;
 
 %%
@@ -332,5 +418,9 @@ term:
   */
 void yy::Parser::error(const  location_type  &l,  const  std::string  &message)
 {
-  throw  yy::Parser::syntax_error(l,  message);
+  std::cout << message << std::endl;
+  if( message.find("syntax error,") == std::string::npos )
+  {
+  	std::cout << "Error in line : " << l.begin.line << " column: " <<  l.begin.column << "-"  << l.end.column << " " << message << std::endl;
+  }
 }

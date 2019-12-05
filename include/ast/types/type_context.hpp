@@ -14,7 +14,10 @@ namespace ast
 
     public:
         TypeContext() = default;
-
+        /**
+         * Set the type of id passed
+         * @return type passed or nullptr if id not exist
+         */
         Type::Pointer setTypeFor(const string& id, const Type::Pointer& value)
         {
             if (value != nullptr)
@@ -32,7 +35,10 @@ namespace ast
                 return Type::Pointer();
             }
         }
-
+        /**
+         * Get the type of id passed
+         * @return the type of id or nullptr if id not exist
+         */
         Type::Pointer getTypeOf(const string& id) const
         {
             auto it = mMap.find(id);

@@ -12,8 +12,10 @@
 #include <ast/tuple.hpp>
 #include <ast/register.hpp>
 #include <ast/sequence.hpp>
+#include <ast/list.hpp>
 #include <ast/declaration.hpp>
 #include <ast/natural_constant.hpp>
+#include <ast/float_constant.hpp>
 #include <ast/boolean_constant.hpp>
 #include <ast/string_constant.hpp>
 #include <ast/native_application.hpp>
@@ -78,12 +80,22 @@ namespace ast
             return nullptr;
         }
 
+        virtual Node::Pointer visitList(List *node)
+        {
+            return nullptr;
+        }
+
         virtual Node::Pointer visitDeclaration(Declaration *node)
         {
             return nullptr;
         }
 
         virtual Node::Pointer visitNatural(NaturalConstant *node)
+        {
+            return nullptr;
+        }
+
+        virtual Node::Pointer visitFloat(FloatConstant *node)
         {
             return nullptr;
         }

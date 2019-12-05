@@ -29,13 +29,24 @@ namespace ast
 
     public:
         explicit Type(int kind) : mKind(kind) { }
-
+        /**
+         * TODO
+         */
         virtual void resolve(TypeContext &context) { }
-
+        /**
+         * Return true if this type is the same of type passed
+         * @return bool
+         */
         virtual bool isTypeOf(const Type::Pointer &t) const = 0;
-
+        /**
+         *  Return true if this type is a subtype of type passed
+         * @return bool
+         */
         virtual bool isSubtypeOf(const Type::Pointer &t) const = 0;
-
+        /**
+         *  Transform the values of class in string to view in output
+         * @return string
+         */
         virtual string toString() const = 0;
 
         int kind() const { return mKind; }

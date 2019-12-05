@@ -8,6 +8,10 @@ namespace ast
     class OperableNode
     {
     public:
+        /**
+         *  Is used to access a especific value of subclass. Example: tuple, register...
+         * @return value
+         */
         virtual Node::Pointer operatorDot(const Node::Pointer &b, Context &context) const = 0;
     };
 }

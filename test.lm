@@ -109,4 +109,3 @@ println "** Testing letrec";;
 letrec sum : (Nat->Nat->Nat) = lambda n : Nat. lambda m : Nat. if iszero n then m else succ (sum (pred n) m) in sum 10 11;;
 let nlength = letrec len : Nat->[Nat]->Nat = lambda c : Nat. lambda l : [Nat]. if (isempty l) then c else (len (succ c) (let [h::t] = l in t)) in len 0;;
 println "";;
-letrec len: = lambda x.

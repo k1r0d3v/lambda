@@ -65,7 +65,7 @@ Type::Pointer List::typecheck(TypeContext &context)
             auto t = mConcatList[i]->typecheck(context);
             if (!t->isTypeOf(mElementType))
                 throw TypeException(
-                        "List element type is \'" + t->toString() + "\' not \'" + mElementType->toString() + "\'");
+                        "List element type is \'" + mElementType->toString() + "\' not \'" + t->toString() + "\'");
         }
 
         return Type::make<ListType>(mElementType);
@@ -91,7 +91,7 @@ Type::Pointer List::typecheck(TypeContext &context)
             auto t = head->typecheck(context);
             if (!t->isTypeOf(mElementType))
                 throw TypeException(
-                        "List element type is \'" + t->toString() + "\' not \'" + mElementType->toString() + "\'");
+                        "List element type is \'" + mElementType->toString() + "\' not \'" + t->toString() + "\'");
         } while (tail != nullptr);
     }
 

@@ -170,6 +170,23 @@ Pattern::MatchResult List::match(const Node::Pointer &value, Context &context) c
     auto tail = mTail;
     Pattern::MatchResult matchResult;
 
+    do{
+        if (valueList == nullptr)
+            throw MatchException("Unexpected pattern length");
+
+        matchResult = Node::cast<Pattern>(head)->match(valueList, context);
+
+        // Recollect matching results
+        for (const auto &j : matchResult)
+            tmp.push_back(j);
+
+        if(tail != nullptr)
+        {
+            head = tail->mHead;
+            tail = tail->mTail;
+            valueList = valueList->mTail;
+        }
+    }while(tail != nullptr);
     while (head != nullptr)
     {
         if (valueList == nullptr)

@@ -142,8 +142,8 @@ namespace  yy  {  class  Driver;  }
 %type  <ast::Pattern::Pointer>  pattern
 %type  <ast::Pattern::Pointer>  tuple_pattern
 %type  <std::deque<ast::Pattern::Pointer>> tuple_pattern_terms
-//%type  <ast::Pattern::Pointer>  list_pattern
-%type  <ast::List::Pointer>  list_pattern_terms
+%type  <ast::Pattern::Pointer>  list_pattern
+//%type  <ast::List::Pointer>  list_pattern_terms
 %type  <ast::Pattern::Pointer>  register_pattern
 %type  <std::map<ast::string, ast::Pattern::Pointer>> register_pattern_terms
 
@@ -238,7 +238,7 @@ pattern:
   IDENTIFIER { $$ = MKNODE(Identifier, $1); }
 | tuple_pattern { $$ = $1; }
 | register_pattern { $$ = $1; }
-//| list_pattern { $$ = $1; }
+| list_pattern { $$ = $1; }
 ;
 
 let_in:
@@ -325,11 +325,11 @@ list_concat_terms:
 | term S_COLON2 list_concat_terms { $3.push_back($1); $$ = $3; }
 ;
 
-/*
-list_pattern:
-  S_LBRACKET list_pattern_terms S_RBRACKET { $$ = $2; }
-;
 
+list_pattern:
+  S_LBRACKET IDENTIFIER S_COLON2 IDENTIFIER S_RBRACKET { $$ = MKNODE(List,MKNODE(Identifier,$2),MKNODE(List,MKNODE(Identifier,$4),nullptr)); }
+;
+/*
 list_pattern_terms:
   IDENTIFIER S_COLON2 list_pattern_terms { $$ = MKNODE(List, MKNODE(Identifier, $1), ast::Node::cast<ast::List>($3)); }
 | IDENTIFIER { $$ = MKNODE(List, MKNODE(Identifier, $1), MKNODE(List, ast::vector<ast::Node::Pointer>())); }

@@ -216,6 +216,7 @@ abstraction:
 | K_LAMBDA  error  S_COLON  type_name  S_DOT term { MKERROR(driver->yyLocation(), "Not valid identifier token to abstraction") }
 | K_LAMBDA  IDENTIFIER  S_COLON  error S_DOT term {  MKERROR(driver->yyLocation(), "The value assigment to identifier is not a valid type.") }
 | K_LAMBDA  IDENTIFIER  S_COLON  type_name  S_DOT error { MKERROR(driver->yyLocation(), "The value expected is a term") }
+
 ;
 /*
 application:
@@ -414,7 +415,7 @@ term:
 /**
   *  Implement  error  function
   */
-void  yy::Parser::error(const  location_type  &l,  const  std::string  &message)
+void yy::Parser::error(const  location_type  &l,  const  std::string  &message)
 {
   std::cout << message << std::endl;
   if( message.find("syntax error,") == std::string::npos )

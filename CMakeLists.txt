@@ -95,14 +95,13 @@ add_executable(lambda
         source/ast/types/register_type.cpp
         source/ast/types/tuple_type.cpp
         source/ast/node.cpp
-        include/ast/operable_object.hpp
+        include/ast/operable_node.hpp
         include/ast/types/operable_type.hpp
         source/ast/node_visitor.cpp
         source/ast/alias.cpp
         include/ast/alias.hpp
         include/ast/types/undefined_type.hpp
         source/ast/types/undefined_type.cpp include/ast/list.hpp source/ast/list.cpp include/ast/types/list_type.hpp source/ast/types/list_type.cpp)
-
 # Add include folder to include directories
 target_include_directories(lambda PRIVATE include/)
 target_include_directories(lambda PRIVATE ${FLEX_BISON_OUTPUT_DIR})

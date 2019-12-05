@@ -3,11 +3,11 @@
 
 #include <ast/node.hpp>
 #include <ast/pattern.hpp>
-#include <ast/operable_object.hpp>
+#include <ast/operable_node.hpp>
 
 namespace ast
 {
-    class Register : public Pattern, public OperableObject
+    class Register : public Pattern, public OperableNode
     {
     public:
         using Pointer = Node::PointerType<Register>;
@@ -38,7 +38,7 @@ namespace ast
         string toString() const override;
 
     public: // Operable
-        Node::Pointer operator_dot(const Node::Pointer &b, Context &context) const override;
+        Node::Pointer operatorDot(const Node::Pointer &b, Context &context) const override;
 
     private:
         std::map<string, Node::Pointer> mElements;

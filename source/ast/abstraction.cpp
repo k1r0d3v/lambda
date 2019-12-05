@@ -49,7 +49,6 @@ Node::Pointer Abstraction::copy() const
 
 string Abstraction::toString() const
 {
-    // Note: Replace will rename problematic entries
     auto os = std::ostringstream();
     os << "(\xce\xbb" << mVariable->toString() << " : "
        << mVariable->type()->toString() << ". "

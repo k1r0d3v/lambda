@@ -18,7 +18,6 @@ bool ConstantType::isSubtypeOf(const Type::Pointer &t) const
     return t->kind() == TypeKind::Top;
 }
 
-
 string ConstantType::toString() const
 {
     return mName;

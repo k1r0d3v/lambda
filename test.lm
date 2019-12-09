@@ -45,7 +45,7 @@ println "";;
 
 
 println "** Testing ascriptions";;
-print "Ascription of Nat: "; println 0 as Nat;;
+print "Ascription of Nat: "; println (0 as Nat);;
 println "";;
 
 
@@ -102,6 +102,15 @@ println (lambda x:[Nat]. x);;
 println "";;
 
 println "** Testing fix";;
+let sumaux = lambda f:Nat->Nat->Nat. (lambda n:Nat. (lambda m:Nat. if (iszero n) then m else succ (f (pred n) m))) in
+(let sum = fix sumaux in sum 21 34);;
+let ff = lambda ieio:{iseven:Nat->Bool, isodd:Nat->Bool}.
+{iseven : (lambda x:Nat. if iszero x then true else (ieio.isodd (pred x))),
+isodd : (lambda x:Nat. if iszero x then false else (ieio.iseven (pred x)))};;
+let r = fix ff;;
+let iseven = r.iseven;;
+iseven 7;;
+iseven 4;;
 println "";;
 
 

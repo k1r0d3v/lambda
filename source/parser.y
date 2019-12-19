@@ -93,7 +93,7 @@ namespace  yy  {  class  Driver;  }
 %left        OPERATOR_DOT
 %left        K_AS
 %right       S_COLON2
-%left        K_FIX K_SUCC K_PRED K_ISZERO K_PRINT
+%left        K_FIX K_SUCC K_PRED K_ISZERO K_PRINT K_ISEMPTY
 %left        K_IN
 %left        APPLICATION
 %precedence  S_LINE_END
@@ -105,7 +105,7 @@ namespace  yy  {  class  Driver;  }
 %type  <ast::Node::Pointer>  bool_constant
 %type  <ast::Node::Pointer>  abstraction
 %type  <ast::Node::Pointer>  ascription
-%type  <ast::Node::Pointer>  application /* Shift reduce warnings comes from here */
+//%type  <ast::Node::Pointer>  application /* Shift reduce warnings comes from here */
 %type  <ast::Node::Pointer>  identifier
 %type  <ast::Node::Pointer>  if_then_else
 %type  <ast::Node::Pointer>  let_in
@@ -189,6 +189,7 @@ type_name:
 |  list_type { $$ = $1; }
 ;
 
+
 unit:
   S_LPAREN  S_RPAREN  {  $$  =  MKNODE(Unit);  }
 ;
@@ -220,9 +221,9 @@ abstraction:
 | K_LAMBDA  IDENTIFIER  S_COLON  error S_DOT term {  MKERROR(driver->yyLocation(), "The value assigment to identifier is not a valid type.") }
 | K_LAMBDA  IDENTIFIER  S_COLON  type_name  S_DOT error { MKERROR(driver->yyLocation(), "The value expected is a term") }
 
-application:
+/*application:
   term term %prec APPLICATION {  $$  =  MKNODE(Application,  $1,  $2);  }
-;
+;*/
 
 ascription:
   term  K_AS  type_name  {  $$  =  MKNODE(Ascription,  $1,  $3);  }
@@ -309,7 +310,7 @@ tuple_pattern_terms:
 
 list:
   S_LBRACKET list_terms S_RBRACKET { $$ = $2; }
-| S_LBRACKET type_name S_RBRACKET { $$ = MKNODE(List, $2); }
+| type_name  S_LBRACKET S_RBRACKET { $$ = MKNODE(List, $1); }
 ;
 
 list_terms:
@@ -389,7 +390,7 @@ term:
 | bool_constant  {  $$  =  $1;  }
 | abstraction  {  $$  =  $1;  }
 | ascription { $$ = $1; }
-| application  {  $$  =  $1;  }
+//| application  {  $$  =  $1;  }
 | identifier  {  $$  =  $1;  }
 | if_then_else  { $$ = $1; }
 | let_in  { $$ = $1; }

@@ -60,7 +60,7 @@ Type::Pointer List::typecheck(TypeContext &context)
 
         mElementType = Type::cast<ListType>(lastType)->type();
 
-        for (auto i = mConcatList.size() - 2; i > 0; i--)
+        for (auto i = mConcatList.size() - 1; i > 0; i--)
         {
             auto t = mConcatList[i]->typecheck(context);
             if (!t->isTypeOf(mElementType))

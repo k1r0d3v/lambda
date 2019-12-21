@@ -1,27 +1,33 @@
+// This is a comment
+//
+// *****************
+//  Test module
+// *****************
+
+// Define print line abstraction
 let println = lambda x : Top. print x; print "\n";;
 
-println "*****************";;
-println "*  Test module  *";;
-println "*****************";;
-println "";;
-
+// Print and basic types print test
 println "** Testing print";;
 print "This is a Nat: "; println 0;;
 print "This is a Str: "; println "Hello world";;
 print "This is a Bool: "; println true;;
+print "This is a Float: "; println 1.2;;
 println "";;
 
 println "** Testing aliases";;
 alias U : Unit;;
-alias NN : Nat->Nat;;
-
 println "Now U is an alias of Unit";;
+
+alias NN : Nat->Nat;;
 println "Now NN is an alias of Nat->Nat";;
+
 let uid = lambda x : U. x;;
 let nnid = lambda x : NN. x;;
+
 println "Examples: ";;
-print " "; println uid;;
-print " "; println nnid;;
+print " (lambda x : U. x): "; println uid;;
+print " (lambda x : NN. x): "; println nnid;;
 println "";;
 
 println "** Testing naturals";;
@@ -88,22 +94,27 @@ println (lambda x:{Nat,Float,Str}. x);;
 println "";;
 
 println "** Testing list";;
-println ([1,2,3,4,5]);;
-let [h::t] = [1,2,3,4,5];;
-print "h: "; println (h);;
-print "t: "; println (t);;
-let l = [1,2,3];;
-[1::l];;
-[1::2::3::l];;
-[1::2::[Nat]];;
-["hola"::" que "::"tal"::[Str]];;
-println (let [h::t] = [1,2,3,4] in h);;
-println (lambda x:[Nat]. x);;
+print "This is a list: "; println [1,2,3,4,5];;
+print "This is a empty list: "; println Nat[];;
+println "List pattern matching: let h::t = [1,2,3,4,5];;";; let h::t = [1,2,3,4,5];;
+print "List head: "; println h;;
+print "List tail: "; println t;;
+print "This is a list: "; println [1,2,3];;
+println "let l = [1, 2, 3];;";; let l = [1,2,3];;
+print "1::l: ";; println 1::l;;
+print "1::2::3::l: ";; println 1::2::3::l;;
+print "1::2::Nat[]: ";; println 1::2::Nat[];;
+"hello "::"new"::" world"::Str[];;
+println (let h::t = [1,2,3,4] in h);;
+println (lambda x : [Nat]. x);;
+
+let head = lambda l : [Nat]. let h::t = l in h;;
+let tail = lambda l : [Nat]. let h::t = l in t;;
 println "";;
 
 println "** Testing fix";;
-let sumaux = lambda f:Nat->Nat->Nat. (lambda n:Nat. (lambda m:Nat. if (iszero n) then m else succ (f (pred n) m))) in
-(let sum = fix sumaux in sum 21 34);;
+let sumaux = lambda f:Nat->Nat->Nat. lambda n:Nat. lambda m:Nat. if iszero n then m else succ (f (pred n)) m in
+(let sum = fix sumaux in (sum 21) 34);;
 let ff = lambda ieio:{iseven:Nat->Bool, isodd:Nat->Bool}.
 {iseven : (lambda x:Nat. if iszero x then true else (ieio.isodd (pred x))),
 isodd : (lambda x:Nat. if iszero x then false else (ieio.iseven (pred x)))};;
@@ -115,6 +126,6 @@ println "";;
 
 
 println "** Testing letrec";;
-letrec sum : (Nat->Nat->Nat) = lambda n : Nat. lambda m : Nat. if iszero n then m else succ (sum (pred n) m) in sum 10 11;;
-let nlength = letrec len : Nat->[Nat]->Nat = lambda c : Nat. lambda l : [Nat]. if (isempty l) then c else (len (succ c) (let [h::t] = l in t)) in len 0;;
+letrec sum : (Nat->Nat->Nat). lambda n : Nat. lambda m : Nat. if iszero n then m else succ ((sum (pred n)) m) in (sum 10) 11;;
+let nlength = letrec len : Nat->[Nat]->Nat. lambda c : Nat. lambda l : [Nat]. if isempty l then c else ((len (succ c)) (let h::t = l in t)) in len 0;;
 println "";;

@@ -3,11 +3,12 @@
 
 #include <istream>
 #include <utility>
+#include <string>
+#include <vector>
 #include <parser.hpp>
 
 // Give to flex the prototype of yylex we want
 #define YY_DECL yy::Parser::symbol_type yylex(yy::Driver *driver)
-
 
 namespace yy
 {
@@ -17,10 +18,10 @@ namespace yy
         explicit Driver() = default;
 
     public:
-        static void parse(
+        static yy::Driver parse(
                 std::istream &stream,
                 void *data,
-                std::string name = "",
+                std::string filename = "",
                 bool traceScan = false,
                 bool traceParse = false);
 
@@ -29,8 +30,19 @@ namespace yy
 
         yy::location &yyLocation() { return mLocation; }
 
+        void addError(const std::string &error)
+        {
+            mErrors.push_back(error);
+        }
+
+        const std::vector<std::string> &errors()
+        {
+            return mErrors;
+        }
+
     private:
         yy::location mLocation;
+        std::vector<std::string> mErrors;
         void *mData = nullptr;
     };
 }

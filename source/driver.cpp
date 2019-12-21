@@ -27,13 +27,13 @@ private:
     YY_BUFFER_STATE mState;
 };
 
-void yy::Driver::parse(std::istream &stream, void *data, std::string name, bool traceScan, bool traceParse)
+yy::Driver yy::Driver::parse(std::istream &stream, void *data, std::string filename, bool traceScan, bool traceParse)
 {
     Driver driver;
 
     // Initialize
     driver.mData = data;
-    driver.mLocation.initialize(name.empty() ? nullptr : &name);
+    driver.mLocation.initialize(filename.empty() ? nullptr : &filename);
 
     auto str = std::string(std::istreambuf_iterator<char>(stream), {});
 
@@ -61,4 +61,6 @@ void yy::Driver::parse(std::istream &stream, void *data, std::string name, bool 
 
     // Free buffer
     buffer.dispose();
+
+    return driver;
 }

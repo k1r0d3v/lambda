@@ -13,19 +13,16 @@ namespace ast
         using Pointer = Node::PointerType<List>;
 
     public:
-        explicit List(vector<Node::Pointer> elements);
-
+        // Empty List
         explicit List(Type::Pointer elementType);
 
-        explicit List(Node::Pointer head, List::Pointer tail);
+        explicit List(Node::Pointer head, Node::Pointer tail);
 
         const Node::Pointer &head() const { return mHead; }
 
-        const List::Pointer &tail() const { return mTail; }
+        const Node::Pointer &tail() const { return mTail; }
 
-        bool empty() const {
-            return mConcatList.empty() && mHead == nullptr && mTail == nullptr;
-        }
+        bool empty() const { return mHead == nullptr; }
 
     public: // Node
         Node::Pointer evaluate(Context &context) const override;
@@ -53,10 +50,9 @@ namespace ast
         string toStringTail() const;
 
     private:
-        List::Pointer mTail;
+        Node::Pointer mTail;
         Node::Pointer mHead;
-        vector<Node::Pointer> mConcatList;
-        Type::Pointer mElementType; // Only for empty
+        Type::Pointer mElementType; // Used only in empty lists
     };
 }
 

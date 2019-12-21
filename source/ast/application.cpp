@@ -15,6 +15,9 @@ Application::Application(Node::Pointer left, Node::Pointer right)
     mLeft(std::move(left)),
     mRight(std::move(right))
 {
+    if (mLeft == nullptr || mRight == nullptr)
+        throw ASTException("Left or Right can not be nullptr");
+
     // Curry style application, reorder the tree
     if (mRight->kind() == NodeKind::Application)
     {
@@ -72,7 +75,7 @@ Type::Pointer Application::typecheck(TypeContext &context)
     // TODO: Change exception messages
     if (!leftType->left()->isTypeOf(rightType))
         if (!rightType->isSubtypeOf(leftType->left()))
-            throw TypeException("Incompatible types");
+            throw TypeException("Abstraction argument type is \"" + leftType->left()->toString() + "\", given a \"" + rightType->toString() + "\"");
 
     return leftType->right();
 }

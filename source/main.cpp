@@ -1,7 +1,8 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <ast_driver.hpp>
+#include <ast/ast.hpp>
+#include <driver.hpp>
 #include <interpreter.hpp>
 
 bool doYouReallyWantExit()
@@ -14,6 +15,7 @@ bool doYouReallyWantExit()
     return line == "Y" || line == "y" || line.empty();
 }
 
+/*
 void getline(std::istream &is, std::string &line, const std::string& delim)
 {
     line.clear();
@@ -32,9 +34,10 @@ void getline(std::istream &is, std::string &line, const std::string& delim)
         }
     }
 }
+*/
 
 // TODO: Add argv parameters
-// TODO: --help, -h
+// TODO: --help, -h, -v
 // TODO: --execute <file>, -e <file>
 int main(int argc, char **argv)
 {
@@ -50,7 +53,8 @@ int main(int argc, char **argv)
                   << TERM_FG_START(TERM_GREEN) << "]" << TERM_RESET() << ": ";
 
         // Read until ;
-        getline(std::cin, line, ";;");
+        std::getline(std::cin, line);
+        //getline(std::cin, line, ";;");
 
         // Check for Ctrl-D
         if (std::cin.eof())
@@ -90,7 +94,16 @@ int main(int argc, char **argv)
         try
         {
             auto stream = std::istringstream(line);
-            lambda::ASTDriver::parse(stream, &root, "", false, false);
+            auto driver = yy::Driver::parse(stream, &root);
+
+            if (!driver.errors().empty())
+            {
+                std::string errors = "\n";
+                for (const auto &i : driver.errors())
+                    errors += i;
+
+                throw std::runtime_error(errors);
+            }
         }
         catch (const std::exception &e)
         {

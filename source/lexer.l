@@ -10,8 +10,6 @@
 static std::string strbuf;
 %}
 
-WHITESPACE  [ \t]
-
 %x STRING
 
 %%
@@ -23,8 +21,9 @@ WHITESPACE  [ \t]
   loc.step();
 %}
 
-{WHITESPACE}+           { loc.step(); }
-\r?\n+                  { loc.lines(yyleng); loc.step(); }
+\/\/[^\n<<EOF>>]*       { /* Skip single line comments */ loc.step(); }
+[ \t]+                  { loc.step(); }
+\n+                     { loc.lines(yyleng); loc.step(); }
 
 \"                                  { BEGIN STRING; strbuf.clear(); }
 <STRING>[^\\"\n]*                   { strbuf += yytext; }
@@ -32,7 +31,7 @@ WHITESPACE  [ \t]
 <STRING>\\t                         { strbuf += '\t'; }
 <STRING>\\x[0-9A-Fa-f][0-9A-Fa-f]?  { strbuf += strtol(yytext+2, 0, 16); }
 <STRING>\\[\\"]                     { strbuf += yytext[1]; }
-<STRING>\"                          {  BEGIN INITIAL; return yy::Parser::make_STRING(strbuf.data(), loc); }
+<STRING>\"                          { BEGIN INITIAL; return yy::Parser::make_STRING(strbuf.data(), loc); }
 
 
 \(                      { return yy::Parser::make_S_LPAREN(loc); }
@@ -79,6 +78,9 @@ alias                   { return yy::Parser::make_K_ALIAS(loc); }
 [a-z_][a-z0-9_]*        { return yy::Parser::make_IDENTIFIER(yytext, loc); }
 [A-Z][a-zA-Z]*          { return yy::Parser::make_TYPE_NAME(yytext, loc); }
 <<EOF>>                 { return yy::Parser::make_END(loc); }
-.                       { throw std::runtime_error(std::string("error: ") + yytext); }
+.                       {
+  std::string head = std::to_string(loc.begin.line) + ":" + std::to_string(loc.begin.column) + ": ";
+   driver->addError(head + "[Lexer] Unexpected token found \'" + (std::string)yytext + "\'\n");
+}
 
 %%

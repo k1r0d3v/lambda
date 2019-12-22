@@ -12,7 +12,6 @@
 //  Headers  used  for  token  types  must  be  included  here
 //
 #include  <deque>
-#include  <sstream>
 #include  <string>
 #include  <ast/ast.hpp>
 
@@ -77,7 +76,7 @@ namespace  yy  {  class  Driver;  }
 %token  S_COLON2  "::"
 %token  S_SEMICOLON  ";"
 %token  S_LINE_END  ";;"
-%right  S_ARROW  "->"
+%token  S_ARROW  "->"
 %token  S_LBRACE  "{"
 %token  S_RBRACE  "}"
 %token  S_LBRACKET  "["
@@ -93,7 +92,7 @@ namespace  yy  {  class  Driver;  }
 %nonassoc    K_ELSE
 %right       S_SEMICOLON
 %right       K_PRINT K_SUCC K_PRED K_ISZERO K_ISEMPTY K_FIX APPLICATION
-%right       S_DOT S_COLON2 K_AS
+%right       S_DOT S_COLON2 K_AS S_ARROW
 %precedence  S_LPAREN  S_RPAREN S_LINE_END
 
 %type  <ast::Node::Pointer>  unit
@@ -156,7 +155,13 @@ file:
 | term S_LINE_END file { $$ = ast::Sequence::join($1, $3); }
 | assignment S_LINE_END file  {  $$ = ast::Sequence::join($1,  $3);  }
 | alias S_LINE_END file { $$ = ast::Sequence::join($1,  $3); }
-| error { MKERROR(driver->yyLocation(), "Expected a term or expression in file/line.") }
+
+| term { $$ = $1; }
+| assignment {  $$ = $1;  }
+| alias { $$ = $1; }
+
+| type_name S_LINE_END file { MKERROR(driver->yyLocation(), "Expected a expression, type names are not expressions.") }
+//| error { MKERROR(driver->yyLocation(), "Expected a term or expression in file/line.") }
 ;
 
 assignment:
@@ -167,8 +172,8 @@ assignment:
 
 alias:
   K_ALIAS TYPE_NAME S_COLON type_name { $$ = MKNODE(Alias, $2, $4); }
-| K_ALIAS TYPE_NAME S_COLON error { MKERROR(driver->yyLocation(), "Invalid source type name in alias expression.") }
-| K_ALIAS error S_COLON type_name { MKERROR(driver->yyLocation(), "Invalid alias name in alias expression.") }
+| K_ALIAS TYPE_NAME S_COLON error { MKERROR(driver->yyLocation(), "Invalid source type name in alias expression, expected a type name.") }
+| K_ALIAS error S_COLON type_name { MKERROR(driver->yyLocation(), "Invalid alias name in alias expression, expected a simple type name.") }
 ;
 
 type_name:
@@ -315,11 +320,15 @@ tuple_pattern_terms:
 
 list:
   S_LBRACKET list_terms S_RBRACKET { $$ = $2; }
+| type_name S_LBRACKET list_terms S_RBRACKET { $$ = MKNODE(List, ast::Node::cast<ast::List>($3), $1); }
 | type_name S_LBRACKET S_RBRACKET { $$ = MKNODE(List, $1); } // Empty list
+| S_LBRACKET list_terms error { MKERROR(driver->yyLocation(), "List not closed, expected ].")}
+| type_name S_LBRACKET list_terms error { MKERROR(driver->yyLocation(), "List not closed, expected ].")}
+| type_name S_LBRACKET error { MKERROR(driver->yyLocation(), "List not closed, expected ].")}
 ;
 
 list_terms:
-  term { $$ = MKNODE(List, $1, (ast::List::Pointer)nullptr); }
+  term { $$ = MKNODE(List, $1, nullptr); }
 | term S_COMMA list_terms { $$ = MKNODE(List, $1, $3); }
 ;
 

@@ -61,13 +61,13 @@ println "";;
 
 
 println "** Testing applications";;
-(lambda x : Nat. succ(x)) 5;;
+print "(lambda x : Nat. succ x) 5: "; println ((lambda x : Nat. succ x) 5);;
 println "";;
 
 
 println "** Testing conditionals";;
-(lambda x:Nat. if iszero(x) then "El valor es 0" else "El valor No es 0")3;;
-(lambda x:Nat. if iszero(x) then "El valor es 0" else "El valor No es 0")0;;
+println ((lambda x:Nat. if iszero(x) then "Value is zero" else "Value is not zero") 3);;
+println ((lambda x:Nat. if iszero(x) then "Value is zero" else "Value is not zero") 0);;
 println "";;
 
 
@@ -76,25 +76,25 @@ println ({a:2,b:true,c:2.0});;
 let {a:r1,b:r2} = {a:2,b:1.512};;
 print "r1: "; println (r1);;
 print "r2: "; println (r2);;
-println (let {a:r1,b:r2} = {a:2,b:1.512} in succ(r1));;
-println (lambda x:{a:Nat,b:Bool,c:Float,d:Str}. (x.a));;
+println (let {a:r1,b:r2} = {a:2,b:1.512} in succ r1);;
+println (lambda x:{a:Nat,b:Bool,c:Float,d:Str}. x.a);;
 println "";;
 
 
 println "** Testing tuples";;
-println ({2,true,"hellow"});;
-let {a,b} = {0,"hellow"};;
+println {2,true,"hellow"};;
+let {a,b} = {0, "hellow"};;
 print "a: "; println (a);;
 print "b: "; println (b);;
-let tuple = {true,4};;
-print "tuple_0: "; println (tuple.0);;
-print "tuple_1: "; println (tuple.1);;
-println (let {a,b} = {true,4} in pred(b));;
+let tuple = {true, 4};;
+print "tuple_0: "; println tuple.0;;
+print "tuple_1: "; println tuple.1;;
+println (let {a,b} = {true,4} in pred b);;
 println (lambda x:{Nat,Float,Str}. x);;
 println "";;
 
 println "** Testing list";;
-print "This is a list: "; println [1,2,3,4,5];;
+print "This is a list: "; println Nat[1,2,3,4,5];;
 print "This is a empty list: "; println Nat[];;
 println "List pattern matching: let h::t = [1,2,3,4,5];;";; let h::t = [1,2,3,4,5];;
 print "List head: "; println h;;
@@ -113,8 +113,18 @@ let tail = lambda l : [Nat]. let h::t = l in t;;
 println "";;
 
 println "** Testing fix";;
-let sumaux = lambda f:Nat->Nat->Nat. lambda n:Nat. lambda m:Nat. if iszero n then m else succ (f (pred n)) m in
+let sumaux = lambda f:Nat->Nat->Nat. lambda n:Nat. lambda m:Nat. if iszero n then m else succ ((f (pred n)) m) in
 (let sum = fix sumaux in (sum 21) 34);;
+
+
+let sumaux = lambda f:Nat->Nat->Nat. lambda n:Nat. lambda m:Nat. if iszero n then m else succ ((f (pred n)) m);;
+print "sumaux: "; println sumaux;;
+
+let sum = fix sumaux;;
+print "fix sumaux: "; println sum;;
+
+
+
 let ff = lambda ieio:{iseven:Nat->Bool, isodd:Nat->Bool}.
 {iseven : (lambda x:Nat. if iszero x then true else (ieio.isodd (pred x))),
 isodd : (lambda x:Nat. if iszero x then false else (ieio.iseven (pred x)))};;
@@ -129,3 +139,9 @@ println "** Testing letrec";;
 letrec sum : (Nat->Nat->Nat). lambda n : Nat. lambda m : Nat. if iszero n then m else succ ((sum (pred n)) m) in (sum 10) 11;;
 let nlength = letrec len : Nat->[Nat]->Nat. lambda c : Nat. lambda l : [Nat]. if isempty l then c else ((len (succ c)) (let h::t = l in t)) in len 0;;
 println "";;
+
+
+head [1, 2, 3];;
+tail [1, 2, 3];;
+head Nat[1, 2, 3];;
+tail Nat[1, 2, 3];;

@@ -45,9 +45,9 @@ static std::string strbuf;
 \=                      { return yy::Parser::make_S_EQ(loc); }
 \:\:                    { return yy::Parser::make_S_COLON2(loc); }
 \:                      { return yy::Parser::make_S_COLON(loc); }
-;;                      { return yy::Parser::make_S_LINE_END(loc); }
-;                       { return yy::Parser::make_S_SEMICOLON(loc); }
-->                      { return yy::Parser::make_S_ARROW(loc); }
+\;\;                      { return yy::Parser::make_S_LINE_END(loc); }
+\;                       { return yy::Parser::make_S_SEMICOLON(loc); }
+\-\>                      { return yy::Parser::make_S_ARROW(loc); }
 
 print                   { return yy::Parser::make_K_PRINT(loc); }
 succ                    { return yy::Parser::make_K_SUCC(loc); }

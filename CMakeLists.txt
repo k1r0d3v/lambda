@@ -7,12 +7,12 @@ find_package(BISON)
 find_package(FLEX)
 
 # Create flex/bison output directory
-set(FLEX_BISON_OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/generated/lambda)
+set(FLEX_BISON_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated/lambda)
 file(MAKE_DIRECTORY ${FLEX_BISON_OUTPUT_DIR})
 
 # Add flex and bison
 BISON_TARGET(lambda_parser source/parser.y ${FLEX_BISON_OUTPUT_DIR}/parser.cpp VERBOSE ${FLEX_BISON_OUTPUT_DIR})
-FLEX_TARGET(lambda_lexer source/lexer.l ${FLEX_BISON_OUTPUT_DIR}/lexer.cpp COMPILE_FLAGS "--header-file=${FLEX_BISON_OUTPUT_DIR}/lexer.hpp")
+FLEX_TARGET(lambda_lexer source/lexer.l ${FLEX_BISON_OUTPUT_DIR}/lexer.cpp DEFINES_FILE "${FLEX_BISON_OUTPUT_DIR}/lexer.hpp")
 ADD_FLEX_BISON_DEPENDENCY(lambda_lexer lambda_parser)
 
 
@@ -29,7 +29,6 @@ add_executable(lambda
         include/ast/abstraction.hpp
         include/ast/node_kind.hpp
         include/driver.hpp
-        include/ast_driver.hpp
         source/driver.cpp
         include/ast/natural_constant.hpp
         include/ast/float_constant.hpp

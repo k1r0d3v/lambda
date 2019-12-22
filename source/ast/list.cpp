@@ -11,6 +11,24 @@ using namespace ast;
 List::List(Type::Pointer elementType)
     : Pattern(NodeKind::List), mElementType(std::move(elementType)) { }
 
+List::List(List::Pointer l, Type::Pointer elementType)
+        : Pattern(NodeKind::List)
+{
+    mHead = l->mHead;
+    mTail = l->mTail;
+
+    if (mTail != nullptr)
+    {
+        // Find the list last element
+        auto tail = Node::cast<List>(mTail);
+        while (tail->mTail != nullptr && tail->mHead != nullptr)
+            tail = Node::cast<List>(tail->mTail);
+
+        tail->mElementType = elementType;
+    }
+    else mElementType = elementType;
+}
+
 List::List(Node::Pointer head, Node::Pointer tail)
         :Pattern(NodeKind::List), mHead(std::move(head)), mTail(std::move(tail))
 { }
@@ -40,7 +58,17 @@ Type::Pointer List::typecheck(TypeContext &context)
     // List with one element
     if (mTail == nullptr)
     {
-        mElementType = mHead->typecheck(context);
+        if (mElementType == nullptr)
+            mElementType = mHead->typecheck(context);
+        else
+        {
+            auto headType = mHead->typecheck(context);
+            auto listType = mElementType;
+
+            if (!headType->isTypeOf(listType))
+                throw TypeException(
+                    "List element type is \'" + listType->toString() + "\' not \'" + headType->toString() + "\'");
+        }
         return Type::make<ListType>(mElementType);
     }
 

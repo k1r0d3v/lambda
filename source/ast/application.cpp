@@ -18,13 +18,15 @@ Application::Application(Node::Pointer left, Node::Pointer right)
     if (mLeft == nullptr || mRight == nullptr)
         throw ASTException("Left or Right can not be nullptr");
 
-    // Curry style application, reorder the tree
+    /*
+    // Curry style application?, reorder the tree
     if (mRight->kind() == NodeKind::Application)
     {
         auto myRight = Node::cast<Application>(mRight);
         mLeft = Node::make<Application>(mLeft, myRight->left());
         mRight = myRight->right();
     }
+    */
 }
 
 Node::Pointer Application::evaluate(Context &context) const
@@ -64,20 +66,21 @@ Node::Pointer Application::evaluate(Context &context) const
 
 Type::Pointer Application::typecheck(TypeContext &context)
 {
-    auto leftType = Type::cast<ArrowType>(mLeft->typecheck(context));
+    auto leftType = mLeft->typecheck(context);
+    auto leftArrow = Type::cast<ArrowType>(leftType);
 
     // TODO: Change exception messages
-    if (leftType == nullptr)
-        throw TypeException("Expected an arrow type");
+    if (leftArrow == nullptr)
+        throw TypeException("\"" + leftType->toString() + "\" is not an arrow type.");
 
     Type::Pointer rightType = mRight->typecheck(context);
 
     // TODO: Change exception messages
-    if (!leftType->left()->isTypeOf(rightType))
-        if (!rightType->isSubtypeOf(leftType->left()))
-            throw TypeException("Abstraction argument type is \"" + leftType->left()->toString() + "\", given a \"" + rightType->toString() + "\"");
+    if (!leftArrow->left()->isTypeOf(rightType))
+        if (!rightType->isSubtypeOf(leftArrow->left()))
+            throw TypeException("Abstraction argument type is \"" + leftArrow->left()->toString() + "\", given \"" + rightType->toString() + "\"");
 
-    return leftType->right();
+    return leftArrow->right();
 }
 
 Node::Pointer Application::copy() const

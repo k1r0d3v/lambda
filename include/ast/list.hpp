@@ -16,6 +16,10 @@ namespace ast
         // Empty List
         explicit List(Type::Pointer elementType);
 
+        // Lists in the form: Type[x, y, ..., z]
+        explicit List(List::Pointer l, Type::Pointer elementType);
+
+        // Lists in the form: [x, y, ..., z]
         explicit List(Node::Pointer head, Node::Pointer tail);
 
         const Node::Pointer &head() const { return mHead; }

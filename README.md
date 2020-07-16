@@ -18,9 +18,9 @@ Este intérprete soporta un subconjunto del su variante tipada, implementando ti
 - __Ascripciones__
  
 Algunas limitaciones de esta práctica a tener en cuenta son:
- - Cada linea del terminal lee hasta que encuentra un salto de linea,
-      esta limitacion viene dada por el interprete no por el parser ni el lexer.
-      Sin embargo se pueden leer ficheros externos con codigo mediante la operacion: ```#open ruta_del_archivo;;```
+ - Cada linea del terminal lee hasta que encuentra un salto de linea, esta limitacion viene dada por el interprete no por el parser ni el lexer. 
+ Sin embargo se pueden leer ficheros externos con codigo mediante la operacion:  
+ ```#open ruta_del_archivo;;```
 
 - Las aplicaciones (por ejemplo: id 1) no soportan el estilo currificado,
       esto significa que solo podemos aplicar un termino a la vez, 
